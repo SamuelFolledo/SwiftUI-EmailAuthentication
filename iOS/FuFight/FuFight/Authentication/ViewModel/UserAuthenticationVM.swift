@@ -167,56 +167,56 @@ public final class UserAuthenticationViewModel {
         }
     }
     
-    func checkInputValues(topTF: UnderlinedTextField, bottomTF: UnderlinedTextField) -> (topTF: UnderlinedTextField, bottomTF: UnderlinedTextField, errors: [String], topFieldValue: String, bottomFieldValue: String) { //method that check for errors on input values from textfields, put a red border or clear border and return input values with errorCount //Note: work on PROPERLY HANDLING ERRORS in the future
-        var values: (topTF: UnderlinedTextField, bottomTF: UnderlinedTextField, errors: [String], topFieldValue: String, bottomFieldValue: String) = (topTF: topTF, bottomTF: bottomTF, errors: [], topFieldValue: "", bottomFieldValue: "")
-        guard let topText: String = topTF.text?.trimmedString(), topText != "" else { //unwrap top's value
-            values.topTF.hasError()
-            values.errors.append("Field is empty")
-            return values
-        }
-        if isEmailAuthentication { //AUTHENTICATION = EMAIL
-            if !(topText.isValidEmail) { //if email is not valid...
-                values.topTF.hasError()
-                values.errors.append("Email format is not valid")
-            } else {
-                values.topFieldValue = topText
-                values.topTF.hasNoError()
-            }
-            guard let bottomText = topTF.text?.trimmedString(), bottomText != "" else { //if password is empty...
-                values.bottomTF.hasError()
-                values.errors.append("Field is empty")
-                return values
-            }
-            if bottomText.count < 6 { //if password is invalid...
-                values.bottomTF.hasError()
-                values.errors.append("Password must be at least 6 characters")
-            } else {
-                values.bottomFieldValue = bottomText
-                values.bottomTF.hasNoError()
-            }
-        } else { //AUTHENTICATION = PHONE
-            if topText.prefix(1) != "+" { //if first character is not "+"
-                topTF.hasError()
-                values.errors.append("Phone number must start with + and country code")
-            } else {
-                values.topFieldValue = topText
-            }
-            if values.errors.count == 0 { //if no error, text a code or authenticate
-                if !hasPhoneCode { //text for code
-                    print("Texting code...")
-                } else { //check bottom text
-                    guard let bottomText = bottomTF.text?.trimmedString(), bottomText != "" else { //if password is empty...
-                        values.bottomTF.hasError()
-                        values.errors.append("Field is empty")
-                        return values
-                    }
-                    values.bottomFieldValue = bottomText
-                }
-            }
-        }
-        print("THERE ARE \(values.errors.count) ERRORS")
-        return values
-    }
+//    func checkInputValues(topTF: UnderlinedTextField, bottomTF: UnderlinedTextField) -> (topTF: UnderlinedTextField, bottomTF: UnderlinedTextField, errors: [String], topFieldValue: String, bottomFieldValue: String) { //method that check for errors on input values from textfields, put a red border or clear border and return input values with errorCount //Note: work on PROPERLY HANDLING ERRORS in the future
+//        var values: (topTF: UnderlinedTextField, bottomTF: UnderlinedTextField, errors: [String], topFieldValue: String, bottomFieldValue: String) = (topTF: topTF, bottomTF: bottomTF, errors: [], topFieldValue: "", bottomFieldValue: "")
+//        guard let topText: String = topTF.text?.trimmedString(), topText != "" else { //unwrap top's value
+//            values.topTF.hasError()
+//            values.errors.append("Field is empty")
+//            return values
+//        }
+//        if isEmailAuthentication { //AUTHENTICATION = EMAIL
+//            if !(topText.isValidEmail) { //if email is not valid...
+//                values.topTF.hasError()
+//                values.errors.append("Email format is not valid")
+//            } else {
+//                values.topFieldValue = topText
+//                values.topTF.hasNoError()
+//            }
+//            guard let bottomText = topTF.text?.trimmedString(), bottomText != "" else { //if password is empty...
+//                values.bottomTF.hasError()
+//                values.errors.append("Field is empty")
+//                return values
+//            }
+//            if bottomText.count < 6 { //if password is invalid...
+//                values.bottomTF.hasError()
+//                values.errors.append("Password must be at least 6 characters")
+//            } else {
+//                values.bottomFieldValue = bottomText
+//                values.bottomTF.hasNoError()
+//            }
+//        } else { //AUTHENTICATION = PHONE
+//            if topText.prefix(1) != "+" { //if first character is not "+"
+//                topTF.hasError()
+//                values.errors.append("Phone number must start with + and country code")
+//            } else {
+//                values.topFieldValue = topText
+//            }
+//            if values.errors.count == 0 { //if no error, text a code or authenticate
+//                if !hasPhoneCode { //text for code
+//                    print("Texting code...")
+//                } else { //check bottom text
+//                    guard let bottomText = bottomTF.text?.trimmedString(), bottomText != "" else { //if password is empty...
+//                        values.bottomTF.hasError()
+//                        values.errors.append("Field is empty")
+//                        return values
+//                    }
+//                    values.bottomFieldValue = bottomText
+//                }
+//            }
+//        }
+//        print("THERE ARE \(values.errors.count) ERRORS")
+//        return values
+//    }
     
 //MARK: Phone Auth
     private func textPhoneCode(phoneNumber: String, completion: @escaping ( _ error: String?) -> Void) { //method that sends a text a code to a phone number

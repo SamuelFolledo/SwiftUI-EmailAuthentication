@@ -10,10 +10,15 @@ import SwiftUI
 @main
 struct FuFightApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    var user: User?
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if let user {
+                ContentView()
+            } else {
+                LoginView()
+            }
         }
     }
 }
