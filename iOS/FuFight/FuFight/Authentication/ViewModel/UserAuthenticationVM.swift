@@ -175,7 +175,7 @@ public final class UserAuthenticationViewModel {
 //            return values
 //        }
 //        if isEmailAuthentication { //AUTHENTICATION = EMAIL
-//            if !(topText.isValidEmail) { //if email is not valid...
+//            if !(topStr.isValidEmail) { //if email is not valid...
 //                values.topTF.hasError()
 //                values.errors.append("Email format is not valid")
 //            } else {
@@ -187,7 +187,7 @@ public final class UserAuthenticationViewModel {
 //                values.errors.append("Field is empty")
 //                return values
 //            }
-//            if bottomText.count < 6 { //if password is invalid...
+//            if bottomStr.count < 6 { //if password is invalid...
 //                values.bottomTF.hasError()
 //                values.errors.append("Password must be at least 6 characters")
 //            } else {
@@ -195,7 +195,7 @@ public final class UserAuthenticationViewModel {
 //                values.bottomTF.hasNoError()
 //            }
 //        } else { //AUTHENTICATION = PHONE
-//            if topText.prefix(1) != "+" { //if first character is not "+"
+//            if topStr.prefix(1) != "+" { //if first character is not "+"
 //                topTF.hasError()
 //                values.errors.append("Phone number must start with + and country code")
 //            } else {

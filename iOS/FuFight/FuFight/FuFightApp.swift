@@ -11,13 +11,14 @@ import SwiftUI
 struct FuFightApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var user: User?
+    let authViewModel = AuthenticationViewModel(step: .login)
 
     var body: some Scene {
         WindowGroup {
             if let user {
                 ContentView()
             } else {
-                LoginView()
+                LoginView(viewModel: authViewModel)
             }
         }
     }
