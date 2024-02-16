@@ -6,7 +6,10 @@
 //
 
 import SwiftUI
+
+import FirebaseAuth
 import FirebaseCore
+import FirebaseFirestore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
