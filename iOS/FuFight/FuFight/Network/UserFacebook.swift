@@ -62,7 +62,7 @@
 //                    if let error = error {
 //                        completion(nil, error)
 //                    }
-//                    let user = User(_userId: userResult.user.uid, _username: "", _firstName: firstName, _lastName: lastName, _email: email, _phoneNumber: "", _imageUrl: imageUrl!, _authTypes: [.facebook], _createdAt: Date(), _updatedAt: Date())
+//                    let user = User(userId: userResult.user.uid, username: "", firstName: firstName, lastName: lastName, email: email, phoneNumber: "", imageUrl: imageUrl!, authTypes: [.facebook], createdAt: Date(), updatedAt: Date())
 //                    user.profileImage = profilePic!
 //                    saveUserLocally(user: user)
 //                    saveUserInBackground(user: user)

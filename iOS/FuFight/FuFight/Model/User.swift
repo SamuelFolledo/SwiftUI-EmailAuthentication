@@ -28,50 +28,50 @@ class User: NSObject {
     var updatedAt: Date
     var authTypes: [AuthType]
 
-    init(_userId: String, _username: String = "", _firstName: String = "", _lastName: String = "", _email: String = "", _phoneNumber: String = "", _imageUrl: String = "", _authTypes: [AuthType] = [], _createdAt: Date, _updatedAt: Date = Date()) {
-        userId = _userId
-        username = _username
-        firstName = _firstName
-        lastName = _lastName
-        fullName = assignFullName(fName: _firstName, lName: _lastName)
-        email = _email
-        phoneNumber = _phoneNumber
-        imageUrl = _imageUrl
-        createdAt = _createdAt
-        updatedAt = _updatedAt
-        authTypes = _authTypes
+    init(userId: String, username: String = "", firstName: String = "", lastName: String = "", email: String = "", phoneNumber: String = "", imageUrl: String = "", authTypes: [AuthType] = [], createdAt: Date, updatedAt: Date = Date()) {
+        self.userId = userId
+        self.username = username
+        self.firstName = firstName
+        self.lastName = lastName
+        self.fullName = assignFullName(fName: firstName, lName: lastName)
+        self.email = email
+        self.phoneNumber = phoneNumber
+        self.imageUrl = imageUrl
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.authTypes = authTypes
     }
     
-    init(_dictionary: [String: Any]) {
-        self.userId = _dictionary[kUSERID] as! String
-        self.username = _dictionary[kUSERNAME] as! String
-        self.firstName = _dictionary[kFIRSTNAME] as! String
-        self.lastName = _dictionary[kLASTNAME] as! String
-        if let fullName = _dictionary[kFULLNAME] as? String {
+    init(dictionary: [String: Any]) {
+        self.userId = dictionary[kUSERID] as! String
+        self.username = dictionary[kUSERNAME] as! String
+        self.firstName = dictionary[kFIRSTNAME] as! String
+        self.lastName = dictionary[kLASTNAME] as! String
+        if let fullName = dictionary[kFULLNAME] as? String {
             self.fullName = fullName
         } else {
             self.fullName = assignFullName(fName: self.firstName, lName: self.lastName)
         }
-        self.email = _dictionary[kEMAIL] as! String
-        if let phoneNumber = _dictionary[kPHONENUMBER] as? String {
+        self.email = dictionary[kEMAIL] as! String
+        if let phoneNumber = dictionary[kPHONENUMBER] as? String {
             self.phoneNumber = phoneNumber
         } else {
             self.phoneNumber = ""
         }
-        self.imageUrl = _dictionary[kIMAGEURL] as! String
-        if let createdAt = _dictionary[kCREATEDAT] { //if we have this date, then apply it to the user, else create new current instance of Date()
+        self.imageUrl = dictionary[kIMAGEURL] as! String
+        if let createdAt = dictionary[kCREATEDAT] { //if we have this date, then apply it to the user, else create new current instance of Date()
             self.createdAt = Service.dateFormatter().date(from: createdAt as! String)!
         } else {
             self.createdAt = Date()
         }
-        if let updatedAt = _dictionary[kUPDATEDAT] { //if we have this date, then apply it to the user, else create new current instance of Date()
+        if let updatedAt = dictionary[kUPDATEDAT] { //if we have this date, then apply it to the user, else create new current instance of Date()
             self.updatedAt = Service.dateFormatter().date(from: updatedAt as! String)!
         } else {
             self.updatedAt = Date()
         }
-        if let authTypes = _dictionary[kAUTHTYPES] as? [AuthType] {
+        if let authTypes = dictionary[kAUTHTYPES] as? [AuthType] {
             self.authTypes = authTypes
-        } else if let authTypes = _dictionary[kAUTHTYPES] as? [String] {
+        } else if let authTypes = dictionary[kAUTHTYPES] as? [String] {
             var resultTypes: [AuthType] = []
             for authType in authTypes {
                 resultTypes.append(AuthType(type: authType))
@@ -94,7 +94,7 @@ class User: NSObject {
     class func currentUser() -> User? {
         if Auth.auth().currentUser != nil { //if we have user...
             if let dictionary = UserDefaults.standard.object(forKey: kCURRENTUSER) {
-                return User.init(_dictionary: dictionary as! [String: Any])
+                return User.init(dictionary: dictionary as! [String: Any])
             }
         }
         return nil //if we dont have user in our UserDefaults, then return nil
@@ -110,7 +110,7 @@ class User: NSObject {
                 print("User not found after attempt to register")
                 completion(("User not found after attempt to register"), nil)
                 return }
-            let currentUser = User(_userId: user.uid, _username: "", _firstName: "", _lastName: "", _email: email, _phoneNumber: "", _imageUrl: "", _authTypes: [AuthType.email], _createdAt: Date(), _updatedAt: Date())
+            let currentUser = User(userId: user.uid, username: "", firstName: "", lastName: "", email: email, phoneNumber: "", imageUrl: "", authTypes: [AuthType.email], createdAt: Date(), updatedAt: Date())
             registerUserEmailIntoDatabase(user: currentUser) { (error, user) in
                 if let error = error {
                     completion(error.localizedDescription, nil)
@@ -128,7 +128,7 @@ class User: NSObject {
             }
             guard let userDetails = userDetails else { return }
             if userDetails.additionalUserInfo!.isNewUser { //if new user
-                let user: User = User(_userId: userDetails.user.uid, _username: "", _firstName: "", _lastName: "", _email: email, _phoneNumber: "", _imageUrl: "", _authTypes: [.email], _createdAt: Date(), _updatedAt: Date())
+                let user: User = User(userId: userDetails.user.uid, username: "", firstName: "", lastName: "", email: email, phoneNumber: "", imageUrl: "", authTypes: [.email], createdAt: Date(), updatedAt: Date())
                 saveUserLocally(user: user)
                 saveUserInBackground(user: user)
                 saveEmailInDatabase(email: user.email)

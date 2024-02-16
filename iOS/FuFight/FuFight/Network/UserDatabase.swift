@@ -39,7 +39,7 @@ func fetchUserWith(userId: String, completion: @escaping (_ user: User?) -> Void
     ref.observeSingleEvent(of: .value, with: { (snapshot) in
         if snapshot.exists() {
             let userDictionary = ((snapshot.value as! NSDictionary).allValues as NSArray).firstObject! as! [String: Any] //if snapshot exist, convert it to a dictionary, then to a user we can return
-            let user = User(_dictionary: userDictionary)
+            let user = User(dictionary: userDictionary)
             completion(user)
         } else { completion(nil) }
     }, withCancel: nil)
@@ -91,7 +91,7 @@ extension User {
                 let updatedAt: Date = userDetails[kUPDATEDAT] as? Date ?? Date()
                 var authTypes: [AuthType] = userDetails[kAUTHTYPES] as? [AuthType] ?? [.unknown]
                 authTypes = getAuthTypesFrom(providerId: providerId) //update authTypes after signin wiht providerId
-                let user: User = User(_userId: userResult.user.uid, _username: userName, _firstName: firstName, _lastName: lastName, _email: email, _phoneNumber: phoneNumber, _imageUrl: imageUrl, _authTypes: authTypes, _createdAt: createdAt, _updatedAt: updatedAt)
+                let user: User = User(userId: userResult.user.uid, username: userName, firstName: firstName, lastName: lastName, email: email, phoneNumber: phoneNumber, imageUrl: imageUrl, authTypes: authTypes, createdAt: createdAt, updatedAt: updatedAt)
                 user.profileImage = profileImage
                 saveUserLocally(user: user)
                 saveUserInBackground(user: user)
@@ -134,7 +134,7 @@ extension User {
             }
             guard let userResult = userResult else { return } //userResult contains lots of important info we will need in the future
             //            print("USER RESULT = \(userResult)\nUSER ADDITIONAL INFO = \(userResult.additionalUserInfo)\n\n \(userResult.credential)")
-            let user: User = User(_userId: userResult.user.uid, _username: "", _firstName: "", _lastName: "", _email: "", _phoneNumber: userResult.user.phoneNumber!, _imageUrl: "", _authTypes: [.phone], _createdAt: Date(), _updatedAt: Date())
+            let user: User = User(userId: userResult.user.uid, username: "", firstName: "", lastName: "", email: "", phoneNumber: userResult.user.phoneNumber!, imageUrl: "", authTypes: [.phone], createdAt: Date(), updatedAt: Date())
             if userResult.additionalUserInfo!.isNewUser { //if new user, save locally and finish registering
                 saveUserLocally(user: user) //now we have the newly registered user, save it locally and in background
                 saveUserInBackground(user: user)
@@ -175,7 +175,7 @@ func registerUserIntoDatabaseWithUID(uid: String, values: [String: Any], complet
         } else { //if no error, save user
             saveEmailInDatabase(email:values[kEMAIL] as! String) //MARK: save to another table
             DispatchQueue.main.async {
-                let user = User(_dictionary: values)
+                let user = User(dictionary: values)
                 saveUserLocally(user: user)
                 saveUserInBackground(user: user)
                 completion(nil, user)
