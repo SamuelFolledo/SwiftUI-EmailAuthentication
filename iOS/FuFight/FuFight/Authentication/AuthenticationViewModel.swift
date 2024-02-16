@@ -33,6 +33,7 @@ enum AuthStep {
             return Str.phoneTitle
         case .phoneVerification:
             return ""
+            
         }
     }
 
@@ -40,10 +41,8 @@ enum AuthStep {
         switch self {
         case .login, .signup:
             return .emailAddress
-        case .phone:
+        case .phone, .phoneVerification:
             return .phonePad
-        case .phoneVerification:
-            return .numberPad
         }
     }
 
@@ -62,9 +61,7 @@ enum AuthStep {
         switch self {
         case .login, .signup:
             return .default
-        case .phone:
-            return .phonePad
-        case .phoneVerification:
+        case . phone, .phoneVerification:
             return .numberPad
         }
     }
@@ -98,7 +95,8 @@ enum AuthStep {
 
 @Observable
 class AuthenticationViewModel {
-    var step: AuthStep
+    private(set) var step: AuthStep
+    private(set) var user: User?
     var username: String = ""
     var topFieldText: String = ""
     var bottomFieldText: String = ""
@@ -113,14 +111,17 @@ class AuthenticationViewModel {
     func topButtonTapped() {
         switch step {
         case .login:
-            print("TODO: Log in")
+            print("TODO: Log in, then go to game view")
+            validateUser()
         case .signup:
-            print("TODO: Sign up")
+            print("TODO: Sign up, then go to game view")
+            validateUser()
         case .phone:
             print("TODO: Send phone code")
             step = .phoneVerification
         case .phoneVerification:
             print("TODO: Login/sign up with phone")
+            validateUser()
         }
     }
 
@@ -131,13 +132,27 @@ class AuthenticationViewModel {
         case .signup:
             step = .login
         case .phone:
-            print("TODO: Hide button")
+            print("TODO: button should be hidden")
+            break
         case .phoneVerification:
             print("TODO: Cancel registration")
+            step = .login
         }
     }
 }
 
 private extension AuthenticationViewModel {
-
+    func validateUser() {
+        if let user {
+            user.accountStatus = .valid
+        } else {
+            let isPhone = step == .phone || step == .phoneVerification
+            if isPhone {
+                user = User.init(userId: "123", username: username, firstName: "FName", lastName: "LName", phoneNumber: topFieldText, createdAt: Date(), updatedAt: Date())
+            } else {
+                user = User.init(userId: "123", username: username, firstName: "FName", lastName: "LName", email: topFieldText, createdAt: Date(), updatedAt: Date())
+            }
+            validateUser()
+        }
+    }
 }

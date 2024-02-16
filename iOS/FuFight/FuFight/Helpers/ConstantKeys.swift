@@ -89,7 +89,7 @@ public let kTONAMEVC: String = "toNameVC"
 public let kTOAUTHMENUVC: String = "toAuthMenuVC"
 
 //images
-public let kDEFAULTPROFILEIMAGE: UIImage = UIImage(named: "profile_photo")!
-public let kBLANKIMAGE: UIImage = UIImage(named: "blankImage")!
-public let kCORRECTIMAGE: UIImage = UIImage(named: "correct")!
-public let kWRONGIMAGE: UIImage = UIImage(named: "wrong")!
+public let kDEFAULTPROFILEIMAGE: UIImage = UIImage(systemName: "person")!
+//public let kBLANKIMAGE: UIImage = UIImage(named: "blankImage")!
+//public let kCORRECTIMAGE: UIImage = UIImage(named: "correct")!
+//public let kWRONGIMAGE: UIImage = UIImage(named: "wrong")!

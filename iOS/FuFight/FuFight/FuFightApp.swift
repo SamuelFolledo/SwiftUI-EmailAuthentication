@@ -15,7 +15,8 @@ struct FuFightApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if let user {
+            if let user = authViewModel.user,
+                user.accountStatus == .valid {
                 ContentView()
             } else {
                 LoginView(viewModel: authViewModel)

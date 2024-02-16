@@ -10,6 +10,13 @@ import UIKit
 import Foundation
 import FirebaseAuth
 
+enum AccountStatus {
+    case valid
+    ///When user is created but unfinished
+    case unfinished
+}
+
+
 class User: NSObject {
     let userId: String
     var username: String
@@ -27,6 +34,7 @@ class User: NSObject {
     let createdAt: Date
     var updatedAt: Date
     var authTypes: [AuthType]
+    var accountStatus: AccountStatus?
 
     init(userId: String, username: String = "", firstName: String = "", lastName: String = "", email: String = "", phoneNumber: String = "", imageUrl: String = "", authTypes: [AuthType] = [], createdAt: Date, updatedAt: Date = Date()) {
         self.userId = userId
