@@ -25,8 +25,10 @@ enum AuthStep {
 
     var topFieldPlaceholder: String {
         switch self {
-        case .login, .signup:
+        case .login:
             return Str.emailOrUsernameTitle
+        case .signup:
+            return Str.emailTitle
         case .phone:
             return Str.phoneTitle
         case .phoneVerification:
@@ -109,31 +111,30 @@ class AuthenticationViewModel {
 
     //MARK: - Public Methods
     func topButtonTapped() {
-        print("Step1 is \(step)")
-//        switch step {
-//        case .login:
-//            <#code#>
-//        case .signup:
-//            <#code#>
-//        case .phone:
-//            <#code#>
-//        case .phoneVerification:
-//            <#code#>
-//        }
+        switch step {
+        case .login:
+            print("TODO: Log in")
+        case .signup:
+            print("TODO: Sign up")
+        case .phone:
+            print("TODO: Send phone code")
+            step = .phoneVerification
+        case .phoneVerification:
+            print("TODO: Login/sign up with phone")
+        }
     }
 
     func bottomButtonTapped() {
-        print("Step2 is \(step)")
-//        switch step {
-//        case .login:
-//            <#code#>
-//        case .signup:
-//            <#code#>
-//        case .phone:
-//            <#code#>
-//        case .phoneVerification:
-//            <#code#>
-//        }
+        switch step {
+        case .login:
+            step = .signup
+        case .signup:
+            step = .login
+        case .phone:
+            print("TODO: Hide button")
+        case .phoneVerification:
+            print("TODO: Cancel registration")
+        }
     }
 }
 
