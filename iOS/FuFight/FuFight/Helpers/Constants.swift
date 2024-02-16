@@ -64,13 +64,6 @@ public let kLEVEL: String = "level"
 public let kRESULT: String = "result"
 public let kOPPONENTUID: String = "opponentUid"
 
-//colors from UIColor extension
-public let kCOLOR_FFFFFF: UIColor = UIColor(rgb: 0xFFFFFF)
-public let kCOLOR_1B1E1F: UIColor = UIColor(rgb: 0x1B1E1F)
-public let kCOLOR_5F6063: UIColor = UIColor(rgb: 0x5F6063)
-public let kCOLOR_0E5C89: UIColor = UIColor(rgb: 0x0E5C89)
-public let kCOLOR_F9F9F9: UIColor = UIColor(rgb: 0xF9F9F9)
-
 public let kREDCGCOLOR = UIColor.red.cgColor
 public let kCLEARCGCOLOR = UIColor.clear.cgColor
 public let kGREENCGCOLOR = UIColor.green.cgColor
