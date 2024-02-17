@@ -13,10 +13,12 @@ enum AccountStatus {
     case valid
     ///When user is created but unfinished
     case unfinished
+    case logout
 }
 
 
-class User: NSObject {
+//class User: NSObject, ObservableObject {
+class User: ObservableObject {
     let userId: String
     var username: String
     var firstName: String
@@ -33,7 +35,7 @@ class User: NSObject {
     let createdAt: Date
     var updatedAt: Date
     var authTypes: [AuthType]
-    var accountStatus: AccountStatus?
+    @Published var accountStatus: AccountStatus?
 
     init(userId: String, username: String = "", firstName: String = "", lastName: String = "", email: String = "", phoneNumber: String = "", imageUrl: String = "", authTypes: [AuthType] = [], createdAt: Date, updatedAt: Date = Date()) {
         self.userId = userId
@@ -47,6 +49,7 @@ class User: NSObject {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.authTypes = authTypes
+        self.accountStatus = .valid
     }
     
     init(dictionary: [String: Any]) {
@@ -87,8 +90,24 @@ class User: NSObject {
         } else {
             self.authTypes = []
         }
+        self.accountStatus = .valid
     }
-    
+
+    init() {
+        self.userId = "userId"
+        self.username = "testUsername"
+        self.firstName = "testFirstName"
+        self.lastName = "testLastName"
+        self.fullName = assignFullName(fName: firstName, lName: lastName)
+        self.email = "testEmail"
+        self.phoneNumber = "testPhoneNumber"
+        self.imageUrl = "testImageUrl"
+        self.createdAt = Date()
+        self.updatedAt = Date()
+        self.authTypes = []
+        self.accountStatus = .unfinished
+    }
+
     deinit {
         print("User \(self.fullName) is being deinitialize.")
     }

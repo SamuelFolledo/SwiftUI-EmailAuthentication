@@ -8,34 +8,47 @@
 import SwiftUI
 
 struct HomeView: View {
-    
+    var viewModel: HomeViewModel
 
     var body: some View {
         VStack {
+            homeNavBar
+                .ignoresSafeArea()
 
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
+
             Text("Hello, world!")
+
+            Spacer()
         }
         .padding()
     }
 
+    var homeNavBar: some View {
+        VStack {
+            HStack {
+                Spacer()
+
+                logoutButton
+            }
+        }
+    }
+
     var logoutButton: some View {
         Button(action: {
-            viewModel.topButtonTapped()
+            viewModel.logout()
         }) {
-            Text(viewModel.step.topButtonTitle)
+            Text("Log out")
                 .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
+                .background(.clear)
+                .foregroundColor(Color.systemBlue)
         }
         .padding(.horizontal)
     }
 }
 
 #Preview {
-    HomeView()
+    HomeView(viewModel: HomeViewModel(user: User()))
 }

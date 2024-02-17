@@ -103,8 +103,9 @@ class AuthenticationViewModel {
 
     //MARK: - Initializer
 
-    init(step: AuthStep) {
+    init(step: AuthStep, user: User? = nil) {
         self.step = step
+        self.user = user
     }
 
     //MARK: - Public Methods
