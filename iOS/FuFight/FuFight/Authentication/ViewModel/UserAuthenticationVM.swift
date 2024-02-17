@@ -168,7 +168,7 @@ public final class UserAuthenticationViewModel {
     
 //    func checkInputValues(topTF: UnderlinedTextField, bottomTF: UnderlinedTextField) -> (topTF: UnderlinedTextField, bottomTF: UnderlinedTextField, errors: [String], topFieldValue: String, bottomFieldValue: String) { //method that check for errors on input values from textfields, put a red border or clear border and return input values with errorCount //Note: work on PROPERLY HANDLING ERRORS in the future
 //        var values: (topTF: UnderlinedTextField, bottomTF: UnderlinedTextField, errors: [String], topFieldValue: String, bottomFieldValue: String) = (topTF: topTF, bottomTF: bottomTF, errors: [], topFieldValue: "", bottomFieldValue: "")
-//        guard let topText: String = topTF.text?.trimmedString(), topText != "" else { //unwrap top's value
+//        guard let topText: String = topTF.text?.trimmed, topText != "" else { //unwrap top's value
 //            values.topTF.hasError()
 //            values.errors.append("Field is empty")
 //            return values
@@ -181,7 +181,7 @@ public final class UserAuthenticationViewModel {
 //                values.topFieldValue = topText
 //                values.topTF.hasNoError()
 //            }
-//            guard let bottomText = topTF.text?.trimmedString(), bottomText != "" else { //if password is empty...
+//            guard let bottomText = topTF.text?.trimmed, bottomText != "" else { //if password is empty...
 //                values.bottomTF.hasError()
 //                values.errors.append("Field is empty")
 //                return values
@@ -204,7 +204,7 @@ public final class UserAuthenticationViewModel {
 //                if !hasPhoneCode { //text for code
 //                    print("Texting code...")
 //                } else { //check bottom text
-//                    guard let bottomText = bottomTF.text?.trimmedString(), bottomText != "" else { //if password is empty...
+//                    guard let bottomText = bottomTF.text?.trimmed, bottomText != "" else { //if password is empty...
 //                        values.bottomTF.hasError()
 //                        values.errors.append("Field is empty")
 //                        return values

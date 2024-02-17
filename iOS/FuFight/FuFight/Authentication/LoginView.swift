@@ -13,16 +13,26 @@ struct LoginView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack {
-                    fields
+                VStack(spacing: 0) {
+                    profilePicture()
 
-                    buttons
+                    VStack(spacing: 12) {
+                        fields
+
+                        buttons
+                    }
 
                     Spacer()
+
                 }
                 .padding()
             }
             .navigationBarTitle(vm.step.title, displayMode: .large)
+            .safeAreaInset(edge: .bottom) {
+                if vm.step == .logIn || vm.step == .signUp {
+                    bottomButton
+                }
+            }
         }
         .onAppear {
             vm.onAppear()
@@ -32,20 +42,22 @@ struct LoginView: View {
         }
     }
 
+    @ViewBuilder func profilePicture() -> some View {
+        if vm.step == .onboard {
+            TappableImageView()
+                .frame(idealWidth: 200, idealHeight: 200)
+                .padding()
+        }
+    }
+
     var fields: some View {
         VStack {
             switch vm.step {
-            case .logIn, .phoneVerification:
+            case .logIn, .phoneVerification, .signUp:
                 topField
 
                 bottomField
-            case .signUp:
-                usernameField
-
-                topField
-
-                bottomField
-            case .phone:
+            case .phone, .onboard:
                 topField
             }
         }
@@ -54,29 +66,22 @@ struct LoginView: View {
     var buttons: some View {
         VStack {
             switch vm.step {
-            case .logIn, .signUp:
+            case .logIn:
                 topButton
 
-                bottomButton
-            case .phone, .phoneVerification:
+                //TODO: Add Google, Facebook, Apple buttons
+            case .phone, .phoneVerification, .signUp, .onboard:
                 topButton
             }
         }
     }
 
-    var usernameField: some View {
-        UnderlinedTextField(placeholder: Str.usernameTitle, text: $vm.username)
-                .textInputAutocapitalization(.words)
-    }
-
     var topField: some View {
-        UnderlinedTextField(placeholder: vm.step.topFieldPlaceholder, text: $vm.topFieldText)
-            .keyboardType(vm.step.topFieldKeyboardType)
+        UnderlinedTextField(type: vm.step.topFieldType, text: $vm.topFieldText, hasError: $vm.topFieldHasError)
     }
 
     var bottomField: some View {
-        UnderlinedTextField(placeholder: vm.step.bottomFieldPlaceholder,  text: $vm.bottomFieldText, isSecure: true)
-            .keyboardType(vm.step.bottomFieldKeyboardType)
+        UnderlinedTextField(type: vm.step.bottomFieldType, text: $vm.bottomFieldText, hasError: $vm.bottomFieldHasError, isSecure: true)
     }
 
     var topButton: some View {
@@ -105,7 +110,7 @@ struct LoginView: View {
                 .cornerRadius(8)
         }
         .padding(.horizontal)
-
+        .padding(.bottom)
     }
 }
 

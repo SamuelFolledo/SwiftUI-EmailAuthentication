@@ -274,8 +274,8 @@ func isUserLoggedIn() -> Bool { //checks if we have user logged in
 }
 
 func createFullNameFrom(first: String?, last: String?) -> String {
-    let firstName = (first ?? "").trimmedString()
-    let lastName = (last ?? "").trimmedString()
+    let firstName = (first ?? "").trimmed
+    let lastName = (last ?? "").trimmed
     if firstName.isEmpty && lastName.isEmpty {
         return "\(firstName) \(lastName)"
     } else if lastName.isEmpty {

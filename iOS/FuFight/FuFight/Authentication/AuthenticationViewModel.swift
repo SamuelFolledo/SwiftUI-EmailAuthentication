@@ -9,6 +9,8 @@ import UIKit
 
 enum AuthStep {
     case logIn, signUp, phone, phoneVerification
+    ///Step after signing up to add username and profile picture
+    case onboard
 
     var title: String {
         switch self {
@@ -20,49 +22,23 @@ enum AuthStep {
             return Str.phoneTitle
         case .phoneVerification:
             return Str.phoneCodeTitle
+        case .onboard:
+            return Str.finishSignUpTitle
         }
     }
 
-    var topFieldPlaceholder: String {
+    var topFieldType: FieldType {
         switch self {
         case .logIn:
-            return Str.emailOrUsernameTitle
+            return .emailOrUsername
         case .signUp:
-            return Str.emailTitle
+            return .email
         case .phone:
-            return Str.phoneTitle
+            return .phoneNumber
         case .phoneVerification:
-            return ""
-            
-        }
-    }
-
-    var topFieldKeyboardType: UIKeyboardType {
-        switch self {
-        case .logIn, .signUp:
-            return .emailAddress
-        case .phone, .phoneVerification:
-            return .phonePad
-        }
-    }
-
-    var bottomFieldPlaceholder: String {
-        switch self {
-        case .logIn, .signUp:
-            return Str.passwordTitle
-        case .phone:
-            return ""
-        case .phoneVerification:
-            return Str.phoneDigitCodeTitle
-        }
-    }
-
-    var bottomFieldKeyboardType: UIKeyboardType {
-        switch self {
-        case .logIn, .signUp:
-            return .default
-        case . phone, .phoneVerification:
-            return .numberPad
+            return .phoneCode
+        case .onboard:
+            return .username
         }
     }
 
@@ -76,6 +52,22 @@ enum AuthStep {
             return Str.sendCode
         case .phoneVerification:
             return Str.verifyCode
+        case .onboard:
+            return Str.finishTitle
+        }
+    }
+
+    var bottomFieldType: FieldType {
+        switch self {
+        case .logIn, .signUp:
+            return .password
+        case .phone:
+            return .phoneCode
+        case .phoneVerification:
+            return .phoneCode
+        case .onboard:
+            //Should not appear
+            return .username
         }
     }
 
@@ -85,7 +77,7 @@ enum AuthStep {
             return Str.dontHaveAnAccount
         case .signUp:
             return Str.alreadyHaveAnAccount
-        case .phone:
+        case .phone, .onboard:
             return ""
         case .phoneVerification:
             return Str.cancelTitle
@@ -99,7 +91,9 @@ class AuthenticationViewModel: ViewModel {
     private(set) var user: User?
     var username: String = ""
     var topFieldText: String = ""
+    var topFieldHasError: Bool = false
     var bottomFieldText: String = ""
+    var bottomFieldHasError: Bool = false
     var error: Error?
 
     //MARK: - Initializer
@@ -129,6 +123,8 @@ class AuthenticationViewModel: ViewModel {
         case .phoneVerification:
             print("TODO: Login/sign up with phone")
             validateUser()
+        case .onboard:
+            finishAccountCreation()
         }
     }
 
@@ -138,7 +134,7 @@ class AuthenticationViewModel: ViewModel {
             step = .signUp
         case .signUp:
             step = .logIn
-        case .phone:
+        case .phone, .onboard:
             print("TODO: button should be hidden")
             break
         case .phoneVerification:
@@ -150,16 +146,38 @@ class AuthenticationViewModel: ViewModel {
 
 private extension AuthenticationViewModel {
     func signUp() {
-        AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) { user, error in
-            if let error  {
-                self.error = error
+        topFieldHasError = !topFieldText.isValidEmail
+        bottomFieldHasError = !bottomFieldText.isValidPassword
+        if bottomFieldHasError {
+            print("Password has issue with \(bottomFieldText)")
+        }
+        if !topFieldHasError && !bottomFieldHasError {
+            AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) { user, error in
+                if let error  {
+                    self.error = error
+                }
+                if let user {
+                    print("Successfully create a user \(user.emailAddress) with status \(user.accountStatus)")
+                    self.user = user
+                    self.goToOnboarding()
+                    //TODO: Show Onboarding
+                }
             }
-            if let user {
-                print("Successfully create a user \(user.emailAddress) with status \(user.accountStatus)")
-                self.user = user
-                //TODO: Show Onboarding
-                self.validateUser()
-            }
+        } else {
+            print("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+        }
+    }
+
+    func goToOnboarding() {
+        step = .onboard
+        topFieldText = ""
+    }
+
+    func finishAccountCreation() {
+        topFieldHasError = !topFieldText.isValidUsername
+        if !topFieldHasError {
+            print("TODO: Store image and write user data to Database")
+            validateUser()
         }
     }
 
