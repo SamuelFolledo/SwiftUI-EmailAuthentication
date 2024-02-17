@@ -1,9 +1,8 @@
 //
 //  User.swift
-//  FolledoUserAuth
+//  FuFight
 //
-//  Created by Macbook Pro 15 on 10/14/19.
-//  Copyright © 2019 SamuelFolledo. All rights reserved.
+//  Created by Samuel Folledo on 2/15/24.
 //
 
 import UIKit

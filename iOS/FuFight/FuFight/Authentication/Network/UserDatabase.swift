@@ -1,9 +1,8 @@
 //
 //  UserDatabase.swift
-//  FolledoUserAuth
+//  FuFight
 //
-//  Created by Macbook Pro 15 on 1/19/20.
-//  Copyright © 2020 SamuelFolledo. All rights reserved.
+//  Created by Samuel Folledo on 2/15/24.
 //
 
 import UIKit
