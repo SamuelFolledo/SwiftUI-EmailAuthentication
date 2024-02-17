@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    var viewModel: HomeViewModel
+    var vm: HomeViewModel
 
     var body: some View {
         VStack {
@@ -38,7 +38,7 @@ struct HomeView: View {
 
     var logoutButton: some View {
         Button(action: {
-            viewModel.logout()
+            vm.logout()
         }) {
             Text("Log out")
                 .padding()
@@ -50,5 +50,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(viewModel: HomeViewModel(user: User()))
+    HomeView(vm: HomeViewModel(user: User()))
 }

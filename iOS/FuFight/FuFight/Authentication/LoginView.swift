@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @State var viewModel: AuthenticationViewModel
+    @State var vm: AuthenticationViewModel
 
     var body: some View {
         NavigationView {
@@ -22,13 +22,13 @@ struct LoginView: View {
                 }
                 .padding()
             }
-            .navigationBarTitle(viewModel.step.title, displayMode: .large)
+            .navigationBarTitle(vm.step.title, displayMode: .large)
         }
     }
 
     var fields: some View {
         VStack {
-            switch viewModel.step {
+            switch vm.step {
             case .login, .phoneVerification:
                 topField
 
@@ -47,7 +47,7 @@ struct LoginView: View {
 
     var buttons: some View {
         VStack {
-            switch viewModel.step {
+            switch vm.step {
             case .login, .signup:
                 topButton
 
@@ -59,25 +59,25 @@ struct LoginView: View {
     }
 
     var usernameField: some View {
-        UnderlinedTextField(placeholder: Str.usernameTitle, text: $viewModel.username)
+        UnderlinedTextField(placeholder: Str.usernameTitle, text: $vm.username)
                 .textInputAutocapitalization(.words)
     }
 
     var topField: some View {
-        UnderlinedTextField(placeholder: viewModel.step.topFieldPlaceholder, text: $viewModel.topFieldText)
-            .keyboardType(viewModel.step.topFieldKeyboardType)
+        UnderlinedTextField(placeholder: vm.step.topFieldPlaceholder, text: $vm.topFieldText)
+            .keyboardType(vm.step.topFieldKeyboardType)
     }
 
     var bottomField: some View {
-        UnderlinedTextField(placeholder: viewModel.step.bottomFieldPlaceholder,  text: $viewModel.bottomFieldText, isSecure: true)
-            .keyboardType(viewModel.step.bottomFieldKeyboardType)
+        UnderlinedTextField(placeholder: vm.step.bottomFieldPlaceholder,  text: $vm.bottomFieldText, isSecure: true)
+            .keyboardType(vm.step.bottomFieldKeyboardType)
     }
 
     var topButton: some View {
         Button(action: {
-            viewModel.topButtonTapped()
+            vm.topButtonTapped()
         }) {
-            Text(viewModel.step.topButtonTitle)
+            Text(vm.step.topButtonTitle)
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(Color.blue)
@@ -89,9 +89,9 @@ struct LoginView: View {
 
     var bottomButton: some View {
         Button(action: {
-            viewModel.bottomButtonTapped()
+            vm.bottomButtonTapped()
         }) {
-            Text(viewModel.step.bottomButtonTitle)
+            Text(vm.step.bottomButtonTitle)
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(Color.red)
@@ -105,5 +105,5 @@ struct LoginView: View {
 
 
 #Preview {
-    LoginView(viewModel: AuthenticationViewModel(step: .login))
+    LoginView(vm: AuthenticationViewModel(step: .login))
 }

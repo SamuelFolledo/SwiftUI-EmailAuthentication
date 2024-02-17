@@ -17,10 +17,10 @@ struct FuFightApp: App {
         WindowGroup {
             if user.accountStatus == .valid {
                 let homeViewModel = HomeViewModel(user: user)
-                HomeView(viewModel: homeViewModel)
+                HomeView(vm: homeViewModel)
             } else {
                 let authViewModel = AuthenticationViewModel(step: .login, user: user)
-                LoginView(viewModel: authViewModel)
+                LoginView(vm: authViewModel)
             }
         }
     }
