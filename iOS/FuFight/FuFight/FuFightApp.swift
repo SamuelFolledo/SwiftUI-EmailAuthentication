@@ -17,7 +17,7 @@ struct FuFightApp: App {
         WindowGroup {
             if let user = authViewModel.user,
                 user.accountStatus == .valid {
-                ContentView()
+                HomeView()
             } else {
                 LoginView(viewModel: authViewModel)
             }
