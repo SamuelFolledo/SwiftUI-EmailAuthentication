@@ -8,8 +8,8 @@
 import Foundation
 
 struct Str {
-    static let loginTitle = "Log In"
-    static let signupTitle = "Sign Up"
+    static let logInTitle = "Log In"
+    static let signUpTitle = "Sign Up"
     static let phoneTitle = "Phone"
     static let phoneCodeTitle = "Phone Code"
 

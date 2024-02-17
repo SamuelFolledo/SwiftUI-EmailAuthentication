@@ -19,7 +19,7 @@ struct FuFightApp: App {
                 let homeViewModel = HomeViewModel(user: user)
                 HomeView(vm: homeViewModel)
             } else {
-                let authViewModel = AuthenticationViewModel(step: .login, user: user)
+                let authViewModel = AuthenticationViewModel(step: .logIn, user: user)
                 LoginView(vm: authViewModel)
             }
         }

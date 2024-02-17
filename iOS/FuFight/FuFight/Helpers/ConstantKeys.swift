@@ -72,7 +72,7 @@ public let kHEADERTEXT: UIFont = UIFont.systemFont(ofSize: 17, weight: .semibold
 
 //controller storyboard id
 public let kCHATCONTROLLER: String = "chatController"
-public let kLOGINCONTROLLER: String = "loginController"
+public let kLOGINCONTROLLER: String = "logInController"
 public let kANIMATIONCONTROLLER: String = "animationController"
 public let kMENUCONTROLLER: String = "menuController"
 

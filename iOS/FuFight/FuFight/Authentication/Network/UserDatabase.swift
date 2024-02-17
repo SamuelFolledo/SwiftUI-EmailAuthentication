@@ -65,7 +65,7 @@ func updateCurrentUser(withValues: [String : Any], withBlock: @escaping(_ succes
 
 //MARK: - Phone Authentication
 extension User {
-    class func authenticateUser(credential: AuthCredential, userDetails: [String: Any], completion: @escaping (_ user: User?, _ error: String?) -> Void) { //authenticate user given 3rd-party credentials (e.g. a Facebook login Access Token, a Google ID Token/Access Token pair, Phone, etc.) and return a user or error
+    class func authenticateUser(credential: AuthCredential, userDetails: [String: Any], completion: @escaping (_ user: User?, _ error: String?) -> Void) { //authenticate user given 3rd-party credentials (e.g. a Facebook logIn Access Token, a Google ID Token/Access Token pair, Phone, etc.) and return a user or error
         Auth.auth().signIn(with: credential) { (userResult, error) in //signin user
             if let error = error {
                 completion(nil, error.localizedDescription)
@@ -101,22 +101,22 @@ extension User {
                         completion(nil, "Error fetching user")
                         return
                     }
-                    if user.imageUrl == "" { //if we have no imageUrl, then return user
-                        user.updatedAt = Date()
-                        saveUserLocally(user: user)
-                        saveUserInBackground(user: user)
-                        completion(user, nil)
-                    } else { //if we have an imageUrl, assign it to user's profileImage and save it
-                        getUserImage(imageUrl: user.imageUrl) { (error, image) in
+                    if let imageUrl = user.imageUrl, !imageUrl.isEmpty { //if we have an imageUrl, assign it to user's profileImage and save it
+                        getUserImage(imageUrl: imageUrl) { (error, image) in
                             if let error = error {
                                 completion(nil, error)
                             }
                             user.updatedAt = Date()
-                            saveProfileImage(id: user.imageUrl, profileImage: image!)
+                            saveProfileImage(id: imageUrl, profileImage: image!)
                             saveUserLocally(user: user)
                             saveUserInBackground(user: user)
                             completion(user, nil)
                         }
+                    } else { //if we have no imageUrl, then return user
+                        user.updatedAt = Date()
+                        saveUserLocally(user: user)
+                        saveUserInBackground(user: user)
+                        completion(user, nil)
                     }
                 }
             }
@@ -127,7 +127,7 @@ extension User {
         let verificationID = UserDefaults.standard.value(forKey: kVERIFICATIONCODE) //kVERIFICATIONCODE = "firebase_verification" //Once our user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
         let credentials = PhoneAuthProvider.provider().credential(withVerificationID: verificationID as! String, verificationCode: verificationCode)
         print("Phone = \(phoneNumber) == \(verificationCode)")
-        Auth.auth().signIn(with: credentials) { (userResult, error) in //Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional identity provider data.
+        Auth.auth().signIn(with: credentials) { (userResult, error) in //Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook logIn Access Token, a Google ID Token/Access Token pair, etc.) and returns additional identity provider data.
             if let error = error { //if there's error put false on completion's shouldLogin parameter
                 completion(error.localizedDescription, false)
             }
@@ -138,7 +138,7 @@ extension User {
                 saveUserLocally(user: user) //now we have the newly registered user, save it locally and in background
                 saveUserInBackground(user: user)
                 completion(nil, false) //shouldLogin = false because we need to finish registering the user
-            } else { //login
+            } else { //logIn
                 fetchUserWith(userId: user.userId) { (user) in
                     saveUserLocally(user: user!) //we dont need to save in background because we are already getting/fetching the user
                     if user != nil && user?.firstName != "" { //if user is nil and user has a first name, provides extra protection
@@ -158,7 +158,7 @@ func registerUserEmailIntoDatabase(user: User, completion: @escaping (_ error: E
         if let error = error {
             completion(error, nil)
         } else { //if no error, save user
-            saveEmailInDatabase(email:user.email) //MARK: save to another table
+            saveEmailInDatabase(email:user.emailAddress) //MARK: save to another table
             saveUserLocally(user: user)
             saveUserInBackground(user: user) //maybe not needed???
             completion(nil, user)

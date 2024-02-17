@@ -24,16 +24,22 @@ struct LoginView: View {
             }
             .navigationBarTitle(vm.step.title, displayMode: .large)
         }
+        .onAppear {
+            vm.onAppear()
+        }
+        .onDisappear {
+            vm.onDisappear()
+        }
     }
 
     var fields: some View {
         VStack {
             switch vm.step {
-            case .login, .phoneVerification:
+            case .logIn, .phoneVerification:
                 topField
 
                 bottomField
-            case .signup:
+            case .signUp:
                 usernameField
 
                 topField
@@ -48,7 +54,7 @@ struct LoginView: View {
     var buttons: some View {
         VStack {
             switch vm.step {
-            case .login, .signup:
+            case .logIn, .signUp:
                 topButton
 
                 bottomButton
@@ -105,5 +111,5 @@ struct LoginView: View {
 
 
 #Preview {
-    LoginView(vm: AuthenticationViewModel(step: .login))
+    LoginView(vm: AuthenticationViewModel(step: .logIn))
 }

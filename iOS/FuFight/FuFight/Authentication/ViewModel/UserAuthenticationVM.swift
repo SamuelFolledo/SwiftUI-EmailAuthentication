@@ -92,7 +92,7 @@ public final class UserAuthenticationViewModel {
                     self.continueButtonTitle = "Continue with Phone"
                     completion(nil, nil)
                 }
-            } else if self.hasPhoneCode && bottomFieldValue != "" { //if we have phone code and it is not empty, register or login phone
+            } else if self.hasPhoneCode && bottomFieldValue != "" { //if we have phone code and it is not empty, register or logIn phone
                 self.continueWithPhone(phone: topFieldValue, code: bottomFieldValue) { (user, error) in
                     if let error = error {
                         completion(nil, error)
@@ -106,10 +106,10 @@ public final class UserAuthenticationViewModel {
     }
     
     fileprivate func continueWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) { //if no error
-        checkIfEmailExist(email: email, completion: { (emailAlreadyExist) in //check if email exist in our Database, then login, else register
+        checkIfEmailExist(email: email, completion: { (emailAlreadyExist) in //check if email exist in our Database, then logIn, else register
             if let emailAlreadyExist = emailAlreadyExist {
                 if emailAlreadyExist { //LOGIN
-                    self.loginWithEmail(email: email, password: password) { (error, user) in
+                    self.logInWithEmail(email: email, password: password) { (error, user) in
                         if let error = error {
                             completion(error, nil)
                         } else {
@@ -145,8 +145,8 @@ public final class UserAuthenticationViewModel {
         }, withCancel: nil)
     }
     
-    fileprivate func loginWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) {
-        User.loginUserWith(email: email, password: password) { (error) in
+    fileprivate func logInWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) {
+        User.logInUserWith(email: email, password: password) { (error) in
             if let error = error {
                 completion(error.localizedDescription, nil)
             } else {

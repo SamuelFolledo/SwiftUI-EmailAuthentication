@@ -8,6 +8,7 @@
 import UIKit
 import Foundation
 import FirebaseAuth
+import FirebaseCore
 
 enum AccountStatus {
     case valid
@@ -21,28 +22,28 @@ enum AccountStatus {
 class User: ObservableObject {
     let userId: String
     var username: String
-    var firstName: String
-    var lastName: String
+    var firstName: String?
+    var lastName: String?
     var fullName: String
-    var email: String
-    var imageUrl: String {
-        didSet {
-            print("Put image here")
-        }
-    }
-    var phoneNumber: String
+    var email: String?
+    var imageUrl: String?
+    var phoneNumber: String?
     var profileImage: UIImage = kDEFAULTPROFILEIMAGE
     let createdAt: Date
     var updatedAt: Date
     var authTypes: [AuthType]
-    @Published var accountStatus: AccountStatus?
+    @Published var accountStatus: AccountStatus = .unfinished
+
+    var emailAddress: String {
+        return email ?? ""
+    }
 
     init(userId: String, username: String = "", firstName: String = "", lastName: String = "", email: String = "", phoneNumber: String = "", imageUrl: String = "", authTypes: [AuthType] = [], createdAt: Date, updatedAt: Date = Date()) {
         self.userId = userId
         self.username = username
         self.firstName = firstName
         self.lastName = lastName
-        self.fullName = assignFullName(fName: firstName, lName: lastName)
+        self.fullName = createFullNameFrom(first: firstName, last: lastName)
         self.email = email
         self.phoneNumber = phoneNumber
         self.imageUrl = imageUrl
@@ -55,20 +56,20 @@ class User: ObservableObject {
     init(dictionary: [String: Any]) {
         self.userId = dictionary[kUSERID] as! String
         self.username = dictionary[kUSERNAME] as! String
-        self.firstName = dictionary[kFIRSTNAME] as! String
-        self.lastName = dictionary[kLASTNAME] as! String
+        self.firstName = dictionary[kFIRSTNAME] as? String
+        self.lastName = dictionary[kLASTNAME] as? String
         if let fullName = dictionary[kFULLNAME] as? String {
             self.fullName = fullName
         } else {
-            self.fullName = assignFullName(fName: self.firstName, lName: self.lastName)
+            self.fullName = createFullNameFrom(first: self.firstName, last: self.lastName)
         }
-        self.email = dictionary[kEMAIL] as! String
+        self.email = dictionary[kEMAIL] as? String
         if let phoneNumber = dictionary[kPHONENUMBER] as? String {
             self.phoneNumber = phoneNumber
         } else {
             self.phoneNumber = ""
         }
-        self.imageUrl = dictionary[kIMAGEURL] as! String
+        self.imageUrl = dictionary[kIMAGEURL] as? String
         if let createdAt = dictionary[kCREATEDAT] { //if we have this date, then apply it to the user, else create new current instance of Date()
             self.createdAt = Service.dateFormatter().date(from: createdAt as! String)!
         } else {
@@ -94,18 +95,41 @@ class User: ObservableObject {
     }
 
     init() {
-        self.userId = "userId"
-        self.username = "testUsername"
-        self.firstName = "testFirstName"
-        self.lastName = "testLastName"
-        self.fullName = assignFullName(fName: firstName, lName: lastName)
-        self.email = "testEmail"
-        self.phoneNumber = "testPhoneNumber"
-        self.imageUrl = "testImageUrl"
+        FirebaseApp.configure()
+        let user = Auth.auth().currentUser
+        if let user = user {
+            self.userId = user.uid
+            self.email = user.email ?? "testEmail"
+            self.imageUrl = user.photoURL?.absoluteString ?? "testImageUrl"
+            self.phoneNumber = user.phoneNumber ?? "testPhoneNumber"
+            self.username = user.displayName ?? "testUsername"
+        } else {
+            self.userId = "fakeUserId"
+            self.username = "fakeUsername"
+            self.email = "fakeEmail"
+            self.phoneNumber = "fakePhoneNumber"
+            self.imageUrl = "fakeImageUrl"
+        }
+        self.firstName = "fakeFirstName"
+        self.lastName = "fakeLastName"
+        self.fullName = createFullNameFrom(first: firstName, last: lastName)
         self.createdAt = Date()
         self.updatedAt = Date()
         self.authTypes = []
-        self.accountStatus = .unfinished
+    }
+
+    init(authResult: AuthDataResult) {
+        self.userId = authResult.user.uid
+        self.email = authResult.user.email ?? "testEmail"
+        self.imageUrl = authResult.user.photoURL?.absoluteString ?? "testImageUrl"
+        self.phoneNumber = authResult.user.phoneNumber ?? "testPhoneNumber"
+        self.username = authResult.user.displayName ?? "testUsername"
+        self.firstName = "fakeFirstName"
+        self.lastName = "fakeLastName"
+        self.fullName = createFullNameFrom(first: firstName, last: lastName)
+        self.createdAt = Date()
+        self.updatedAt = Date()
+        self.authTypes = []
     }
 
     deinit {
@@ -146,7 +170,7 @@ class User: ObservableObject {
         }
     }
     
-    class func loginUserWith(email: String, password: String, completion: @escaping (_ error: Error?) -> Void) {
+    class func logInUserWith(email: String, password: String, completion: @escaping (_ error: Error?) -> Void) {
         Auth.auth().signIn(withEmail: email, password: password) { (userDetails, error) in
             if let error = error {
                 completion(error)
@@ -157,7 +181,7 @@ class User: ObservableObject {
                 let user: User = User(userId: userDetails.user.uid, username: "", firstName: "", lastName: "", email: email, phoneNumber: "", imageUrl: "", authTypes: [.email], createdAt: Date(), updatedAt: Date())
                 saveUserLocally(user: user)
                 saveUserInBackground(user: user)
-                saveEmailInDatabase(email: user.email)
+                saveEmailInDatabase(email: user.email ?? "")
                 completion(nil)
             } else { //if not user's first time...
                 fetchUserWith(userId: userDetails.user.uid) { (user) in
@@ -213,17 +237,17 @@ class User: ObservableObject {
             user.username = username as! String
         }
         if let firstName = values[kFIRSTNAME] {
-            user.firstName = firstName as! String
+            user.firstName = firstName as? String
         }
         if let lastName = values[kLASTNAME] {
-            user.lastName = lastName as! String
+            user.lastName = lastName as? String
         }
-        user.fullName = "\(user.firstName) \(user.lastName)"
+        user.fullName = createFullNameFrom(first: user.firstName, last: user.lastName)
         if let email = values[kEMAIL] {
-            user.email = email as! String
+            user.email = email as? String
         }
         if let imageUrl = values[kIMAGEURL] {
-            user.imageUrl = imageUrl as! String
+            user.imageUrl = imageUrl as? String
         }
         saveUserLocally(user: user)
         saveUserInBackground(user: user)
@@ -237,7 +261,7 @@ func userDictionaryFrom(user: User) -> NSDictionary { //take a user and return a
     let updatedAt = Service.dateFormatter().string(from: user.updatedAt)
     let authTypes: [String] = authTypesToString(types: user.authTypes)
     return NSDictionary(
-        objects: [user.userId, user.username, user.firstName, user.lastName, user.fullName, user.email, user.phoneNumber, user.imageUrl, createdAt, updatedAt, authTypes],
+        objects: [user.userId, user.username, user.firstName ?? "", user.lastName ?? "", user.fullName, user.email ?? "", user.phoneNumber ?? "", user.imageUrl ?? "", createdAt, updatedAt, authTypes],
         forKeys: [kUSERID as NSCopying, kUSERNAME as NSCopying, kFIRSTNAME as NSCopying, kLASTNAME as NSCopying, kFULLNAME as NSCopying, kEMAIL as NSCopying, kPHONENUMBER as NSCopying, kIMAGEURL as NSCopying, kCREATEDAT as NSCopying, kUPDATEDAT as NSCopying, kAUTHTYPES as NSCopying])
 }
 
@@ -249,12 +273,17 @@ func isUserLoggedIn() -> Bool { //checks if we have user logged in
     }
 }
 
-func assignFullName(fName: String, lName: String) -> String { //returns full name if first name and last name is not empty
-    if fName.trimmedString() != "" && lName.trimmedString() != "" {
-        return "\(fName) \(lName)"
-    } else {
-        return ""
+func createFullNameFrom(first: String?, last: String?) -> String {
+    let firstName = (first ?? "").trimmedString()
+    let lastName = (last ?? "").trimmedString()
+    if firstName.isEmpty && lastName.isEmpty {
+        return "\(firstName) \(lastName)"
+    } else if lastName.isEmpty {
+        return firstName
+    } else if firstName.isEmpty {
+        return lastName
     }
+    return ""
 }
 
 func saveProfileImage(id: String = kPROFILEIMAGE, profileImage: UIImage) {

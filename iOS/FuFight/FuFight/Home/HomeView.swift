@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct HomeView: View {
     var vm: HomeViewModel
@@ -24,6 +25,12 @@ struct HomeView: View {
             Spacer()
         }
         .padding()
+        .onAppear {
+            vm.onAppear()
+        }
+        .onDisappear {
+            vm.onDisappear()
+        }
     }
 
     var homeNavBar: some View {

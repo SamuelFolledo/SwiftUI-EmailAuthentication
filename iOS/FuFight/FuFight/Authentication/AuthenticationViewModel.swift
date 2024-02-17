@@ -8,14 +8,14 @@
 import UIKit
 
 enum AuthStep {
-    case login, signup, phone, phoneVerification
+    case logIn, signUp, phone, phoneVerification
 
     var title: String {
         switch self {
-        case .login:
-            return Str.loginTitle
-        case .signup:
-            return Str.signupTitle
+        case .logIn:
+            return Str.logInTitle
+        case .signUp:
+            return Str.signUpTitle
         case .phone:
             return Str.phoneTitle
         case .phoneVerification:
@@ -25,9 +25,9 @@ enum AuthStep {
 
     var topFieldPlaceholder: String {
         switch self {
-        case .login:
+        case .logIn:
             return Str.emailOrUsernameTitle
-        case .signup:
+        case .signUp:
             return Str.emailTitle
         case .phone:
             return Str.phoneTitle
@@ -39,7 +39,7 @@ enum AuthStep {
 
     var topFieldKeyboardType: UIKeyboardType {
         switch self {
-        case .login, .signup:
+        case .logIn, .signUp:
             return .emailAddress
         case .phone, .phoneVerification:
             return .phonePad
@@ -48,7 +48,7 @@ enum AuthStep {
 
     var bottomFieldPlaceholder: String {
         switch self {
-        case .login, .signup:
+        case .logIn, .signUp:
             return Str.passwordTitle
         case .phone:
             return ""
@@ -59,7 +59,7 @@ enum AuthStep {
 
     var bottomFieldKeyboardType: UIKeyboardType {
         switch self {
-        case .login, .signup:
+        case .logIn, .signUp:
             return .default
         case . phone, .phoneVerification:
             return .numberPad
@@ -68,9 +68,9 @@ enum AuthStep {
 
     var topButtonTitle: String {
         switch self {
-        case .login:
-            return Str.loginTitle
-        case .signup:
+        case .logIn:
+            return Str.logInTitle
+        case .signUp:
             return Str.createAccountTitle
         case .phone:
             return Str.sendCode
@@ -81,9 +81,9 @@ enum AuthStep {
 
     var bottomButtonTitle: String {
         switch self {
-        case .login:
+        case .logIn:
             return Str.dontHaveAnAccount
-        case .signup:
+        case .signUp:
             return Str.alreadyHaveAnAccount
         case .phone:
             return ""
@@ -94,12 +94,13 @@ enum AuthStep {
 }
 
 @Observable
-class AuthenticationViewModel {
+class AuthenticationViewModel: ViewModel {
     private(set) var step: AuthStep
     private(set) var user: User?
     var username: String = ""
     var topFieldText: String = ""
     var bottomFieldText: String = ""
+    var error: Error?
 
     //MARK: - Initializer
 
@@ -108,15 +109,20 @@ class AuthenticationViewModel {
         self.user = user
     }
 
+    //MARK: - ViewModel Overrides
+    func onAppear() { }
+
+    func onDisappear() { }
+
     //MARK: - Public Methods
     func topButtonTapped() {
+        //TODO: Show loading
         switch step {
-        case .login:
+        case .logIn:
             print("TODO: Log in, then go to game view")
             validateUser()
-        case .signup:
-            print("TODO: Sign up, then go to game view")
-            validateUser()
+        case .signUp:
+            signUp()
         case .phone:
             print("TODO: Send phone code")
             step = .phoneVerification
@@ -128,21 +134,35 @@ class AuthenticationViewModel {
 
     func bottomButtonTapped() {
         switch step {
-        case .login:
-            step = .signup
-        case .signup:
-            step = .login
+        case .logIn:
+            step = .signUp
+        case .signUp:
+            step = .logIn
         case .phone:
             print("TODO: button should be hidden")
             break
         case .phoneVerification:
             print("TODO: Cancel registration")
-            step = .login
+            step = .logIn
         }
     }
 }
 
 private extension AuthenticationViewModel {
+    func signUp() {
+        AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) { user, error in
+            if let error  {
+                self.error = error
+            }
+            if let user {
+                print("Successfully create a user \(user.emailAddress) with status \(user.accountStatus)")
+                self.user = user
+                //TODO: Show Onboarding
+                self.validateUser()
+            }
+        }
+    }
+
     func validateUser() {
         if let user {
             user.accountStatus = .valid
