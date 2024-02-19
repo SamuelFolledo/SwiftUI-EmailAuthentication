@@ -9,6 +9,9 @@ import SwiftUI
 
 /*
  [] TODO: 1: Prepare for production
+    - Validate login page's fields
+    - Update Firebase's GoogleServiceInfo.plist
+    - Update Firebase Storage's rules
  */
 
 class AppDelegate: NSObject, UIApplicationDelegate {

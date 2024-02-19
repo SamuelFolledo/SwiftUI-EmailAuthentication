@@ -73,6 +73,19 @@ class AccountNetworkManager {
             completion(error)
         })
     }
+
+    static func setData(user: User?, merge: Bool = true, completion: @escaping CompletionHandler) {
+        if let user {
+            let userRef = db.collection(kUSER).document(user.userId)
+            do {
+                try userRef.setData(from: user, merge: merge)
+                completion(nil)
+            }
+            catch {
+                completion(error)
+            }
+        }
+    }
 }
 
 private extension AccountNetworkManager {

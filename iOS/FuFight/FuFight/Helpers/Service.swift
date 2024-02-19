@@ -88,7 +88,7 @@ class Service {
 
 ///this method decides if user will be put to finish registrationVC or back to the app
 func goToNextController(vc: UIViewController, user: User) {
-    if user.username == "" || user.imageUrl == "" {
+    if user.username == "" || user.imageUrl?.absoluteString == "" {
 //        let nav = vc.navigationController
 //        DispatchQueue.main.async {
 //            nav?.view.layer.add(CATransition().segueFromRight(), forKey: nil)

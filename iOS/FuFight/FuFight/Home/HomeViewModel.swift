@@ -32,7 +32,7 @@ class HomeViewModel: ViewModel {
 
     //MARK: - Public Methods
     func logout() {
-        print("Logging out \(user.fullName)")
+        print("Logging out \(user.username)")
         user.accountStatus = .logout
     }
 }

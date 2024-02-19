@@ -196,7 +196,7 @@ private extension AuthenticationViewModel {
                     self.error = error
                 }
                 if let user {
-                    print("Successfully create a user \(user.emailAddress) with status \(user.accountStatus)")
+                    print("Successfully create a user \(user.username) with status \(user.accountStatus)")
                     self.user = user
                     self.updateStep(to: .onboard)
                 }
@@ -207,8 +207,6 @@ private extension AuthenticationViewModel {
     }
 
     func finishAccountCreation() {
-        //Storage TODO: Upload image to Storage to get the downloadUrl
-        //Auth TODO: Set user's displayName, profilePhoto
         //Database TODO: Update user's username and downloadUrl
         //Database TODO: Set user's data to database
 
@@ -227,8 +225,14 @@ private extension AuthenticationViewModel {
                             return
                         }
                         self.user?.username = self.topFieldText
-                        self.user?.imageUrl = url.absoluteString
-                        print("Got user' image url")
+                        self.user?.imageUrl = url
+                        AccountNetworkManager.setData(user: self.user) { error in
+                            if let error {
+                                print("Error updating user's database \(error.localizedDescription)")
+                                return
+                            }
+                            print("TODO: Go to home page after successfully updating user's database")
+                        }
                     }
                 }
             }
@@ -240,12 +244,8 @@ private extension AuthenticationViewModel {
         if let user {
             user.accountStatus = .valid
         } else {
-            let isPhone = step == .phone || step == .phoneVerification
-            if isPhone {
-                user = User.init(userId: "123", username: username, firstName: "FName", lastName: "LName", phoneNumber: topFieldText, createdAt: Date(), updatedAt: Date())
-            } else {
-                user = User.init(userId: "123", username: username, firstName: "FName", lastName: "LName", email: topFieldText, createdAt: Date(), updatedAt: Date())
-            }
+            user = User()
+//            let isPhone = step == .phone || step == .phoneVerification
             validateUser()
         }
     }

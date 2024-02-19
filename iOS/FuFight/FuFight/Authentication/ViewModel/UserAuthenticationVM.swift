@@ -83,25 +83,25 @@ public final class UserAuthenticationViewModel {
                 }
             }
         } else { //phone authentication
-            if !self.hasPhoneCode { //text code if no phone code yet
-                self.textPhoneCode(phoneNumber: topFieldValue) { (error) in
-                    if let error = error {
-                        completion(nil, error)
-                    }
-                    self.hasPhoneCode = true
-                    self.continueButtonTitle = "Continue with Phone"
-                    completion(nil, nil)
-                }
-            } else if self.hasPhoneCode && bottomFieldValue != "" { //if we have phone code and it is not empty, register or logIn phone
-                self.continueWithPhone(phone: topFieldValue, code: bottomFieldValue) { (user, error) in
-                    if let error = error {
-                        completion(nil, error)
-                    }
-                    completion(user, nil)
-                }
-            } else {
-                completion(nil, "Field is empty")
-            }
+//            if !self.hasPhoneCode { //text code if no phone code yet
+//                self.textPhoneCode(phoneNumber: topFieldValue) { (error) in
+//                    if let error = error {
+//                        completion(nil, error)
+//                    }
+//                    self.hasPhoneCode = true
+//                    self.continueButtonTitle = "Continue with Phone"
+//                    completion(nil, nil)
+//                }
+//            } else if self.hasPhoneCode && bottomFieldValue != "" { //if we have phone code and it is not empty, register or logIn phone
+//                self.continueWithPhone(phone: topFieldValue, code: bottomFieldValue) { (user, error) in
+//                    if let error = error {
+//                        completion(nil, error)
+//                    }
+//                    completion(user, nil)
+//                }
+//            } else {
+//                completion(nil, "Field is empty")
+//            }
         }
     }
     
@@ -230,17 +230,17 @@ public final class UserAuthenticationViewModel {
         }
     }
     
-    private func continueWithPhone(phone: String, code: String, completion: @escaping (_ user: User?, _ error: String?) -> Void) { //method once the user has inputted phone number and verification code
-        let verificationID = UserDefaults.standard.value(forKey: kVERIFICATIONCODE) //when user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
-        let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID as! String, verificationCode: code) //get our credential
-        User.authenticateUser(credential: credential, userDetails: [kPHONENUMBER: phone]) { (user, error) in //authenticate and get user
-            if let error = error {
-                completion(nil, error)
-                return
-            }
-            UserDefaults.standard.removeObject(forKey: kVERIFICATIONCODE)
-            UserDefaults.standard.synchronize() //remove code
-            completion(user, nil)
-        }
-    }
+//    private func continueWithPhone(phone: String, code: String, completion: @escaping (_ user: User?, _ error: String?) -> Void) { //method once the user has inputted phone number and verification code
+//        let verificationID = UserDefaults.standard.value(forKey: kVERIFICATIONCODE) //when user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
+//        let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID as! String, verificationCode: code) //get our credential
+//        User.authenticateUser(credential: credential, userDetails: [kPHONENUMBER: phone]) { (user, error) in //authenticate and get user
+//            if let error = error {
+//                completion(nil, error)
+//                return
+//            }
+//            UserDefaults.standard.removeObject(forKey: kVERIFICATIONCODE)
+//            UserDefaults.standard.synchronize() //remove code
+//            completion(user, nil)
+//        }
+//    }
 }
