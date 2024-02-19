@@ -12,23 +12,17 @@ struct TappableImageView: View {
     @State private var photosPickerPresented = false
     @State private var selectedPhotos = [PhotosPickerItem]()
     @State private var selectedImages = [Image]()
+    @Binding var selectedImage: Image
 
     var body: some View {
         VStack {
-            Group {
-                if let profileImage = selectedImages.last {
-                    profileImage
-                        .resizable()
-                } else {
-                    Image(systemName: "person.crop.circle")
-                        .resizable()
+            selectedImage
+                .resizable()
+                .scaledToFit()
+                .onTapGesture {
+                    selectedPhotos.removeAll()
+                    photosPickerPresented.toggle()
                 }
-            }
-            .scaledToFit()
-            .onTapGesture {
-                selectedPhotos.removeAll()
-                photosPickerPresented.toggle()
-            }
         }
         .photosPicker(isPresented: $photosPickerPresented, selection: $selectedPhotos)
         .onChange(of: selectedPhotos) {
@@ -39,6 +33,7 @@ struct TappableImageView: View {
                         selectedImages.append(image)
                     }
                 }
+                self.selectedImage = selectedImages.last ?? defaultProfilePhoto
             }
         }
     }

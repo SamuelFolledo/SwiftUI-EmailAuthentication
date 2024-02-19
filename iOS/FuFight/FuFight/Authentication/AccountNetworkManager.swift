@@ -8,6 +8,8 @@
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
+import SwiftUI
 
 enum NetworkError: Error {
     ///When there is no error but there is no expected result as well
@@ -19,6 +21,8 @@ enum NetworkError: Error {
 
 class AccountNetworkManager {
     typealias UserCompletionHandler = (_ user: User?, _ error: Error?) -> Void
+    typealias PhotoUrlCompletionHandler = (_ url: URL?, _ error: Error?) -> Void
+    typealias CompletionHandler = (_ error: Error?) -> Void
 
     ///Create a user from email and password.
     ///Email and password should have been validated already before calling this method
@@ -36,6 +40,38 @@ class AccountNetworkManager {
             }
             completion(nil, NetworkError.noResult)
         }
+    }
+
+    ///Uploads the image to Storage for the userId passed
+    static func storeImage(_ image: Image, for userId: String, completion: @escaping PhotoUrlCompletionHandler) {
+        let imageData = image.toData(compression: 0.3)
+        let metaData: StorageMetadata = StorageMetadata()
+        metaData.contentType = "image/jpg"
+        let photoReference = profilePhotoStorage.child("\(userId).jpg")
+        photoReference.putData(imageData, metadata: metaData) { data, error in
+            if let error = error {
+                completion(nil, error)
+            } else {
+                photoReference.downloadURL { url, error in
+                    completion(url, error)
+                    if url == nil && error == nil {
+                        fatalError("Error: storeImage() is expecting a download url or an error")
+                    }
+                }
+            }
+        }
+    }
+
+    static func updateAuthenticatedUser(username: String, photoURL: URL, completion: @escaping CompletionHandler) {
+        guard !username.isEmpty && !photoURL.absoluteString.isEmpty else {
+            fatalError("Error updating authenticated user's username to \(username), and photoUrl to \(photoURL)")
+        }
+        let changeRequest = auth.currentUser?.createProfileChangeRequest()
+        changeRequest?.displayName = username
+        changeRequest?.photoURL = photoURL
+        changeRequest?.commitChanges(completion: { error in
+            completion(error)
+        })
     }
 }
 

@@ -85,13 +85,13 @@ extension User {
                 let email: String = userDetails[kEMAIL] as? String ?? ""
                 let phoneNumber: String = userDetails[kPHONENUMBER] as? String ?? ""
                 let imageUrl: String = userDetails[kIMAGEURL] as? String ?? ""
-                let profileImage: UIImage = userDetails[kPROFILEIMAGE] as? UIImage ?? kDEFAULTPROFILEIMAGE
+                let profilePhoto: UIImage = userDetails[kPROFILEPHOTO] as? UIImage ?? kDEFAULTPROFILEIMAGE
                 let createdAt: Date = userDetails[kCREATEDAT] as? Date ?? Date()
                 let updatedAt: Date = userDetails[kUPDATEDAT] as? Date ?? Date()
                 var authTypes: [AuthType] = userDetails[kAUTHTYPES] as? [AuthType] ?? [.unknown]
                 authTypes = getAuthTypesFrom(providerId: providerId) //update authTypes after signin wiht providerId
                 let user: User = User(userId: userResult.user.uid, username: userName, firstName: firstName, lastName: lastName, email: email, phoneNumber: phoneNumber, imageUrl: imageUrl, authTypes: authTypes, createdAt: createdAt, updatedAt: updatedAt)
-                user.profileImage = profileImage
+                user.profilePhoto = profilePhoto
                 saveUserLocally(user: user)
                 saveUserInBackground(user: user)
                 completion(user, nil)
@@ -101,13 +101,13 @@ extension User {
                         completion(nil, "Error fetching user")
                         return
                     }
-                    if let imageUrl = user.imageUrl, !imageUrl.isEmpty { //if we have an imageUrl, assign it to user's profileImage and save it
+                    if let imageUrl = user.imageUrl, !imageUrl.isEmpty { //if we have an imageUrl, assign it to user's profilePhoto and save it
                         getUserImage(imageUrl: imageUrl) { (error, image) in
                             if let error = error {
                                 completion(nil, error)
                             }
                             user.updatedAt = Date()
-                            saveProfileImage(id: imageUrl, profileImage: image!)
+                            saveProfilePhoto(id: imageUrl, profilePhoto: image!)
                             saveUserLocally(user: user)
                             saveUserInBackground(user: user)
                             completion(user, nil)

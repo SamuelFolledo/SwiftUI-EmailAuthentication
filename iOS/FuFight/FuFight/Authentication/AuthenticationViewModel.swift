@@ -98,6 +98,17 @@ class AuthenticationViewModel: ViewModel {
     var bottomFieldHasError: Bool = false
     var bottomFieldIsActive: Bool = false
     var error: Error?
+    var selectedImage = defaultProfilePhoto
+    var topButtonIsEnabled: Bool {
+        switch step {
+        case .logIn, .signUp:
+            return topFieldText.count >= 3 && bottomFieldText.count >= 3
+        case .phone, .onboard:
+            return topFieldText.count >= 3
+        case .phoneVerification:
+            return bottomFieldText.count >= 6
+        }
+    }
 
     //MARK: - Initializer
 
@@ -150,16 +161,7 @@ class AuthenticationViewModel: ViewModel {
     func onTopFieldSubmit() {
         topFieldIsActive = false
         bottomFieldIsActive = true
-        switch step {
-        case .logIn:
-            topFieldHasError = !topFieldText.isValidEmail || !topFieldText.isValidUsername
-        case .signUp:
-            topFieldHasError = !topFieldText.isValidEmail
-        case .phone, .phoneVerification:
-            break
-        case .onboard:
-            topFieldHasError = !topFieldText.isValidUsername
-        }
+        validateTopField()
     }
 
     func onBottomFieldSubmit() {
@@ -185,12 +187,9 @@ class AuthenticationViewModel: ViewModel {
 
 private extension AuthenticationViewModel {
     func signUp() {
-        topFieldHasError = !topFieldText.isValidEmail
+        validateTopField()
         //TODO: 1: Uncomment line below to prevent unsafe passwords
 //        bottomFieldHasError = !bottomFieldText.isValidPassword
-        if bottomFieldHasError {
-            print("Password has issue with \(bottomFieldText)")
-        }
         if !topFieldHasError && !bottomFieldHasError {
             AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) { user, error in
                 if let error  {
@@ -199,8 +198,7 @@ private extension AuthenticationViewModel {
                 if let user {
                     print("Successfully create a user \(user.emailAddress) with status \(user.accountStatus)")
                     self.user = user
-                    self.goToOnboarding()
-                    //TODO: Show Onboarding
+                    self.updateStep(to: .onboard)
                 }
             }
         } else {
@@ -208,15 +206,32 @@ private extension AuthenticationViewModel {
         }
     }
 
-    func goToOnboarding() {
-        updateStep(to: .onboard)
-        topFieldText = ""
-    }
-
     func finishAccountCreation() {
-        topFieldHasError = !topFieldText.isValidUsername
+        //Storage TODO: Upload image to Storage to get the downloadUrl
+        //Auth TODO: Set user's displayName, profilePhoto
+        //Database TODO: Update user's username and downloadUrl
+        //Database TODO: Set user's data to database
+
+        //Improvements TODO: Show alerts
+        //Improvements TODO: Show progress indicator
+        validateTopField()
         if !topFieldHasError {
             print("TODO: Store image and write user data to Database")
+            AccountNetworkManager.storeImage(selectedImage, for: user?.userId ?? "") { url, error in
+                if let error {
+                    print("Error setting user's photo Url: \(error.localizedDescription)")
+                } else if let url {
+                    AccountNetworkManager.updateAuthenticatedUser(username: self.topFieldText, photoURL: url) { error in
+                        if let error {
+                            print("Error updating authenticated user: \(error)")
+                            return
+                        }
+                        self.user?.username = self.topFieldText
+                        self.user?.imageUrl = url.absoluteString
+                        print("Got user' image url")
+                    }
+                }
+            }
             validateUser()
         }
     }
@@ -242,5 +257,18 @@ private extension AuthenticationViewModel {
         bottomFieldText = ""
         topFieldHasError = false
         bottomFieldHasError = false
+    }
+
+    func validateTopField() {
+        switch step {
+        case .logIn:
+            topFieldHasError = !topFieldText.isValidEmail || !topFieldText.isValidUsername
+        case .signUp:
+            topFieldHasError = !topFieldText.isValidEmail
+        case .phone, .phoneVerification:
+            break
+        case .onboard:
+            topFieldHasError = !topFieldText.isValidUsername
+        }
     }
 }

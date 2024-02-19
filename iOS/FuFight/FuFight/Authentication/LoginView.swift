@@ -42,7 +42,7 @@ struct LoginView: View {
 
     @ViewBuilder func profilePicture() -> some View {
         if vm.step == .onboard {
-            TappableImageView()
+            TappableImageView(selectedImage: $vm.selectedImage)
                 .frame(idealWidth: 200, idealHeight: 200)
                 .padding()
         }
@@ -94,12 +94,14 @@ struct LoginView: View {
         }) {
             Text(vm.step.topButtonTitle)
                 .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(8)
+                .foregroundColor(!vm.topButtonIsEnabled ? .systemGray5 : .white)
         }
+        .frame(maxWidth: .infinity)
+        .background(!vm.topButtonIsEnabled ? .systemGray : Color.blue)
+        .disabled(!vm.topButtonIsEnabled)
+        .cornerRadius(8)
         .padding(.horizontal)
+        .opacity(!vm.topButtonIsEnabled ? 0.8 : 1)
     }
 
     var bottomButton: some View {
@@ -108,11 +110,11 @@ struct LoginView: View {
         }) {
             Text(vm.step.bottomButtonTitle)
                 .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.red)
                 .foregroundColor(.white)
-                .cornerRadius(8)
         }
+        .frame(maxWidth: .infinity)
+        .background(Color.red)
+        .cornerRadius(8)
         .padding(.horizontal)
         .padding(.bottom, 20)
     }

@@ -28,7 +28,7 @@ class User: ObservableObject {
     var email: String?
     var imageUrl: String?
     var phoneNumber: String?
-    var profileImage: UIImage = kDEFAULTPROFILEIMAGE
+    var profilePhoto: UIImage = kDEFAULTPROFILEIMAGE
     let createdAt: Date
     var updatedAt: Date
     var authTypes: [AuthType]
@@ -205,7 +205,7 @@ class User: ObservableObject {
         UserDefaults.standard.synchronize() //save the changes
         do {
             try Auth.auth().signOut()
-            deleteProfileImage()
+            deleteProfilePhoto()
             withBlock(true)
         } catch let error as NSError {
             print("error logging out \(error.localizedDescription)")
@@ -286,17 +286,17 @@ func createFullNameFrom(first: String?, last: String?) -> String {
     return ""
 }
 
-func saveProfileImage(id: String = kPROFILEIMAGE, profileImage: UIImage) {
-    let imageData: Data = profileImage.jpegData(compressionQuality: 0.2)!
+func saveProfilePhoto(id: String = kPROFILEPHOTO, profilePhoto: UIImage) {
+    let imageData: Data = profilePhoto.jpegData(compressionQuality: 0.2)!
     UserDefaults.standard.set(imageData, forKey: id)
     UserDefaults.standard.synchronize()
 }
 
-func loadProfileImage(id: String = kPROFILEIMAGE) -> UIImage? {
+func loadProfilePhoto(id: String = kPROFILEPHOTO) -> UIImage? {
     return UIImage(data: UserDefaults.standard.data(forKey: id)!)
 }
 
-func deleteProfileImage(id: String = kPROFILEIMAGE) {
+func deleteProfilePhoto(id: String = kPROFILEPHOTO) {
     UserDefaults.standard.removeObject(forKey: id)
     UserDefaults.standard.synchronize()
 }

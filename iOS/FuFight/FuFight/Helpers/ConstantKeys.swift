@@ -36,7 +36,7 @@ public let kAPPLEAUTH: String = "appleAuth"
 public let kUSER: String = "user"
 public let kMESSAGES: String = "message"
 public let kPUSHID: String = "pushId"
-public let kPROFILEIMAGE: String = "profileImage"
+public let kPROFILEPHOTO: String = "profilePhoto"
 
 //MARK: Other Constants
 public let kCREATEDAT: String = "createdAt"

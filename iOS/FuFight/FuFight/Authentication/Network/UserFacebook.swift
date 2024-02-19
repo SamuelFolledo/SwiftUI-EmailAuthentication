@@ -62,7 +62,7 @@
 //                        completion(nil, error)
 //                    }
 //                    let user = User(userId: userResult.user.uid, username: "", firstName: firstName, lastName: lastName, email: email, phoneNumber: "", imageUrl: imageUrl!, authTypes: [.facebook], createdAt: Date(), updatedAt: Date())
-//                    user.profileImage = profilePic!
+//                    user.profilePhoto = profilePic!
 //                    saveUserLocally(user: user)
 //                    saveUserInBackground(user: user)
 //                    saveEmailInDatabase(email: email)
