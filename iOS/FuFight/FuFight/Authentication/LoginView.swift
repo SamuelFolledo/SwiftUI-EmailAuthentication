@@ -23,9 +23,7 @@ struct LoginView: View {
                     }
 
                     Spacer()
-
                 }
-                .padding()
             }
             .navigationBarTitle(vm.step.title, displayMode: .large)
             .safeAreaInset(edge: .bottom) {
@@ -77,11 +75,17 @@ struct LoginView: View {
     }
 
     var topField: some View {
-        UnderlinedTextField(type: vm.step.topFieldType, text: $vm.topFieldText, hasError: $vm.topFieldHasError)
+        UnderlinedTextField(type: vm.step.topFieldType, text: $vm.topFieldText, hasError: $vm.topFieldHasError, isActive: $vm.topFieldIsActive)
+            .onSubmit {
+                vm.onTopFieldSubmit()
+            }
     }
 
     var bottomField: some View {
-        UnderlinedTextField(type: vm.step.bottomFieldType, text: $vm.bottomFieldText, hasError: $vm.bottomFieldHasError, isSecure: true)
+        UnderlinedTextField(type: vm.step.bottomFieldType, text: $vm.bottomFieldText, hasError: $vm.bottomFieldHasError, isActive: $vm.bottomFieldIsActive, isSecure: true)
+            .onSubmit {
+                vm.onBottomFieldSubmit()
+            }
     }
 
     var topButton: some View {
@@ -110,7 +114,7 @@ struct LoginView: View {
                 .cornerRadius(8)
         }
         .padding(.horizontal)
-        .padding(.bottom)
+        .padding(.bottom, 20)
     }
 }
 

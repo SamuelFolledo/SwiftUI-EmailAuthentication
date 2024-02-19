@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 enum AuthStep {
     case logIn, signUp, phone, phoneVerification
@@ -92,8 +93,10 @@ class AuthenticationViewModel: ViewModel {
     var username: String = ""
     var topFieldText: String = ""
     var topFieldHasError: Bool = false
+    var topFieldIsActive: Bool = false
     var bottomFieldText: String = ""
     var bottomFieldHasError: Bool = false
+    var bottomFieldIsActive: Bool = false
     var error: Error?
 
     //MARK: - Initializer
@@ -110,6 +113,7 @@ class AuthenticationViewModel: ViewModel {
 
     //MARK: - Public Methods
     func topButtonTapped() {
+        bottomFieldIsActive = false
         //TODO: Show loading
         switch step {
         case .logIn:
@@ -119,7 +123,7 @@ class AuthenticationViewModel: ViewModel {
             signUp()
         case .phone:
             print("TODO: Send phone code")
-            step = .phoneVerification
+            updateStep(to: .phoneVerification)
         case .phoneVerification:
             print("TODO: Login/sign up with phone")
             validateUser()
@@ -131,15 +135,50 @@ class AuthenticationViewModel: ViewModel {
     func bottomButtonTapped() {
         switch step {
         case .logIn:
-            step = .signUp
+            updateStep(to: .signUp)
         case .signUp:
-            step = .logIn
+            updateStep(to: .logIn)
         case .phone, .onboard:
             print("TODO: button should be hidden")
             break
         case .phoneVerification:
             print("TODO: Cancel registration")
-            step = .logIn
+            updateStep(to: .logIn)
+        }
+    }
+
+    func onTopFieldSubmit() {
+        topFieldIsActive = false
+        bottomFieldIsActive = true
+        switch step {
+        case .logIn:
+            topFieldHasError = !topFieldText.isValidEmail || !topFieldText.isValidUsername
+        case .signUp:
+            topFieldHasError = !topFieldText.isValidEmail
+        case .phone, .phoneVerification:
+            break
+        case .onboard:
+            topFieldHasError = !topFieldText.isValidUsername
+        }
+    }
+
+    func onBottomFieldSubmit() {
+        topButtonTapped()
+    }
+
+    func updateStep(to toStep: AuthStep) {
+        step = toStep
+        switch toStep {
+        case .logIn:
+            resetFields()
+        case .signUp:
+            resetFields()
+        case .phone:
+            resetFields()
+        case .phoneVerification:
+            break
+        case .onboard:
+            resetFields()
         }
     }
 }
@@ -147,7 +186,8 @@ class AuthenticationViewModel: ViewModel {
 private extension AuthenticationViewModel {
     func signUp() {
         topFieldHasError = !topFieldText.isValidEmail
-        bottomFieldHasError = !bottomFieldText.isValidPassword
+        //TODO: 1: Uncomment line below to prevent unsafe passwords
+//        bottomFieldHasError = !bottomFieldText.isValidPassword
         if bottomFieldHasError {
             print("Password has issue with \(bottomFieldText)")
         }
@@ -169,7 +209,7 @@ private extension AuthenticationViewModel {
     }
 
     func goToOnboarding() {
-        step = .onboard
+        updateStep(to: .onboard)
         topFieldText = ""
     }
 
@@ -193,5 +233,14 @@ private extension AuthenticationViewModel {
             }
             validateUser()
         }
+    }
+
+    func resetFields() {
+        topFieldIsActive = false
+        bottomFieldIsActive = false
+        topFieldText = ""
+        bottomFieldText = ""
+        topFieldHasError = false
+        bottomFieldHasError = false
     }
 }

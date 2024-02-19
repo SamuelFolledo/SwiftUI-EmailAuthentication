@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+/*
+ [] TODO: 1: Prepare for production
+ */
+
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
