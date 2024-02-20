@@ -12,11 +12,11 @@ struct TappableImageView: View {
     @State private var photosPickerPresented = false
     @State private var selectedPhotos = [PhotosPickerItem]()
     @State private var selectedImages = [Image]()
-    @Binding var selectedImage: Image
+    @Binding var selectedImage: UIImage
 
     var body: some View {
         VStack {
-            selectedImage
+            Image(uiImage: selectedImage)
                 .resizable()
                 .scaledToFit()
                 .onTapGesture {
@@ -32,8 +32,10 @@ struct TappableImageView: View {
                     if let image = try? await item.loadTransferable(type: Image.self) {
                         selectedImages.append(image)
                     }
+                    if let data = try? await item.loadTransferable(type: Data.self) {
+                        self.selectedImage = UIImage(data: data) ?? defaultProfilePhoto
+                    }
                 }
-                self.selectedImage = selectedImages.last ?? defaultProfilePhoto
             }
         }
     }
