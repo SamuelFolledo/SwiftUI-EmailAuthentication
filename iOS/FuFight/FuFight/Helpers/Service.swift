@@ -13,7 +13,7 @@ class Service {
 //        DispatchQueue.main.async {
 //            nav.view.layer.add(CATransition().segueFromRight(), forKey: nil) //show from right to left CATransition
 //            let vc:AuthenticationVC = UIStoryboard(name: "Authentication", bundle: nil).instantiateViewController(withIdentifier: kAUTHENTICATIONVC) as! AuthenticationVC //.instantiatViewControllerWithIdentifier() returns AnyObject! this must be downcast to utilize it
-//            vc.userAuthViewModel = UserAuthenticationViewModel(isEmailAuthentication: isEmailAuth)
+//            vc.userAuthViewModel = AccountAuthenticationViewModel(isEmailAuthentication: isEmailAuth)
 //            nav.pushViewController(vc, animated: false)
 //        }
     }
@@ -87,7 +87,7 @@ class Service {
 }
 
 ///this method decides if user will be put to finish registrationVC or back to the app
-func goToNextController(vc: UIViewController, user: User) {
+func goToNextController(vc: UIViewController, user: Account) {
     if user.username == "" || user.imageUrl?.absoluteString == "" {
 //        let nav = vc.navigationController
 //        DispatchQueue.main.async {

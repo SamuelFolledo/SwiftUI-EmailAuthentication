@@ -1,5 +1,5 @@
 //
-//  UserFacebook.swift
+//  AccountFacebook.swift
 //  FuFight
 //
 //  Created by Samuel Folledo on 2/15/24.
@@ -29,7 +29,7 @@
 //    }
 //}
 //
-//func getFacebookUser(userDetails: [String: AnyObject], accessToken: String, completion: @escaping (_ user: User?, _ error: String?) -> Void) {
+//func getFacebookAccount(userDetails: [String: AnyObject], accessToken: String, completion: @escaping (_ user: Account?, _ error: String?) -> Void) {
 //    //    let id = userDetails["id"] as? String,
 //    guard let firstName = userDetails["first_name"] as? String, let lastName = userDetails["last_name"] as? String, let email = userDetails["email"] as? String else { //get user details
 //        print("Failed to get user's facebook details")
@@ -41,12 +41,12 @@
 //            completion(nil, error.localizedDescription)
 //        }
 //        guard let userResult = userResult else { return }
-//        //                print("USER RESULT = \(userResult.additionalUserInfo?.profile)")
-//        if !userResult.additionalUserInfo!.isNewUser { //if not new user... get the user's info
-//            fetchUserWith(userId: userResult.user.uid) { (userFetched) in
+//        //                print("USER RESULT = \(userResult.additionalAccountInfo?.profile)")
+//        if !userResult.additionalAccountInfo!.isNewAccount { //if not new user... get the user's info
+//            fetchAccountWith(userId: userResult.user.uid) { (userFetched) in
 //                if let user = userFetched {
-//                    saveUserLocally(user: user)
-//                    saveUserInBackground(user: user)
+//                    saveAccountLocally(user: user)
+//                    saveAccountInBackground(user: user)
 //                    completion(user, nil)
 //                } else {
 //                    completion(nil, "Failed to fetch user")
@@ -61,10 +61,10 @@
 //                    if let error = error {
 //                        completion(nil, error)
 //                    }
-//                    let user = User(userId: userResult.user.uid, username: "", firstName: firstName, lastName: lastName, email: email, phoneNumber: "", imageUrl: imageUrl!, authTypes: [.facebook], createdAt: Date(), updatedAt: Date())
+//                    let user = Account(userId: userResult.user.uid, username: "", firstName: firstName, lastName: lastName, email: email, phoneNumber: "", imageUrl: imageUrl!, authTypes: [.facebook], createdAt: Date(), updatedAt: Date())
 //                    user.profilePhoto = profilePic!
-//                    saveUserLocally(user: user)
-//                    saveUserInBackground(user: user)
+//                    saveAccountLocally(user: user)
+//                    saveAccountInBackground(user: user)
 //                    saveEmailInDatabase(email: email)
 //                    completion(user, nil)
 //                }

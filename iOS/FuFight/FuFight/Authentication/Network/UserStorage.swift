@@ -1,5 +1,5 @@
 //
-//  UserStorage.swift
+//  AccountStorage.swift
 //  FuFight
 //
 //  Created by Samuel Folledo on 2/15/24.
@@ -13,7 +13,7 @@ func getImageURL(id: String, image: UIImage, completion: @escaping(_ imageURL: S
     guard let imageData = image.jpegData(compressionQuality: 0.2) else { return }
     let metaData: StorageMetadata = StorageMetadata()
     metaData.contentType = "image/jpg" //set its type
-    let imageReference = Storage.storage().reference().child(kUSER).child(kPROFILEPHOTO).child("\(id).jpg")
+    let imageReference = Storage.storage().reference().child(kACCOUNT).child(kPROFILEPHOTO).child("\(id).jpg")
     imageReference.putData(imageData, metadata: metaData, completion: { (metadata, error) in //putData = Asynchronously uploads data to the reference
         if let error = error {
             completion(nil, error.localizedDescription)
@@ -31,7 +31,7 @@ func getImageURL(id: String, image: UIImage, completion: @escaping(_ imageURL: S
 }
 
 ///fetch user's image given a URL. Can return an error
-func getUserImage(imageUrl: String, completion: @escaping (_ error: String?, _ image: UIImage?) -> Void) {
+func getAccountImage(imageUrl: String, completion: @escaping (_ error: String?, _ image: UIImage?) -> Void) {
     guard let url = URL(string: imageUrl) else {
         completion("No image url found", nil)
         return

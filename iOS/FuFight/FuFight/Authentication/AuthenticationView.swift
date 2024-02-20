@@ -75,17 +75,26 @@ struct LoginView: View {
     }
 
     var topField: some View {
-        UnderlinedTextField(type: vm.step.topFieldType, text: $vm.topFieldText, hasError: $vm.topFieldHasError, isActive: $vm.topFieldIsActive)
-            .onSubmit {
-                vm.onTopFieldSubmit()
-            }
+        UnderlinedTextField(
+            type: vm.step.topFieldType,
+            text: $vm.topFieldText,
+            hasError: $vm.topFieldHasError,
+            isActive: $vm.topFieldIsActive)
+        .onSubmit {
+            vm.onTopFieldReturnButtonTapped()
+        }
     }
 
     var bottomField: some View {
-        UnderlinedTextField(type: vm.step.bottomFieldType, text: $vm.bottomFieldText, hasError: $vm.bottomFieldHasError, isActive: $vm.bottomFieldIsActive, isSecure: true)
-            .onSubmit {
-                vm.onBottomFieldSubmit()
-            }
+        UnderlinedTextField(
+            type: vm.step.bottomFieldType,
+            text: $vm.bottomFieldText,
+            hasError: $vm.bottomFieldHasError,
+            isActive: $vm.bottomFieldIsActive,
+            isSecure: true)
+        .onSubmit {
+            vm.onBottomFieldReturnButtonTapped()
+        }
     }
 
     var topButton: some View {
@@ -122,5 +131,5 @@ struct LoginView: View {
 
 
 #Preview {
-    LoginView(vm: AuthenticationViewModel(step: .logIn))
+    LoginView(vm: AuthenticationViewModel(step: .logIn, account: Account()))
 }

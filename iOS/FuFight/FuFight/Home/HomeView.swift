@@ -57,5 +57,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(vm: HomeViewModel(user: User()))
+    HomeView(vm: HomeViewModel(account: Account()))
 }
