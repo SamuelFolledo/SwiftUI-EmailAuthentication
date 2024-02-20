@@ -20,7 +20,7 @@ class HomeViewModel: ViewModel {
 
     //MARK: - ViewModel Overrides
 
-    func onAppear() { 
+    func onAppear() {
         observeAuthChanges()
     }
 
@@ -32,8 +32,16 @@ class HomeViewModel: ViewModel {
 
     //MARK: - Public Methods
     func logout() {
-        print("Logging out \(account.displayName)")
-        account.accountStatus = .logout
+        Task {
+            do {
+                try await AccountNetworkManager.logout()
+                await transitionToAuthenticationView()
+                try await AccountNetworkManager.setData(account: account)
+                try await AccountManager.saveCurrent(account)
+            } catch {
+                print("Error deleting account \(error.localizedDescription)")
+            }
+        }
     }
 }
 
@@ -43,8 +51,18 @@ private extension HomeViewModel {
         auth.addStateDidChangeListener { (authDataResult, user) in
             if let user {
                 let updatedAccount = Account(user)
-                self.account.update(with: updatedAccount)
+                print("Auth ACCOUNT changes handler for \(user.displayName ?? "")")
+                updatedAccount.status = self.account.status
+                DispatchQueue.main.async {
+                    self.account.update(with: updatedAccount)
+                }
             }
+        }
+    }
+
+    func transitionToAuthenticationView() async {
+        DispatchQueue.main.async {
+            self.account.status = .logout
         }
     }
 }

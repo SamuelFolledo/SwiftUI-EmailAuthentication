@@ -12,11 +12,16 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 
-//MARK: - Account
-class Account: AccountPublicInfo, ObservableObject {
+class Account: ObservableObject, Codable {
     @DocumentID var id: String?
+    @Published var username: String?
+    @Published var imageUrl: URL?
+    @Published private(set) var email: String?
+    @Published private(set) var phoneNumber: String?
+    @Published private(set) var createdAt: Date?
+    @Published var status: Account.Status = .unfinished
+    
     var profilePhoto: UIImage = kDEFAULTPROFILEIMAGE
-    @Published var accountStatus: Account.Status = .unfinished
     var userId: String {
         return id!
     }
@@ -30,73 +35,107 @@ class Account: AccountPublicInfo, ObservableObject {
         return AccountManager.getCurrent()
     }
 
-    //MARK: - Codable overrides
-    private enum CodingKeys : String, CodingKey {
-        case id
-    }
-
-    override func encode(to encoder: Encoder) throws {
-        try super.encode(to: encoder)
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(id, forKey: .id)
-    }
-
     //MARK: - Initializers
-    init() {
-        FirebaseApp.configure()
-        if let user = auth.currentUser {
-            super.init(email: user.email, phoneNumber: user.phoneNumber, username: user.displayName ?? "", imageUrl: user.photoURL, createdAt: nil)
-            self.id = user.uid
-        } else {
-            super.init(email: nil, phoneNumber: nil, username: "", imageUrl: nil, createdAt: nil)
-        }
-    }
+    init() { }
 
-    init(_ authResult: AuthDataResult) {
-        super.init(email: authResult.user.email, phoneNumber: authResult.user.phoneNumber, username: authResult.user.displayName ?? "", imageUrl: authResult.user.photoURL, createdAt: authResult.user.metadata.creationDate)
+    convenience init(_ authResult: AuthDataResult) {
+        self.init()
+        self.email = authResult.user.email
+        self.phoneNumber = authResult.user.phoneNumber 
+        self.username = authResult.user.displayName
+        self.imageUrl = authResult.user.photoURL
+        self.createdAt = authResult.user.metadata.creationDate
         self.id = authResult.user.uid
     }
 
     init(_ firUser: User) {
-        super.init(email: firUser.email, phoneNumber: firUser.phoneNumber, username: firUser.displayName ?? "", imageUrl: firUser.photoURL, createdAt: firUser.metadata.creationDate)
         self.id = firUser.uid
+        self.username = firUser.displayName
+        self.imageUrl = firUser.photoURL
+        self.email = firUser.email
+        self.phoneNumber = firUser.phoneNumber
+        self.createdAt = firUser.metadata.creationDate
+    }
+
+    deinit {
+        print("Account \(displayName) is being deinitialize.")
+    }
+
+    //MARK: - Codable overrides
+    private enum CodingKeys : String, CodingKey {
+        case id, username, imageUrl, email, phoneNumber, createdAt, status
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(username, forKey: .username)
+        try container.encode(imageUrl, forKey: .imageUrl)
+        try container.encode(createdAt, forKey: .createdAt)
+        try container.encode(email, forKey: .email)
+        try container.encode(phoneNumber, forKey: .phoneNumber)
+        try container.encode(status.rawValue, forKey: .status)
     }
 
     required init(from decoder: Decoder) throws {
-        fatalError("init(from:) has not been implemented")
-    }
-    
-    deinit {
-        print("Account \(displayName) is being deinitialize.")
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try values.decodeIfPresent(String.self, forKey: .id)
+        self.username = try values.decodeIfPresent(String.self, forKey: .username)!
+        self.imageUrl = try values.decodeIfPresent(URL.self, forKey: .imageUrl)!
+        self.email = try values.decodeIfPresent(String.self, forKey: .email)!
+        self.phoneNumber = try values.decodeIfPresent(String.self, forKey: .phoneNumber)
+        self.createdAt = try values.decodeIfPresent(Date.self, forKey: .createdAt)!
+        let statusRawValue = try values.decodeIfPresent(Int.self, forKey: .status)!
+        self.status = Status(rawValue: statusRawValue) ?? .unfinished
     }
 
     //MARK: Public Methods
 
     func update(with user: Account) {
-        self.id = user.id
-        self.update(username: user.username, imageUrl: user.imageUrl)
-        self.update(email: user.email, phoneNumber: user.phoneNumber, createdAt: user.createdAt)
+        if let id = user.id {
+            self.id = id
+        }
+        if let username = user.username {
+            self.username = username
+        }
+        if let imageUrl = user.imageUrl {
+            self.imageUrl = imageUrl
+        }
+        if let email = user.email {
+            self.email = email
+        }
+        if let phoneNumber = user.phoneNumber {
+            self.phoneNumber = phoneNumber
+        }
+        if let createdAt = user.createdAt {
+            self.createdAt = createdAt
+        }
         self.profilePhoto = user.profilePhoto
-        self.accountStatus = user.accountStatus
+        self.status = user.status
+    }
+
+    func reset() {
+        //setting username to empty will remove the Delete account button on AuthenticationView
+        username = ""
     }
 
 //MARK: Class Functions
-    class func currentId() -> String {
-        return Auth.auth().currentUser!.uid
-    }
-    
-    class func currentAccount() -> Account? {
-//        if let user = auth.currentAccount {
-//            print("TODO: Implement returning a current user")
-//        }
-//        if Auth.auth().currentAccount != nil { //if we have user...
-//            if let dictionary = AccountDefaults.standard.object(forKey: kCURRENTACCOUNT) {
-//                return Account.init(dictionary: dictionary as! [String: Any])
-//            }
-//        }
-        return nil //if we dont have user in our AccountDefaults, then return nil
-    }
-    
+//    class func currentId() -> String {
+//        return Auth.auth().currentUser!.uid
+//    }
+//    
+//    class func currentAccount() -> Account? {
+////        if let user = auth.currentAccount {
+////            print("TODO: Implement returning a current user")
+////        }
+////        if Auth.auth().currentAccount != nil { //if we have user...
+////            if let dictionary = AccountDefaults.standard.object(forKey: kCURRENTACCOUNT) {
+////                return Account.init(dictionary: dictionary as! [String: Any])
+////            }
+////        }
+//        return nil //if we dont have user in our AccountDefaults, then return nil
+//    }
+//    
 //MARK: Email Authentication
     class func registerAccountWith(email: String, password: String, completion: @escaping (_ error: String?, _ user: Account?) -> Void) { //do u think I should return the user here on completion?
         auth.createUser(withEmail: email, password: password) { (firAccount, error) in
@@ -201,24 +240,6 @@ class Account: AccountPublicInfo, ObservableObject {
     }
 }
 
-//MARK: Account Codable Extension
-extension Account {
-//    private enum CodingKeys : String, CodingKey {
-//        case id, username, email, imageUrl, phoneNumber, createdAt, accountStatus
-//    }
-//
-//    override func encode(to encoder: Encoder) throws {
-////        try super.encode(to: encoder)
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(id, forKey: .id)
-//        try container.encode(username, forKey: .username)
-//        try container.encode(imageUrl, forKey: .imageUrl)
-//        try container.encode(createdAt, forKey: .createdAt)
-//        try container.encode(email, forKey: .email)
-//        try container.encode(phoneNumber, forKey: .phoneNumber)
-//    }
-}
-
 //MARK: Helper Methods for Account
 func userDictionaryFrom(user: Account) -> NSDictionary { //take a user and return an NSDictionary, convert dates into strings
 //    let createdAt = Service.dateFormatter().string(from: user.createdAt) //convert dates to strings first
@@ -230,11 +251,12 @@ func userDictionaryFrom(user: Account) -> NSDictionary { //take a user and retur
 }
 
 func isAccountLoggedIn() -> Bool { //checks if we have user logged in
-    if Account.currentAccount() != nil {
-        return true
-    } else {
-        return false
-    }
+//    if Account.currentAccount() != nil {
+//        return true
+//    } else {
+//        return false
+//    }
+    true
 }
 
 func saveProfilePhoto(id: String = kPROFILEPHOTO, profilePhoto: UIImage) {
@@ -252,74 +274,12 @@ func deleteProfilePhoto(id: String = kPROFILEPHOTO) {
     UserDefaults.standard.synchronize()
 }
 
-//MARK: - Account Classes
+//MARK: - Custom Account Classes
 extension Account {
-    enum Status {
+    enum Status: Int {
         case valid
         ///When account is created but unfinished
         case unfinished
         case logout
-    }
-}
-
-class AccountPublicInfo: AccountPrivateInfo {
-    private(set) var username: String?
-    private(set) var imageUrl: URL?
-
-    init(email: String?, phoneNumber: String?, username: String, imageUrl: URL? = nil, createdAt: Date?) {
-        self.username = username
-        self.imageUrl = imageUrl
-        super.init(email: email, phoneNumber: phoneNumber, createdAt: createdAt)
-    }
-
-    required init(from decoder: Decoder) throws {
-        fatalError("init(from:) has not been implemented")
-    }
-
-    //MARK: - Codable
-    private enum CodingKeys : String, CodingKey {
-        case userId, username, email, imageUrl, phoneNumber, accountStatus
-    }
-
-    override func encode(to encoder: Encoder) throws {
-        try super.encode(to: encoder)
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(username, forKey: .username)
-        try container.encode(imageUrl, forKey: .imageUrl)
-        try container.encode(email, forKey: .email)
-        try container.encode(phoneNumber, forKey: .phoneNumber)
-    }
-
-    func update(username: String? = nil, imageUrl: URL? = nil) {
-        if let username {
-            self.username = username
-        }
-        if let imageUrl {
-            self.imageUrl = imageUrl
-        }
-    }
-}
-
-class AccountPrivateInfo: Codable {
-    private(set) var email: String?
-    private(set) var phoneNumber: String?
-    private(set) var createdAt: Date?
-
-    init(email: String? = nil, phoneNumber: String? = nil, createdAt: Date?) {
-        self.email = email
-        self.phoneNumber = phoneNumber
-        self.createdAt = createdAt
-    }
-
-    func update(email: String? = nil, phoneNumber: String? = nil, createdAt: Date? = nil) {
-        if let email {
-            self.email = email
-        }
-        if let phoneNumber {
-            self.phoneNumber = phoneNumber
-        }
-        if let createdAt {
-            self.createdAt = createdAt
-        }
     }
 }

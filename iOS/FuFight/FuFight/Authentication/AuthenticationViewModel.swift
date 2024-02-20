@@ -130,7 +130,9 @@ class AuthenticationViewModel: ViewModel {
         switch step {
         case .logIn:
             print("TODO: Log in, then go to game view")
-            transitionToHomeView()
+            Task {
+                await transitionToHomeView()
+            }
         case .signUp:
             Task {
                 await signUp()
@@ -141,7 +143,9 @@ class AuthenticationViewModel: ViewModel {
             updateStep(to: .phoneVerification)
         case .phoneVerification:
             print("TODO: Login/sign up with phone")
-            transitionToHomeView()
+            Task {
+                await transitionToHomeView()
+            }
         case .onboard:
             Task {
                 await finishAccountCreation()
@@ -197,15 +201,16 @@ class AuthenticationViewModel: ViewModel {
 
     ///Delete in Auth, Firestore, Storage, and then locally
     func deleteAccount() async {
-        if let current = Account.current {
-            do {
-                try await AccountNetworkManager.deleteStoredPhoto(current.userId)
-                try await AccountNetworkManager.deleteData(current.userId)
-                try await AccountNetworkManager.deleteAuthData(userId: current.userId)
-                AccountManager.deleteCurrent()
-            } catch {
-                print("Error deleting account \(error.localizedDescription)")
-            }
+        let currentUserId = account.id ?? Account.current?.userId ?? account.userId
+        do {
+            try await AccountNetworkManager.deleteStoredPhoto(currentUserId)
+            try await AccountNetworkManager.deleteData(currentUserId)
+            try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
+            try await AccountNetworkManager.logout()
+            AccountManager.deleteCurrent()
+            account.reset()
+        } catch {
+            print("Error deleting account \(error.localizedDescription)")
         }
     }
 }
@@ -219,8 +224,8 @@ private extension AuthenticationViewModel {
             do {
                 guard let authData = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else { return }
                 let updatedAccount = Account(authData)
-                self.account.update(with: updatedAccount)
-                self.updateStep(to: .onboard)
+                account.update(with: updatedAccount)
+                updateStep(to: .onboard)
             } catch {
                 print("Error signing up \(error.localizedDescription)")
             }
@@ -235,10 +240,11 @@ private extension AuthenticationViewModel {
             do {
                 if let imageUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
                     try await AccountNetworkManager.updateAuthenticatedAccount(username: topFieldText, photoURL: imageUrl)
-                    account.update(username: topFieldText, imageUrl: imageUrl)
+                    account.username = topFieldText
+                    account.imageUrl = imageUrl
+                    await transitionToHomeView()
                     try await AccountNetworkManager.setData(account: account)
-                    AccountManager.saveCurrent(account)
-                    transitionToHomeView()
+                    try await AccountManager.saveCurrent(account)
                 }
             } catch {
                 print("Error Finishing Account creation \(error.localizedDescription)")
@@ -246,10 +252,10 @@ private extension AuthenticationViewModel {
         }
     }
 
-    func transitionToHomeView() {
+    func transitionToHomeView() async {
 //        let isPhone = step == .phone || step == .phoneVerification
         DispatchQueue.main.async {
-            self.account.accountStatus = .valid
+            self.account.status = .valid
         }
     }
 

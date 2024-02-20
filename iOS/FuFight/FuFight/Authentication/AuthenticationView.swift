@@ -32,8 +32,8 @@ struct AuthenticationView: View {
                 }
             }
             .toolbar {
-                if let account = Account.current,
-                   !account.displayName.isEmpty {
+                if let username = vm.account.username,
+                   !username.isEmpty {
                     deleteAccountButton
                 }
             }

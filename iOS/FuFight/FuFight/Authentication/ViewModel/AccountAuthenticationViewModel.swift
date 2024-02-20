@@ -150,7 +150,7 @@ public final class AccountAuthenticationViewModel {
             if let error = error {
                 completion(error.localizedDescription, nil)
             } else {
-                guard let currentAccount = Account.currentAccount() else { print("No user"); return }
+                guard let currentAccount = Account.current else { print("No user"); return }
                 completion(nil, currentAccount)
             }
         }

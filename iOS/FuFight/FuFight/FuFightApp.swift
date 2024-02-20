@@ -15,7 +15,7 @@ struct FuFightApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if account.accountStatus == .valid {
+            if account.status == .valid {
                 let homeViewModel = HomeViewModel(account: account)
                 HomeView(vm: homeViewModel)
             } else {
