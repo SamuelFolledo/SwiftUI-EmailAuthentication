@@ -1,9 +1,8 @@
 //
 //  Constants.swift
-//  FolledoUserAuth
+//  FuFight
 //
-//  Created by Macbook Pro 15 on 10/12/19.
-//  Copyright © 2019 SamuelFolledo. All rights reserved.
+//  Created by Samuel Folledo on 2/15/24.
 //
 
 import Foundation
@@ -37,7 +36,7 @@ public let kAPPLEAUTH: String = "appleAuth"
 public let kUSER: String = "user"
 public let kMESSAGES: String = "message"
 public let kPUSHID: String = "pushId"
-public let kPROFILEIMAGE: String = "profileImage"
+public let kPROFILEPHOTO: String = "profilePhoto"
 
 //MARK: Other Constants
 public let kCREATEDAT: String = "createdAt"
@@ -73,7 +72,7 @@ public let kHEADERTEXT: UIFont = UIFont.systemFont(ofSize: 17, weight: .semibold
 
 //controller storyboard id
 public let kCHATCONTROLLER: String = "chatController"
-public let kLOGINCONTROLLER: String = "loginController"
+public let kLOGINCONTROLLER: String = "logInController"
 public let kANIMATIONCONTROLLER: String = "animationController"
 public let kMENUCONTROLLER: String = "menuController"
 

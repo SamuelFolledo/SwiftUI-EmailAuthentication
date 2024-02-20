@@ -1,9 +1,8 @@
 //
 //  UserAuthenticationVM.swift
-//  FolledoUserAuth
+//  FuFight
 //
-//  Created by Macbook Pro 15 on 11/15/19.
-//  Copyright © 2019 SamuelFolledo. All rights reserved.
+//  Created by Samuel Folledo on 2/16/24.
 //
 
 import UIKit
@@ -84,33 +83,33 @@ public final class UserAuthenticationViewModel {
                 }
             }
         } else { //phone authentication
-            if !self.hasPhoneCode { //text code if no phone code yet
-                self.textPhoneCode(phoneNumber: topFieldValue) { (error) in
-                    if let error = error {
-                        completion(nil, error)
-                    }
-                    self.hasPhoneCode = true
-                    self.continueButtonTitle = "Continue with Phone"
-                    completion(nil, nil)
-                }
-            } else if self.hasPhoneCode && bottomFieldValue != "" { //if we have phone code and it is not empty, register or login phone
-                self.continueWithPhone(phone: topFieldValue, code: bottomFieldValue) { (user, error) in
-                    if let error = error {
-                        completion(nil, error)
-                    }
-                    completion(user, nil)
-                }
-            } else {
-                completion(nil, "Field is empty")
-            }
+//            if !self.hasPhoneCode { //text code if no phone code yet
+//                self.textPhoneCode(phoneNumber: topFieldValue) { (error) in
+//                    if let error = error {
+//                        completion(nil, error)
+//                    }
+//                    self.hasPhoneCode = true
+//                    self.continueButtonTitle = "Continue with Phone"
+//                    completion(nil, nil)
+//                }
+//            } else if self.hasPhoneCode && bottomFieldValue != "" { //if we have phone code and it is not empty, register or logIn phone
+//                self.continueWithPhone(phone: topFieldValue, code: bottomFieldValue) { (user, error) in
+//                    if let error = error {
+//                        completion(nil, error)
+//                    }
+//                    completion(user, nil)
+//                }
+//            } else {
+//                completion(nil, "Field is empty")
+//            }
         }
     }
     
     fileprivate func continueWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) { //if no error
-        checkIfEmailExist(email: email, completion: { (emailAlreadyExist) in //check if email exist in our Database, then login, else register
+        checkIfEmailExist(email: email, completion: { (emailAlreadyExist) in //check if email exist in our Database, then logIn, else register
             if let emailAlreadyExist = emailAlreadyExist {
                 if emailAlreadyExist { //LOGIN
-                    self.loginWithEmail(email: email, password: password) { (error, user) in
+                    self.logInWithEmail(email: email, password: password) { (error, user) in
                         if let error = error {
                             completion(error, nil)
                         } else {
@@ -146,8 +145,8 @@ public final class UserAuthenticationViewModel {
         }, withCancel: nil)
     }
     
-    fileprivate func loginWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) {
-        User.loginUserWith(email: email, password: password) { (error) in
+    fileprivate func logInWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) {
+        User.logInUserWith(email: email, password: password) { (error) in
             if let error = error {
                 completion(error.localizedDescription, nil)
             } else {
@@ -169,7 +168,7 @@ public final class UserAuthenticationViewModel {
     
 //    func checkInputValues(topTF: UnderlinedTextField, bottomTF: UnderlinedTextField) -> (topTF: UnderlinedTextField, bottomTF: UnderlinedTextField, errors: [String], topFieldValue: String, bottomFieldValue: String) { //method that check for errors on input values from textfields, put a red border or clear border and return input values with errorCount //Note: work on PROPERLY HANDLING ERRORS in the future
 //        var values: (topTF: UnderlinedTextField, bottomTF: UnderlinedTextField, errors: [String], topFieldValue: String, bottomFieldValue: String) = (topTF: topTF, bottomTF: bottomTF, errors: [], topFieldValue: "", bottomFieldValue: "")
-//        guard let topText: String = topTF.text?.trimmedString(), topText != "" else { //unwrap top's value
+//        guard let topText: String = topTF.text?.trimmed, topText != "" else { //unwrap top's value
 //            values.topTF.hasError()
 //            values.errors.append("Field is empty")
 //            return values
@@ -182,7 +181,7 @@ public final class UserAuthenticationViewModel {
 //                values.topFieldValue = topText
 //                values.topTF.hasNoError()
 //            }
-//            guard let bottomText = topTF.text?.trimmedString(), bottomText != "" else { //if password is empty...
+//            guard let bottomText = topTF.text?.trimmed, bottomText != "" else { //if password is empty...
 //                values.bottomTF.hasError()
 //                values.errors.append("Field is empty")
 //                return values
@@ -205,7 +204,7 @@ public final class UserAuthenticationViewModel {
 //                if !hasPhoneCode { //text for code
 //                    print("Texting code...")
 //                } else { //check bottom text
-//                    guard let bottomText = bottomTF.text?.trimmedString(), bottomText != "" else { //if password is empty...
+//                    guard let bottomText = bottomTF.text?.trimmed, bottomText != "" else { //if password is empty...
 //                        values.bottomTF.hasError()
 //                        values.errors.append("Field is empty")
 //                        return values
@@ -231,17 +230,17 @@ public final class UserAuthenticationViewModel {
         }
     }
     
-    private func continueWithPhone(phone: String, code: String, completion: @escaping (_ user: User?, _ error: String?) -> Void) { //method once the user has inputted phone number and verification code
-        let verificationID = UserDefaults.standard.value(forKey: kVERIFICATIONCODE) //when user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
-        let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID as! String, verificationCode: code) //get our credential
-        User.authenticateUser(credential: credential, userDetails: [kPHONENUMBER: phone]) { (user, error) in //authenticate and get user
-            if let error = error {
-                completion(nil, error)
-                return
-            }
-            UserDefaults.standard.removeObject(forKey: kVERIFICATIONCODE)
-            UserDefaults.standard.synchronize() //remove code
-            completion(user, nil)
-        }
-    }
+//    private func continueWithPhone(phone: String, code: String, completion: @escaping (_ user: User?, _ error: String?) -> Void) { //method once the user has inputted phone number and verification code
+//        let verificationID = UserDefaults.standard.value(forKey: kVERIFICATIONCODE) //when user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
+//        let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID as! String, verificationCode: code) //get our credential
+//        User.authenticateUser(credential: credential, userDetails: [kPHONENUMBER: phone]) { (user, error) in //authenticate and get user
+//            if let error = error {
+//                completion(nil, error)
+//                return
+//            }
+//            UserDefaults.standard.removeObject(forKey: kVERIFICATIONCODE)
+//            UserDefaults.standard.synchronize() //remove code
+//            completion(user, nil)
+//        }
+//    }
 }

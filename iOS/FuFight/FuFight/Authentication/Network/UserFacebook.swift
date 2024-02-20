@@ -1,9 +1,8 @@
 //
 //  UserFacebook.swift
-//  FolledoUserAuth
+//  FuFight
 //
-//  Created by Macbook Pro 15 on 1/19/20.
-//  Copyright © 2020 SamuelFolledo. All rights reserved.
+//  Created by Samuel Folledo on 2/15/24.
 //
 
 //import UIKit
@@ -63,7 +62,7 @@
 //                        completion(nil, error)
 //                    }
 //                    let user = User(userId: userResult.user.uid, username: "", firstName: firstName, lastName: lastName, email: email, phoneNumber: "", imageUrl: imageUrl!, authTypes: [.facebook], createdAt: Date(), updatedAt: Date())
-//                    user.profileImage = profilePic!
+//                    user.profilePhoto = profilePic!
 //                    saveUserLocally(user: user)
 //                    saveUserInBackground(user: user)
 //                    saveEmailInDatabase(email: email)

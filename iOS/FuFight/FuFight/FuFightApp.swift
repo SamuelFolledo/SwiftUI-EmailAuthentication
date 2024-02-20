@@ -10,16 +10,17 @@ import SwiftUI
 @main
 struct FuFightApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    var user: User?
-    let authViewModel = AuthenticationViewModel(step: .login)
+
+    @ObservedObject private var user = User()
 
     var body: some Scene {
         WindowGroup {
-            if let user = authViewModel.user,
-                user.accountStatus == .valid {
-                ContentView()
+            if user.accountStatus == .valid {
+                let homeViewModel = HomeViewModel(user: user)
+                HomeView(vm: homeViewModel)
             } else {
-                LoginView(viewModel: authViewModel)
+                let authViewModel = AuthenticationViewModel(step: .logIn, user: user)
+                LoginView(vm: authViewModel)
             }
         }
     }

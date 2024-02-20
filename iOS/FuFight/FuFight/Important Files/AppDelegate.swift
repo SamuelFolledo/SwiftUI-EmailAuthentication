@@ -7,14 +7,16 @@
 
 import SwiftUI
 
-import FirebaseAuth
-import FirebaseCore
-import FirebaseFirestore
+/*
+ [] TODO: 1: Prepare for production
+    - Validate login page's fields
+    - Update Firebase's GoogleServiceInfo.plist
+    - Update Firebase Storage's rules
+ */
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        FirebaseApp.configure()
         return true
     }
 }

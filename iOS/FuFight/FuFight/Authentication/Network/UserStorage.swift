@@ -1,9 +1,8 @@
 //
 //  UserStorage.swift
-//  FolledoUserAuth
+//  FuFight
 //
-//  Created by Macbook Pro 15 on 1/19/20.
-//  Copyright © 2020 SamuelFolledo. All rights reserved.
+//  Created by Samuel Folledo on 2/15/24.
 //
 
 import UIKit
@@ -14,7 +13,7 @@ func getImageURL(id: String, image: UIImage, completion: @escaping(_ imageURL: S
     guard let imageData = image.jpegData(compressionQuality: 0.2) else { return }
     let metaData: StorageMetadata = StorageMetadata()
     metaData.contentType = "image/jpg" //set its type
-    let imageReference = Storage.storage().reference().child(kUSER).child(kPROFILEIMAGE).child("\(id).jpg")
+    let imageReference = Storage.storage().reference().child(kUSER).child(kPROFILEPHOTO).child("\(id).jpg")
     imageReference.putData(imageData, metadata: metaData, completion: { (metadata, error) in //putData = Asynchronously uploads data to the reference
         if let error = error {
             completion(nil, error.localizedDescription)

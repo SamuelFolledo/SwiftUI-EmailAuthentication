@@ -1,9 +1,8 @@
 //
 //  Service.swift
-//  FolledoUserAuth
+//  FuFight
 //
-//  Created by Macbook Pro 15 on 10/12/19.
-//  Copyright © 2019 SamuelFolledo. All rights reserved.
+//  Created by Samuel Folledo on 2/15/24.
 //
 
 import UIKit
@@ -89,7 +88,7 @@ class Service {
 
 ///this method decides if user will be put to finish registrationVC or back to the app
 func goToNextController(vc: UIViewController, user: User) {
-    if user.username == "" || user.imageUrl == "" {
+    if user.username == "" || user.imageUrl?.absoluteString == "" {
 //        let nav = vc.navigationController
 //        DispatchQueue.main.async {
 //            nav?.view.layer.add(CATransition().segueFromRight(), forKey: nil)
