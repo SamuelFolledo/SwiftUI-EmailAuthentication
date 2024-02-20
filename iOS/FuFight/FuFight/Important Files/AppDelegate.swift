@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 /*
  [] TODO: 1: Prepare for production
@@ -17,6 +18,7 @@ import SwiftUI
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        FirebaseApp.configure()
         return true
     }
 }

@@ -47,7 +47,7 @@ func fetchAccountWith(userId: String, completion: @escaping (_ user: Account?) -
 //MARK: - Update Account
 func updateCurrentAccount(withValues: [String : Any], withBlock: @escaping(_ success: Bool) -> Void) { //withBlock makes it run in the background //method that saves our current user's values offline and online
     if UserDefaults.standard.object(forKey: kCURRENTACCOUNT) != nil {
-        guard let currentAccount = Account.currentAccount() else { return }
+        guard let currentAccount = Account.current else { return }
         let userObject = userDictionaryFrom(user: currentAccount).mutableCopy() as! NSMutableDictionary
         userObject.setValuesForKeys(withValues)
         let ref = firDatabase.child(kACCOUNT).child(currentAccount.userId)

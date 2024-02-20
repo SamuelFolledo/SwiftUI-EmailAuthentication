@@ -58,6 +58,14 @@ extension AccountNetworkManager {
             throw error
         }
     }
+
+    static func logout() async throws {
+        do {
+            try auth.signOut()
+        } catch {
+            throw error
+        }
+    }
 }
 
 //MARK: - Storage Extension
