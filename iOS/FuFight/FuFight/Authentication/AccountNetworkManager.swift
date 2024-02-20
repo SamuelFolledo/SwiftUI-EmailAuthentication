@@ -20,76 +20,60 @@ enum NetworkError: Error {
 }
 
 class AccountNetworkManager {
-    typealias UserCompletionHandler = (_ user: User?, _ error: Error?) -> Void
-    typealias PhotoUrlCompletionHandler = (_ url: URL?, _ error: Error?) -> Void
-    typealias CompletionHandler = (_ error: Error?) -> Void
+    private init() {}
 
     ///Create a user from email and password.
     ///Email and password should have been validated already before calling this method
-    static func createUser(email: String, password: String, completion: @escaping UserCompletionHandler) {
-        auth.createUser(withEmail: email, password: password) { result, error in
-            if let error {
-                return completion(nil, error)
-            }
-            if let result {
-                if let user = self.userFromAuthResult(result) {
-                    return completion(user, nil)
-                } else {
-                    return completion(nil, NetworkError.invalidUser)
-                }
-            }
-            completion(nil, NetworkError.noResult)
+    static func createUser(email: String, password: String) async throws -> User? {
+        do {
+            let authDataResult = try await auth.createUser(withEmail: email, password: password)
+            return User(authResult: authDataResult)
+        } catch {
+            throw error
         }
     }
 
     ///Uploads the image to Storage for the userId passed
-    static func storeImage(_ image: Image, for userId: String, completion: @escaping PhotoUrlCompletionHandler) {
-        let imageData = image.toData(compression: 0.3)
+    static func storeImage(_ image: UIImage, compressionQuality: Double = 0.3, for userId: String) async throws -> URL? {
+        guard let imageData = image.jpegData(compressionQuality: compressionQuality) else { return nil }
         let metaData: StorageMetadata = StorageMetadata()
         metaData.contentType = "image/jpg"
         let photoReference = profilePhotoStorage.child("\(userId).jpg")
-        photoReference.putData(imageData, metadata: metaData) { data, error in
-            if let error = error {
-                completion(nil, error)
-            } else {
-                photoReference.downloadURL { url, error in
-                    completion(url, error)
-                    if url == nil && error == nil {
-                        fatalError("Error: storeImage() is expecting a download url or an error")
-                    }
-                }
-            }
+        do {
+            let data = try await photoReference.putDataAsync(imageData, metadata: metaData)
+            let url = try await photoReference.downloadURL()
+            return url
+        } catch {
+            throw error
         }
     }
 
-    static func updateAuthenticatedUser(username: String, photoURL: URL, completion: @escaping CompletionHandler) {
+    ///Update current user's information on Auth.auth()
+    static func updateAuthenticatedUser(username: String, photoURL: URL) async throws {
         guard !username.isEmpty && !photoURL.absoluteString.isEmpty else {
             fatalError("Error updating authenticated user's username to \(username), and photoUrl to \(photoURL)")
         }
         let changeRequest = auth.currentUser?.createProfileChangeRequest()
         changeRequest?.displayName = username
         changeRequest?.photoURL = photoURL
-        changeRequest?.commitChanges(completion: { error in
-            completion(error)
-        })
+        do {
+            try await changeRequest?.commitChanges()
+        } catch {
+            throw error
+        }
     }
 
-    static func setData(user: User?, merge: Bool = true, completion: @escaping CompletionHandler) {
+    ///Update user's data on the databaes. Set merge to false to override existing data
+    static func setData(user: User?, merge: Bool = true) async throws {
         if let user {
             let userRef = db.collection(kUSER).document(user.userId)
             do {
                 try userRef.setData(from: user, merge: merge)
-                completion(nil)
-            }
-            catch {
-                completion(error)
+            } catch {
+                throw error
             }
         }
     }
 }
 
-private extension AccountNetworkManager {
-    static func userFromAuthResult(_ result: AuthDataResult) -> User? {
-        return User(authResult: result)
-    }
-}
+private extension AccountNetworkManager { }

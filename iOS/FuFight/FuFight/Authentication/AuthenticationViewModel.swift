@@ -98,7 +98,8 @@ class AuthenticationViewModel: ViewModel {
     var bottomFieldHasError: Bool = false
     var bottomFieldIsActive: Bool = false
     var error: Error?
-    var selectedImage = defaultProfilePhoto
+    var selectedImage: UIImage = defaultProfilePhoto
+
     var topButtonIsEnabled: Bool {
         switch step {
         case .logIn, .signUp:
@@ -131,7 +132,9 @@ class AuthenticationViewModel: ViewModel {
             print("TODO: Log in, then go to game view")
             validateUser()
         case .signUp:
-            signUp()
+            Task {
+                await signUp()
+            }
         case .phone:
             print("TODO: Send phone code")
             updateStep(to: .phoneVerification)
@@ -139,7 +142,9 @@ class AuthenticationViewModel: ViewModel {
             print("TODO: Login/sign up with phone")
             validateUser()
         case .onboard:
-            finishAccountCreation()
+            Task {
+                await finishAccountCreation()
+            }
         }
     }
 
@@ -186,57 +191,37 @@ class AuthenticationViewModel: ViewModel {
 }
 
 private extension AuthenticationViewModel {
-    func signUp() {
+    func signUp() async {
         validateTopField()
         //TODO: 1: Uncomment line below to prevent unsafe passwords
 //        bottomFieldHasError = !bottomFieldText.isValidPassword
         if !topFieldHasError && !bottomFieldHasError {
-            AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) { user, error in
-                if let error  {
-                    self.error = error
-                }
-                if let user {
-                    print("Successfully create a user \(user.username) with status \(user.accountStatus)")
-                    self.user = user
-                    self.updateStep(to: .onboard)
-                }
+            do {
+                guard let user = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else {  return }
+                self.user = user
+                self.updateStep(to: .onboard)
+            } catch {
+                print("Error signing up \(error.localizedDescription)")
             }
         } else {
             print("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
         }
     }
 
-    func finishAccountCreation() {
-        //Database TODO: Update user's username and downloadUrl
-        //Database TODO: Set user's data to database
-
-        //Improvements TODO: Show alerts
-        //Improvements TODO: Show progress indicator
+    func finishAccountCreation() async {
         validateTopField()
         if !topFieldHasError {
-            print("TODO: Store image and write user data to Database")
-            AccountNetworkManager.storeImage(selectedImage, for: user?.userId ?? "") { url, error in
-                if let error {
-                    print("Error setting user's photo Url: \(error.localizedDescription)")
-                } else if let url {
-                    AccountNetworkManager.updateAuthenticatedUser(username: self.topFieldText, photoURL: url) { error in
-                        if let error {
-                            print("Error updating authenticated user: \(error)")
-                            return
-                        }
-                        self.user?.username = self.topFieldText
-                        self.user?.imageUrl = url
-                        AccountNetworkManager.setData(user: self.user) { error in
-                            if let error {
-                                print("Error updating user's database \(error.localizedDescription)")
-                                return
-                            }
-                            print("TODO: Go to home page after successfully updating user's database")
-                        }
-                    }
-                }
+            do {
+                guard let imageUrl = try await AccountNetworkManager.storeImage(selectedImage, for: user!.userId) else { return }
+                try await AccountNetworkManager.updateAuthenticatedUser(username: topFieldText, photoURL: imageUrl)
+                user?.username = topFieldText
+                user?.imageUrl = imageUrl
+                try await AccountNetworkManager.setData(user: user)
+                validateUser()
+                print("TODO: Go to home page after successfully updating user's database")
+            } catch {
+                print("Error Finishing Account creation \(error.localizedDescription)")
             }
-            validateUser()
         }
     }
 

@@ -16,4 +16,5 @@ let db = Firestore.firestore()
 let storage = Storage.storage().reference()
 let profilePhotoStorage = storage.child(kUSER).child(kPROFILEPHOTO)
 
-let defaultProfilePhoto = Image(systemName: "person.crop.circle")
+//let defaultProfilePhoto = Image(systemName: "person.crop.circle")
+let defaultProfilePhoto: UIImage = UIImage(systemName: "person.crop.circle")!
