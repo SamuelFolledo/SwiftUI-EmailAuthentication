@@ -133,8 +133,8 @@ public final class AccountAuthenticationViewModel {
     }
     
 //MARK: Helpers
-    fileprivate func checkIfEmailExist(email:String, completion: @escaping (_ emailExist: Bool?) -> Void) { //check emails from kREGISTEREDUSERS and returns true if email exist in our Database
-        let emailRef = firDatabase.child(kREGISTEREDUSERS).queryOrdered(byChild: kEMAIL).queryEqual(toValue: email)
+    fileprivate func checkIfEmailExist(email:String, completion: @escaping (_ emailExist: Bool?) -> Void) { //check emails from kREGISTEREDACCOUNTS and returns true if email exist in our Database
+        let emailRef = firDatabase.child(kREGISTEREDACCOUNTS).queryOrdered(byChild: kEMAIL).queryEqual(toValue: email)
         emailRef.observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.exists() {
                 print("snapshot = \(snapshot)")

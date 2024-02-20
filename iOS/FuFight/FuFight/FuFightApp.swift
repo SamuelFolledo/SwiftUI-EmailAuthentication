@@ -11,7 +11,7 @@ import SwiftUI
 struct FuFightApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
-    @ObservedObject private var account = Account()
+    @ObservedObject private var account = AccountManager.getCurrent() ?? Account()
 
     var body: some Scene {
         WindowGroup {
@@ -20,7 +20,7 @@ struct FuFightApp: App {
                 HomeView(vm: homeViewModel)
             } else {
                 let authViewModel = AuthenticationViewModel(step: .logIn, account: account)
-                LoginView(vm: authViewModel)
+                AuthenticationView(vm: authViewModel)
             }
         }
     }

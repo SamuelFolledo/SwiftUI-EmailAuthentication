@@ -130,7 +130,7 @@ class AuthenticationViewModel: ViewModel {
         switch step {
         case .logIn:
             print("TODO: Log in, then go to game view")
-            validateAccount()
+            transitionToHomeView()
         case .signUp:
             Task {
                 await signUp()
@@ -141,7 +141,7 @@ class AuthenticationViewModel: ViewModel {
             updateStep(to: .phoneVerification)
         case .phoneVerification:
             print("TODO: Login/sign up with phone")
-            validateAccount()
+            transitionToHomeView()
         case .onboard:
             Task {
                 await finishAccountCreation()
@@ -194,6 +194,20 @@ class AuthenticationViewModel: ViewModel {
             resetFields()
         }
     }
+
+    ///Delete in Auth, Firestore, Storage, and then locally
+    func deleteAccount() async {
+        if let current = Account.current {
+            do {
+                try await AccountNetworkManager.deleteStoredPhoto(current.userId)
+                try await AccountNetworkManager.deleteData(current.userId)
+                try await AccountNetworkManager.deleteAuthData(userId: current.userId)
+                AccountManager.deleteCurrent()
+            } catch {
+                print("Error deleting account \(error.localizedDescription)")
+            }
+        }
+    }
 }
 
 private extension AuthenticationViewModel {
@@ -203,7 +217,7 @@ private extension AuthenticationViewModel {
 //        bottomFieldHasError = !bottomFieldText.isValidPassword
         if !topFieldHasError && !bottomFieldHasError {
             do {
-                guard let authData = try await AccountNetworkManager.createAccount(email: topFieldText, password: bottomFieldText) else { return }
+                guard let authData = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else { return }
                 let updatedAccount = Account(authData)
                 self.account.update(with: updatedAccount)
                 self.updateStep(to: .onboard)
@@ -219,12 +233,12 @@ private extension AuthenticationViewModel {
         validateTopField()
         if !topFieldHasError {
             do {
-                if let imageUrl = try await AccountNetworkManager.storeImage(selectedImage, for: account.userId) {
+                if let imageUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
                     try await AccountNetworkManager.updateAuthenticatedAccount(username: topFieldText, photoURL: imageUrl)
                     account.update(username: topFieldText, imageUrl: imageUrl)
                     try await AccountNetworkManager.setData(account: account)
-                    validateAccount()
-                    print("TODO: Go to home page after successfully updating user's database")
+                    AccountManager.saveCurrent(account)
+                    transitionToHomeView()
                 }
             } catch {
                 print("Error Finishing Account creation \(error.localizedDescription)")
@@ -232,7 +246,7 @@ private extension AuthenticationViewModel {
         }
     }
 
-    func validateAccount() {
+    func transitionToHomeView() {
 //        let isPhone = step == .phone || step == .phoneVerification
         DispatchQueue.main.async {
             self.account.accountStatus = .valid

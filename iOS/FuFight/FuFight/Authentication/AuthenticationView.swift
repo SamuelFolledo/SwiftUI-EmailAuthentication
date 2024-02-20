@@ -1,5 +1,5 @@
 //
-//  LoginView.swift
+//  AuthenticationView.swift
 //  FuFight
 //
 //  Created by Samuel Folledo on 2/15/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LoginView: View {
+struct AuthenticationView: View {
     @State var vm: AuthenticationViewModel
 
     var body: some View {
@@ -31,6 +31,12 @@ struct LoginView: View {
                     bottomButton
                 }
             }
+            .toolbar {
+                if let account = Account.current,
+                   !account.displayName.isEmpty {
+                    deleteAccountButton
+                }
+            }
         }
         .onAppear {
             vm.onAppear()
@@ -38,6 +44,20 @@ struct LoginView: View {
         .onDisappear {
             vm.onDisappear()
         }
+    }
+
+    var deleteAccountButton: some View {
+        Button(action: {
+            Task {
+                await vm.deleteAccount()
+            }
+        }) {
+            Text("Delete \(vm.account.displayName)?")
+                .padding()
+                .background(.clear)
+                .foregroundColor(Color.systemRed)
+        }
+        .padding(.horizontal)
     }
 
     @ViewBuilder func profilePicture() -> some View {
@@ -131,5 +151,5 @@ struct LoginView: View {
 
 
 #Preview {
-    LoginView(vm: AuthenticationViewModel(step: .logIn, account: Account()))
+    AuthenticationView(vm: AuthenticationViewModel(step: .logIn, account: Account()))
 }

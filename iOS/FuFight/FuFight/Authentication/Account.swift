@@ -23,6 +23,12 @@ class Account: AccountPublicInfo, ObservableObject {
     var displayName: String {
         return username ?? ""
     }
+    static var current: Account? {
+        if let user = auth.currentUser {
+            return Account(user)
+        }
+        return AccountManager.getCurrent()
+    }
 
     //MARK: - Codable overrides
     private enum CodingKeys : String, CodingKey {
@@ -49,6 +55,11 @@ class Account: AccountPublicInfo, ObservableObject {
     init(_ authResult: AuthDataResult) {
         super.init(email: authResult.user.email, phoneNumber: authResult.user.phoneNumber, username: authResult.user.displayName ?? "", imageUrl: authResult.user.photoURL, createdAt: authResult.user.metadata.creationDate)
         self.id = authResult.user.uid
+    }
+
+    init(_ firUser: User) {
+        super.init(email: firUser.email, phoneNumber: firUser.phoneNumber, username: firUser.displayName ?? "", imageUrl: firUser.photoURL, createdAt: firUser.metadata.creationDate)
+        self.id = firUser.uid
     }
 
     required init(from decoder: Decoder) throws {
@@ -156,7 +167,7 @@ class Account: AccountPublicInfo, ObservableObject {
                 firDatabase.child(kACCOUNT).child(user!.uid).removeValue { (error, ref) in
                     completion(error)
                 }
-                firDatabase.child(kREGISTEREDACCOUNTS).child(user!.email!.emailEncryptedForFirebase()).removeValue { (error, ref) in //remove email reference in kREGISTEREDUSERS as well
+                firDatabase.child(kREGISTEREDACCOUNTS).child(user!.email!.emailEncryptedForFirebase()).removeValue { (error, ref) in //remove email reference in kREGISTEREDACCOUNTS as well
                     completion(error)
                 }
             }

@@ -41,13 +41,10 @@ class HomeViewModel: ViewModel {
 private extension HomeViewModel {
     func observeAuthChanges() {
         auth.addStateDidChangeListener { (authDataResult, user) in
-//            if let authDataResult {
-//                let updatedAccount = Account(authResult: authDataResult.currentUser)
-//                self.account.update(with: updatedAccount)
-//                print("HomeVM: Has changes to current user in Auth")
-//            } else {
-//                print("HomeVM: Listened to NO user")
-//            }
+            if let user {
+                let updatedAccount = Account(user)
+                self.account.update(with: updatedAccount)
+            }
         }
     }
 }
