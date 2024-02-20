@@ -10,12 +10,12 @@ import FirebaseAuth
 
 @Observable
 class HomeViewModel: ViewModel {
-    var user: User
+    var account: Account
     var authChangesListener: AuthStateDidChangeListenerHandle?
 
     //MARK: - Initializer
-    init(user: User) {
-        self.user = user
+    init(account: Account) {
+        self.account = account
     }
 
     //MARK: - ViewModel Overrides
@@ -32,8 +32,8 @@ class HomeViewModel: ViewModel {
 
     //MARK: - Public Methods
     func logout() {
-        print("Logging out \(user.displayName)")
-        user.accountStatus = .logout
+        print("Logging out \(account.displayName)")
+        account.accountStatus = .logout
     }
 }
 
@@ -42,8 +42,8 @@ private extension HomeViewModel {
     func observeAuthChanges() {
         auth.addStateDidChangeListener { (authDataResult, user) in
 //            if let authDataResult {
-//                let updatedUser = User(authResult: authDataResult.currentUser)
-//                self.user.update(with: updatedUser)
+//                let updatedAccount = Account(authResult: authDataResult.currentUser)
+//                self.account.update(with: updatedAccount)
 //                print("HomeVM: Has changes to current user in Auth")
 //            } else {
 //                print("HomeVM: Listened to NO user")

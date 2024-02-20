@@ -131,5 +131,5 @@ struct LoginView: View {
 
 
 #Preview {
-    LoginView(vm: AuthenticationViewModel(step: .logIn, user: User()))
+    LoginView(vm: AuthenticationViewModel(step: .logIn, account: Account()))
 }

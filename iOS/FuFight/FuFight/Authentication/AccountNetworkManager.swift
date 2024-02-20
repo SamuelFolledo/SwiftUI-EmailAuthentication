@@ -15,19 +15,19 @@ enum NetworkError: Error {
     ///When there is no error but there is no expected result as well
     case noResult
     case timeout(message: String)
-    ///Used when a User class cannot be created from Firebase's Auth User
-    case invalidUser
+    ///Used when a Account class cannot be created from Firebase's Auth Account
+    case invalidAccount
 }
 
 class AccountNetworkManager {
     private init() {}
 
-    ///Create a user from email and password.
+    ///Create a user from email and password
     ///Email and password should have been validated already before calling this method
-    static func createUser(email: String, password: String) async throws -> User? {
+    static func createAccount(email: String, password: String) async throws -> AuthDataResult? {
         do {
-            let authDataResult = try await auth.createUser(withEmail: email, password: password)
-            return User(authResult: authDataResult)
+            let authData = try await auth.createUser(withEmail: email, password: password)
+            return authData
         } catch {
             throw error
         }
@@ -48,10 +48,10 @@ class AccountNetworkManager {
         }
     }
 
-    ///Update current user's information on Auth.auth()
-    static func updateAuthenticatedUser(username: String, photoURL: URL) async throws {
+    ///Update current account's information on Auth.auth()
+    static func updateAuthenticatedAccount(username: String, photoURL: URL) async throws {
         guard !username.isEmpty && !photoURL.absoluteString.isEmpty else {
-            fatalError("Error updating authenticated user's username to \(username), and photoUrl to \(photoURL)")
+            fatalError("Error updating authenticated account's username to \(username), and photoUrl to \(photoURL)")
         }
         let changeRequest = auth.currentUser?.createProfileChangeRequest()
         changeRequest?.displayName = username
@@ -64,11 +64,11 @@ class AccountNetworkManager {
     }
 
     ///Update user's data on the databaes. Set merge to false to override existing data
-    static func setData(user: User?, merge: Bool = true) async throws {
-        if let user {
-            let userRef = db.collection(kUSER).document(user.userId)
+    static func setData(account: Account?, merge: Bool = true) async throws {
+        if let account {
+            let accountRef = db.collection(kACCOUNT).document(account.userId)
             do {
-                try userRef.setData(from: user, merge: merge)
+                try accountRef.setData(from: account, merge: merge)
             } catch {
                 throw error
             }

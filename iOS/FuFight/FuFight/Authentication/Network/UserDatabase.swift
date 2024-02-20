@@ -8,16 +8,16 @@
 import UIKit
 import Firebase
 
-//MARK: - Create User Data
+//MARK: - Create Account Data
 ///save user in Firebase/
-func saveUserInBackground(user: User) {
-    let ref = firDatabase.child(kUSER).child(user.userId)
+func saveAccountInBackground(user: Account) {
+    let ref = firDatabase.child(kACCOUNT).child(user.userId)
     ref.setValue(userDictionaryFrom(user: user))
     print("Finished saving user \(user.displayName) in Firebase")
 }
 
-///save user to UserDefaults/
-func saveUserLocally(user: User) {
+///save user to AccountDefaults/
+func saveAccountLocally(user: Account) {
     UserDefaults.standard.set(userDictionaryFrom(user: user), forKey: kCURRENTUSER)
     UserDefaults.standard.synchronize()
     print("Finished saving user \(user.displayName) locally...")
@@ -30,27 +30,27 @@ func saveEmailInDatabase(email:String) {
     emailRef.updateChildValues([kEMAIL:email])
 }
 
-//MARK: - Read User Data
+//MARK: - Read Account Data
 
 ///get a user from Firebase Database with userId
-func fetchUserWith(userId: String, completion: @escaping (_ user: User?) -> Void) {
-    let ref = firDatabase.child(kUSER).queryOrdered(byChild: kUSERID).queryEqual(toValue: userId)
+func fetchAccountWith(userId: String, completion: @escaping (_ user: Account?) -> Void) {
+    let ref = firDatabase.child(kACCOUNT).queryOrdered(byChild: kUSERID).queryEqual(toValue: userId)
     ref.observeSingleEvent(of: .value, with: { (snapshot) in
         if snapshot.exists() {
 //            let userDictionary = ((snapshot.value as! NSDictionary).allValues as NSArray).firstObject! as! [String: Any] //if snapshot exist, convert it to a dictionary, then to a user we can return
-//            let user = User(dictionary: userDictionary)
+//            let user = Account(dictionary: userDictionary)
 //            completion(user)
         } else { completion(nil) }
     }, withCancel: nil)
 }
 
-//MARK: - Update User
-func updateCurrentUser(withValues: [String : Any], withBlock: @escaping(_ success: Bool) -> Void) { //withBlock makes it run in the background //method that saves our current user's values offline and online
+//MARK: - Update Account
+func updateCurrentAccount(withValues: [String : Any], withBlock: @escaping(_ success: Bool) -> Void) { //withBlock makes it run in the background //method that saves our current user's values offline and online
     if UserDefaults.standard.object(forKey: kCURRENTUSER) != nil {
-        guard let currentUser = User.currentUser() else { return }
-        let userObject = userDictionaryFrom(user: currentUser).mutableCopy() as! NSMutableDictionary
+        guard let currentAccount = Account.currentAccount() else { return }
+        let userObject = userDictionaryFrom(user: currentAccount).mutableCopy() as! NSMutableDictionary
         userObject.setValuesForKeys(withValues)
-        let ref = firDatabase.child(kUSER).child(currentUser.userId)
+        let ref = firDatabase.child(kACCOUNT).child(currentAccount.userId)
         ref.updateChildValues(withValues) { (error, ref) in
             if error != nil {
                 withBlock(false)
@@ -64,8 +64,8 @@ func updateCurrentUser(withValues: [String : Any], withBlock: @escaping(_ succes
 }
 
 //MARK: - Phone Authentication
-extension User {
-//    class func authenticateUser(credential: AuthCredential, userDetails: [String: Any], completion: @escaping (_ user: User?, _ error: String?) -> Void) { //authenticate user given 3rd-party credentials (e.g. a Facebook logIn Access Token, a Google ID Token/Access Token pair, Phone, etc.) and return a user or error
+extension Account {
+//    class func authenticateAccount(credential: AuthCredential, userDetails: [String: Any], completion: @escaping (_ user: Account?, _ error: String?) -> Void) { //authenticate user given 3rd-party credentials (e.g. a Facebook logIn Access Token, a Google ID Token/Access Token pair, Phone, etc.) and return a user or error
 //        Auth.auth().signIn(with: credential) { (userResult, error) in //signin user
 //            if let error = error {
 //                completion(nil, error.localizedDescription)
@@ -74,8 +74,8 @@ extension User {
 //                completion(nil, "No user results found")
 //                return
 //            }
-//            if userResult.additionalUserInfo!.isNewUser { //if new user, REGISTER and SAVE
-//                guard let providerId: String = userResult.additionalUserInfo?.providerID else {
+//            if userResult.additionalAccountInfo!.isNewAccount { //if new user, REGISTER and SAVE
+//                guard let providerId: String = userResult.additionalAccountInfo?.providerID else {
 //                    completion(nil, "No user provider id found")
 //                    return
 //                }
@@ -90,32 +90,32 @@ extension User {
 //                let updatedAt: Date = userDetails[kUPDATEDAT] as? Date ?? Date()
 //                var authTypes: [AuthType] = userDetails[kAUTHTYPES] as? [AuthType] ?? [.unknown]
 //                authTypes = getAuthTypesFrom(providerId: providerId) //update authTypes after signin wiht providerId
-////                let user: User = User(userId: userResult.user.uid, username: userName, firstName: firstName, lastName: lastName, email: email, phoneNumber: phoneNumber, imageUrl: imageUrl, authTypes: authTypes, createdAt: createdAt, updatedAt: updatedAt)
+////                let user: Account = Account(userId: userResult.user.uid, username: userName, firstName: firstName, lastName: lastName, email: email, phoneNumber: phoneNumber, imageUrl: imageUrl, authTypes: authTypes, createdAt: createdAt, updatedAt: updatedAt)
 ////                user.profilePhoto = profilePhoto
-////                saveUserLocally(user: user)
-////                saveUserInBackground(user: user)
+////                saveAccountLocally(user: user)
+////                saveAccountInBackground(user: user)
 ////                completion(user, nil)
 //            } else { //if not new user LOGIN and UPDATE
-//                fetchUserWith(userId: userResult.user.uid) { (user) in
+//                fetchAccountWith(userId: userResult.user.uid) { (user) in
 //                    guard let user = user else {
 //                        completion(nil, "Error fetching user")
 //                        return
 //                    }
 //                    if let imageUrl = user.imageUrl, !imageUrl.isEmpty { //if we have an imageUrl, assign it to user's profilePhoto and save it
-//                        getUserImage(imageUrl: imageUrl) { (error, image) in
+//                        getAccountImage(imageUrl: imageUrl) { (error, image) in
 //                            if let error = error {
 //                                completion(nil, error)
 //                            }
 //                            user.updatedAt = Date()
 //                            saveProfilePhoto(id: imageUrl, profilePhoto: image!)
-//                            saveUserLocally(user: user)
-//                            saveUserInBackground(user: user)
+//                            saveAccountLocally(user: user)
+//                            saveAccountInBackground(user: user)
 //                            completion(user, nil)
 //                        }
 //                    } else { //if we have no imageUrl, then return user
 //                        user.updatedAt = Date()
-//                        saveUserLocally(user: user)
-//                        saveUserInBackground(user: user)
+//                        saveAccountLocally(user: user)
+//                        saveAccountInBackground(user: user)
 //                        completion(user, nil)
 //                    }
 //                }
@@ -123,7 +123,7 @@ extension User {
 //        }
 //    }
     
-    class func registerUserWith(phoneNumber: String, verificationCode: String, completion: @escaping (_ error: String?, _ shouldLogin: Bool) -> Void) {
+    class func registerAccountWith(phoneNumber: String, verificationCode: String, completion: @escaping (_ error: String?, _ shouldLogin: Bool) -> Void) {
         let verificationID = UserDefaults.standard.value(forKey: kVERIFICATIONCODE) //kVERIFICATIONCODE = "firebase_verification" //Once our user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
         let credentials = PhoneAuthProvider.provider().credential(withVerificationID: verificationID as! String, verificationCode: verificationCode)
         print("Phone = \(phoneNumber) == \(verificationCode)")
@@ -132,15 +132,15 @@ extension User {
                 completion(error.localizedDescription, false)
             }
 //            guard let userResult = userResult else { return } //userResult contains lots of important info we will need in the future
-            //            print("USER RESULT = \(userResult)\nUSER ADDITIONAL INFO = \(userResult.additionalUserInfo)\n\n \(userResult.credential)")
-//            let user: User = User(userId: userResult.user.uid, username: "", firstName: "", lastName: "", email: "", phoneNumber: userResult.user.phoneNumber!, imageUrl: "", authTypes: [.phone], createdAt: Date(), updatedAt: Date())
-//            if userResult.additionalUserInfo!.isNewUser { //if new user, save locally and finish registering
-//                saveUserLocally(user: user) //now we have the newly registered user, save it locally and in background
-//                saveUserInBackground(user: user)
+            //            print("USER RESULT = \(userResult)\nUSER ADDITIONAL INFO = \(userResult.additionalAccountInfo)\n\n \(userResult.credential)")
+//            let user: Account = Account(userId: userResult.user.uid, username: "", firstName: "", lastName: "", email: "", phoneNumber: userResult.user.phoneNumber!, imageUrl: "", authTypes: [.phone], createdAt: Date(), updatedAt: Date())
+//            if userResult.additionalAccountInfo!.isNewAccount { //if new user, save locally and finish registering
+//                saveAccountLocally(user: user) //now we have the newly registered user, save it locally and in background
+//                saveAccountInBackground(user: user)
 //                completion(nil, false) //shouldLogin = false because we need to finish registering the user
 //            } else { //logIn
-//                fetchUserWith(userId: user.userId) { (user) in
-//                    saveUserLocally(user: user!) //we dont need to save in background because we are already getting/fetching the user
+//                fetchAccountWith(userId: user.userId) { (user) in
+//                    saveAccountLocally(user: user!) //we dont need to save in background because we are already getting/fetching the user
 //                    if user != nil && user?.firstName != "" { //if user is nil and user has a first name, provides extra protection
 //                        completion(nil, false) //this will rarely get executed, but just in case we have a user who for some reason is not first time but has no first name
 //                    } else { //user has previous finished registering, so we can log them in
@@ -152,31 +152,31 @@ extension User {
     }
 }
 
-//func registerUserEmailIntoDatabase(user: User, completion: @escaping (_ error: Error?, _ user: User?) -> Void) { //similar to registerUserIntoDatabaseWithUID, but this accepts a user instead of uid and values
-//    let usersReference = firDatabase.child(kUSER).child(user.userId)
+//func registerAccountEmailIntoDatabase(user: Account, completion: @escaping (_ error: Error?, _ user: Account?) -> Void) { //similar to registerAccountIntoDatabaseWithUID, but this accepts a user instead of uid and values
+//    let usersReference = firDatabase.child(kACCOUNT).child(user.userId)
 //    usersReference.setValue(userDictionaryFrom(user: user), withCompletionBlock: { (error, ref) in
 //        if let error = error {
 //            completion(error, nil)
 //        } else { //if no error, save user
 //            saveEmailInDatabase(email:user.emailAddress) //MARK: save to another table
-//            saveUserLocally(user: user)
-//            saveUserInBackground(user: user) //maybe not needed???
+//            saveAccountLocally(user: user)
+//            saveAccountInBackground(user: user) //maybe not needed???
 //            completion(nil, user)
 //        }
 //    })
 //}
 
-func registerUserIntoDatabaseWithUID(uid: String, values: [String: Any], completion: @escaping (_ error: String?, _ user: User?) -> Void) { //method that gets uid and a dictionary of values you want to give to users
-    let usersReference = firDatabase.child(kUSER).child(uid)
+func registerAccountIntoDatabaseWithUID(uid: String, values: [String: Any], completion: @escaping (_ error: String?, _ user: Account?) -> Void) { //method that gets uid and a dictionary of values you want to give to users
+    let usersReference = firDatabase.child(kACCOUNT).child(uid)
     usersReference.setValue(values, withCompletionBlock: { (error, ref) in
         if let error = error {
             completion(error.localizedDescription, nil)
         } else { //if no error, save user
             saveEmailInDatabase(email:values[kEMAIL] as! String) //MARK: save to another table
             DispatchQueue.main.async {
-//                let user = User(dictionary: values)
-//                saveUserLocally(user: user)
-//                saveUserInBackground(user: user)
+//                let user = Account(dictionary: values)
+//                saveAccountLocally(user: user)
+//                saveAccountInBackground(user: user)
 //                completion(nil, user)
             }
         }

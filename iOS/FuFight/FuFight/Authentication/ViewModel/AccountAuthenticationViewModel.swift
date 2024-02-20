@@ -1,5 +1,5 @@
 //
-//  UserAuthenticationVM.swift
+//  AccountAuthenticationViewModel.swift
 //  FuFight
 //
 //  Created by Samuel Folledo on 2/16/24.
@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseAuth
 
-public final class UserAuthenticationViewModel {
+public final class AccountAuthenticationViewModel {
     public let isEmailAuthentication: Bool
     public let navigationTitle: String
     public let topLabelText: String
@@ -73,7 +73,7 @@ public final class UserAuthenticationViewModel {
         button.setTitle(self.continueButtonTitle, for: .normal)
     }
     
-    func continueButtonTapped(topFieldValue: String, bottomFieldValue: String, completion: @escaping (_ user: User?, _ error: String?) -> Void) {
+    func continueButtonTapped(topFieldValue: String, bottomFieldValue: String, completion: @escaping (_ user: Account?, _ error: String?) -> Void) {
         if isEmailAuthentication {
             continueWithEmail(email: topFieldValue, password: bottomFieldValue) { (error, user) in
                 if let error = error {
@@ -105,7 +105,7 @@ public final class UserAuthenticationViewModel {
         }
     }
     
-    fileprivate func continueWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) { //if no error
+    fileprivate func continueWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: Account?) -> Void) { //if no error
         checkIfEmailExist(email: email, completion: { (emailAlreadyExist) in //check if email exist in our Database, then logIn, else register
             if let emailAlreadyExist = emailAlreadyExist {
                 if emailAlreadyExist { //LOGIN
@@ -145,19 +145,19 @@ public final class UserAuthenticationViewModel {
         }, withCancel: nil)
     }
     
-    fileprivate func logInWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) {
-        User.logInUserWith(email: email, password: password) { (error) in
+    fileprivate func logInWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: Account?) -> Void) {
+        Account.logInAccountWith(email: email, password: password) { (error) in
             if let error = error {
                 completion(error.localizedDescription, nil)
             } else {
-                guard let currentUser = User.currentUser() else { print("No user"); return }
-                completion(nil, currentUser)
+                guard let currentAccount = Account.currentAccount() else { print("No user"); return }
+                completion(nil, currentAccount)
             }
         }
     }
     
-    fileprivate func registerWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: User?) -> Void) {
-        User.registerUserWith(email: email, password: password) { (error, user) in
+    fileprivate func registerWithEmail(email: String, password: String, completion: @escaping (_ error: String?, _ user: Account?) -> Void) {
+        Account.registerAccountWith(email: email, password: password) { (error, user) in
             if let error = error {
                 completion(error, nil)
             } else { //if no error registering user...
@@ -230,16 +230,16 @@ public final class UserAuthenticationViewModel {
         }
     }
     
-//    private func continueWithPhone(phone: String, code: String, completion: @escaping (_ user: User?, _ error: String?) -> Void) { //method once the user has inputted phone number and verification code
-//        let verificationID = UserDefaults.standard.value(forKey: kVERIFICATIONCODE) //when user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
+//    private func continueWithPhone(phone: String, code: String, completion: @escaping (_ user: Account?, _ error: String?) -> Void) { //method once the user has inputted phone number and verification code
+//        let verificationID = AccountDefaults.standard.value(forKey: kVERIFICATIONCODE) //when user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
 //        let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID as! String, verificationCode: code) //get our credential
-//        User.authenticateUser(credential: credential, userDetails: [kPHONENUMBER: phone]) { (user, error) in //authenticate and get user
+//        Account.authenticateAccount(credential: credential, userDetails: [kPHONENUMBER: phone]) { (user, error) in //authenticate and get user
 //            if let error = error {
 //                completion(nil, error)
 //                return
 //            }
-//            UserDefaults.standard.removeObject(forKey: kVERIFICATIONCODE)
-//            UserDefaults.standard.synchronize() //remove code
+//            AccountDefaults.standard.removeObject(forKey: kVERIFICATIONCODE)
+//            AccountDefaults.standard.synchronize() //remove code
 //            completion(user, nil)
 //        }
 //    }

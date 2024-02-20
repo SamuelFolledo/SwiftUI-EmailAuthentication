@@ -89,7 +89,7 @@ enum AuthStep {
 @Observable
 class AuthenticationViewModel: ViewModel {
     private(set) var step: AuthStep
-    let user: User
+    let account: Account
     var username: String = ""
     var topFieldText: String = ""
     var topFieldHasError: Bool = false
@@ -113,9 +113,9 @@ class AuthenticationViewModel: ViewModel {
 
     //MARK: - Initializer
 
-    init(step: AuthStep, user: User) {
+    init(step: AuthStep, account: Account) {
         self.step = step
-        self.user = user
+        self.account = account
     }
 
     //MARK: - ViewModel Overrides
@@ -130,7 +130,7 @@ class AuthenticationViewModel: ViewModel {
         switch step {
         case .logIn:
             print("TODO: Log in, then go to game view")
-            validateUser()
+            validateAccount()
         case .signUp:
             Task {
                 await signUp()
@@ -141,7 +141,7 @@ class AuthenticationViewModel: ViewModel {
             updateStep(to: .phoneVerification)
         case .phoneVerification:
             print("TODO: Login/sign up with phone")
-            validateUser()
+            validateAccount()
         case .onboard:
             Task {
                 await finishAccountCreation()
@@ -203,8 +203,9 @@ private extension AuthenticationViewModel {
 //        bottomFieldHasError = !bottomFieldText.isValidPassword
         if !topFieldHasError && !bottomFieldHasError {
             do {
-                guard let user = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else {  return }
-                self.user.update(with: user)
+                guard let authData = try await AccountNetworkManager.createAccount(email: topFieldText, password: bottomFieldText) else { return }
+                let updatedAccount = Account(authData)
+                self.account.update(with: updatedAccount)
                 self.updateStep(to: .onboard)
             } catch {
                 print("Error signing up \(error.localizedDescription)")
@@ -218,23 +219,23 @@ private extension AuthenticationViewModel {
         validateTopField()
         if !topFieldHasError {
             do {
-                guard let imageUrl = try await AccountNetworkManager.storeImage(selectedImage, for: user.userId) else { return }
-                try await AccountNetworkManager.updateAuthenticatedUser(username: topFieldText, photoURL: imageUrl)
-                user.username = topFieldText
-                user.imageUrl = imageUrl
-                try await AccountNetworkManager.setData(user: user)
-                validateUser()
-                print("TODO: Go to home page after successfully updating user's database")
+                if let imageUrl = try await AccountNetworkManager.storeImage(selectedImage, for: account.userId) {
+                    try await AccountNetworkManager.updateAuthenticatedAccount(username: topFieldText, photoURL: imageUrl)
+                    account.update(username: topFieldText, imageUrl: imageUrl)
+                    try await AccountNetworkManager.setData(account: account)
+                    validateAccount()
+                    print("TODO: Go to home page after successfully updating user's database")
+                }
             } catch {
                 print("Error Finishing Account creation \(error.localizedDescription)")
             }
         }
     }
 
-    func validateUser() {
+    func validateAccount() {
 //        let isPhone = step == .phone || step == .phoneVerification
         DispatchQueue.main.async {
-            self.user.accountStatus = .valid
+            self.account.accountStatus = .valid
         }
     }
 
