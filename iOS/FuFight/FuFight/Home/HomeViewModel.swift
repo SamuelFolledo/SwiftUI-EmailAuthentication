@@ -32,7 +32,7 @@ class HomeViewModel: ViewModel {
 
     //MARK: - Public Methods
     func logout() {
-        print("Logging out \(user.username)")
+        print("Logging out \(user.displayName)")
         user.accountStatus = .logout
     }
 }
@@ -40,12 +40,14 @@ class HomeViewModel: ViewModel {
 //MARK: - Private Methods
 private extension HomeViewModel {
     func observeAuthChanges() {
-        authChangesListener = auth.addStateDidChangeListener({ (auth, user) in
-            if let user = user {
-                print("HomeVM: Has changes to current user in Auth")
-            } else {
-                print("HomeVM: Listened to NO user")
-            }
-        })
+        auth.addStateDidChangeListener { (authDataResult, user) in
+//            if let authDataResult {
+//                let updatedUser = User(authResult: authDataResult.currentUser)
+//                self.user.update(with: updatedUser)
+//                print("HomeVM: Has changes to current user in Auth")
+//            } else {
+//                print("HomeVM: Listened to NO user")
+//            }
+        }
     }
 }

@@ -89,7 +89,7 @@ enum AuthStep {
 @Observable
 class AuthenticationViewModel: ViewModel {
     private(set) var step: AuthStep
-    private(set) var user: User?
+    let user: User
     var username: String = ""
     var topFieldText: String = ""
     var topFieldHasError: Bool = false
@@ -113,7 +113,7 @@ class AuthenticationViewModel: ViewModel {
 
     //MARK: - Initializer
 
-    init(step: AuthStep, user: User? = nil) {
+    init(step: AuthStep, user: User) {
         self.step = step
         self.user = user
     }
@@ -134,6 +134,7 @@ class AuthenticationViewModel: ViewModel {
         case .signUp:
             Task {
                 await signUp()
+                topFieldIsActive = true
             }
         case .phone:
             print("TODO: Send phone code")
@@ -163,13 +164,18 @@ class AuthenticationViewModel: ViewModel {
         }
     }
 
-    func onTopFieldSubmit() {
-        topFieldIsActive = false
-        bottomFieldIsActive = true
-        validateTopField()
+    func onTopFieldReturnButtonTapped() {
+        switch step {
+        case .logIn, .signUp, .phone:
+            validateTopField()
+            topFieldIsActive = false
+            bottomFieldIsActive = true
+        case .phoneVerification, .onboard:
+            topButtonTapped()
+        }
     }
 
-    func onBottomFieldSubmit() {
+    func onBottomFieldReturnButtonTapped() {
         topButtonTapped()
     }
 
@@ -198,7 +204,7 @@ private extension AuthenticationViewModel {
         if !topFieldHasError && !bottomFieldHasError {
             do {
                 guard let user = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else {  return }
-                self.user = user
+                self.user.update(with: user)
                 self.updateStep(to: .onboard)
             } catch {
                 print("Error signing up \(error.localizedDescription)")
@@ -212,10 +218,10 @@ private extension AuthenticationViewModel {
         validateTopField()
         if !topFieldHasError {
             do {
-                guard let imageUrl = try await AccountNetworkManager.storeImage(selectedImage, for: user!.userId) else { return }
+                guard let imageUrl = try await AccountNetworkManager.storeImage(selectedImage, for: user.userId) else { return }
                 try await AccountNetworkManager.updateAuthenticatedUser(username: topFieldText, photoURL: imageUrl)
-                user?.username = topFieldText
-                user?.imageUrl = imageUrl
+                user.username = topFieldText
+                user.imageUrl = imageUrl
                 try await AccountNetworkManager.setData(user: user)
                 validateUser()
                 print("TODO: Go to home page after successfully updating user's database")
@@ -226,12 +232,9 @@ private extension AuthenticationViewModel {
     }
 
     func validateUser() {
-        if let user {
-            user.accountStatus = .valid
-        } else {
-            user = User()
-//            let isPhone = step == .phone || step == .phoneVerification
-            validateUser()
+//        let isPhone = step == .phone || step == .phoneVerification
+        DispatchQueue.main.async {
+            self.user.accountStatus = .valid
         }
     }
 
@@ -244,7 +247,9 @@ private extension AuthenticationViewModel {
         bottomFieldHasError = false
     }
 
+    ///Set topFieldHasError to true if text are not valid. This will also trim leading and trailing whitespaces
     func validateTopField() {
+        topFieldText = topFieldText.trimmed
         switch step {
         case .logIn:
             topFieldHasError = !topFieldText.isValidEmail || !topFieldText.isValidUsername

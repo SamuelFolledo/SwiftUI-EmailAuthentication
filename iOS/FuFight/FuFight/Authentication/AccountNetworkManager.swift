@@ -40,7 +40,7 @@ class AccountNetworkManager {
         metaData.contentType = "image/jpg"
         let photoReference = profilePhotoStorage.child("\(userId).jpg")
         do {
-            let data = try await photoReference.putDataAsync(imageData, metadata: metaData)
+            let _ = try await photoReference.putDataAsync(imageData, metadata: metaData)
             let url = try await photoReference.downloadURL()
             return url
         } catch {

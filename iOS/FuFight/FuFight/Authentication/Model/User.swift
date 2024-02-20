@@ -10,6 +10,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
+import FirebaseFirestoreSwift
 
 enum AccountStatus {
     case valid
@@ -18,18 +19,15 @@ enum AccountStatus {
     case logout
 }
 
+//MARK: - UserPublicInfo
 class UserPublicInfo: UserPrivateInfo {
-    var username: String
+    var username: String?
     var imageUrl: URL?
-    var createdAt: Date
-    var updatedAt: Date
 
     init(email: String?, phoneNumber: String?, username: String, imageUrl: URL? = nil, createdAt: Date, updatedAt: Date = Date()) {
         self.username = username
         self.imageUrl = imageUrl
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-        super.init(email: email, phoneNumber: phoneNumber)
+        super.init(email: email, phoneNumber: phoneNumber, createdAt: createdAt, updatedAt: updatedAt)
     }
     
     required init(from decoder: Decoder) throws {
@@ -38,7 +36,7 @@ class UserPublicInfo: UserPrivateInfo {
 
     //MARK: - Codable
     private enum CodingKeys : String, CodingKey {
-        case userId, username, email, imageUrl, phoneNumber, createdAt, updatedAt, accountStatus
+        case userId, username, email, imageUrl, phoneNumber, accountStatus
     }
 
     override func encode(to encoder: Encoder) throws {
@@ -46,32 +44,39 @@ class UserPublicInfo: UserPrivateInfo {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(username, forKey: .username)
         try container.encode(imageUrl, forKey: .imageUrl)
-        try container.encode(createdAt, forKey: .createdAt)
-        try container.encode(updatedAt, forKey: .updatedAt)
         try container.encode(email, forKey: .email)
         try container.encode(phoneNumber, forKey: .phoneNumber)
     }
 }
 
+//MARK: - UserPrivateInfo
 class UserPrivateInfo: Codable {
     var email: String?
     var phoneNumber: String?
+    var createdAt: Date
+    var updatedAt: Date
 
-    init(email: String? = nil, phoneNumber: String? = nil) {
+    init(email: String? = nil, phoneNumber: String? = nil, createdAt: Date, updatedAt: Date = Date()) {
         self.email = email
         self.phoneNumber = phoneNumber
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
 
-//class User: NSObject, ObservableObject {
+//MARK: - User
 class User: UserPublicInfo, ObservableObject {
-    var userId: String {
-        return id ?? "fakeId"
-    }
     @DocumentID var id: String?
     var profilePhoto: UIImage = kDEFAULTPROFILEIMAGE
     @Published var accountStatus: AccountStatus = .unfinished
+    var userId: String {
+        return id ?? "fakeId"
+    }
+    var displayName: String {
+        return username ?? ""
+    }
 
+    //MARK: - Codable overrides
     private enum CodingKeys : String, CodingKey {
         case id
     }
@@ -82,72 +87,12 @@ class User: UserPublicInfo, ObservableObject {
         try container.encode(id, forKey: .id)
     }
 
-//    var emailAddress: String {
-//        return email ?? ""
-//    }
-
-//    init(userId: String, username: String = "", firstName: String = "", lastName: String = "", email: String = "", phoneNumber: String = "", imageUrl: String = "", authTypes: [AuthType] = [], createdAt: Date, updatedAt: Date = Date()) {
-//        self.userId = userId
-//        self.username = username
-//        self.firstName = firstName
-//        self.lastName = lastName
-//        self.fullName = createFullNameFrom(first: firstName, last: lastName)
-//        self.email = email
-//        self.phoneNumber = phoneNumber
-//        self.imageUrl = imageUrl
-//        self.createdAt = createdAt
-//        self.updatedAt = updatedAt
-//        self.authTypes = authTypes
-//        self.accountStatus = .valid
-//    }
-//    
-//    init(dictionary: [String: Any]) {
-//        self.userId = dictionary[kUSERID] as! String
-//        self.username = dictionary[kUSERNAME] as! String
-//        self.firstName = dictionary[kFIRSTNAME] as? String
-//        self.lastName = dictionary[kLASTNAME] as? String
-//        if let fullName = dictionary[kFULLNAME] as? String {
-//            self.fullName = fullName
-//        } else {
-//            self.fullName = createFullNameFrom(first: self.firstName, last: self.lastName)
-//        }
-//        self.email = dictionary[kEMAIL] as? String
-//        if let phoneNumber = dictionary[kPHONENUMBER] as? String {
-//            self.phoneNumber = phoneNumber
-//        } else {
-//            self.phoneNumber = ""
-//        }
-//        self.imageUrl = dictionary[kIMAGEURL] as? String
-//        if let createdAt = dictionary[kCREATEDAT] { //if we have this date, then apply it to the user, else create new current instance of Date()
-//            self.createdAt = Service.dateFormatter().date(from: createdAt as! String)!
-//        } else {
-//            self.createdAt = Date()
-//        }
-//        if let updatedAt = dictionary[kUPDATEDAT] { //if we have this date, then apply it to the user, else create new current instance of Date()
-//            self.updatedAt = Service.dateFormatter().date(from: updatedAt as! String)!
-//        } else {
-//            self.updatedAt = Date()
-//        }
-//        if let authTypes = dictionary[kAUTHTYPES] as? [AuthType] {
-//            self.authTypes = authTypes
-//        } else if let authTypes = dictionary[kAUTHTYPES] as? [String] {
-//            var resultTypes: [AuthType] = []
-//            for authType in authTypes {
-//                resultTypes.append(AuthType(type: authType))
-//            }
-//            self.authTypes = resultTypes
-//        } else {
-//            self.authTypes = []
-//        }
-//        self.accountStatus = .valid
-//    }
-
+    //MARK: - Initializers
     init() {
         FirebaseApp.configure()
-
         let user = Auth.auth().currentUser
         if let user = user {
-            super.init(email: user.email ?? "testEmail", phoneNumber: user.phoneNumber ?? "testPhoneNumber", username: user.displayName ?? "", imageUrl: user.photoURL, createdAt: Date(), updatedAt: Date())
+            super.init(email: user.email, phoneNumber: user.phoneNumber, username: user.displayName ?? "", imageUrl: user.photoURL, createdAt: Date(), updatedAt: Date())
             self.id = user.uid
         } else {
             super.init(email: "fakeEmail", phoneNumber: "fakePhoneNumber", username: "fakeUsername", imageUrl: URL(string: "fakeImageUrl"), createdAt: Date(), updatedAt: Date())
@@ -156,27 +101,39 @@ class User: UserPublicInfo, ObservableObject {
     }
 
     init(authResult: AuthDataResult) {
-        super.init(email: authResult.user.email, phoneNumber: authResult.user.phoneNumber, username: authResult.user.displayName ?? "fakeUsername", imageUrl: authResult.user.photoURL, createdAt: Date(), updatedAt: Date())
+        super.init(email: authResult.user.email, phoneNumber: authResult.user.phoneNumber, username: authResult.user.displayName ?? "", imageUrl: authResult.user.photoURL, createdAt: Date(), updatedAt: Date())
         self.id = authResult.user.uid
     }
-    
+
     required init(from decoder: Decoder) throws {
         fatalError("init(from:) has not been implemented")
     }
     
     deinit {
-        print("User \(self.username) is being deinitialize.")
+        print("User \(displayName) is being deinitialize.")
     }
-    
+
+    func update(with user: User) {
+        self.id = user.id
+        self.username = user.username
+        self.imageUrl = user.imageUrl
+        self.email = user.email
+        self.phoneNumber = user.phoneNumber
+        self.createdAt = user.createdAt
+        self.updatedAt = user.updatedAt
+        self.profilePhoto = user.profilePhoto
+        self.accountStatus = user.accountStatus
+    }
+
 //MARK: Class Functions
     class func currentId() -> String {
         return Auth.auth().currentUser!.uid
     }
     
     class func currentUser() -> User? {
-        if let user = auth.currentUser {
-            print("TODO: Implement returning a current user")
-        }
+//        if let user = auth.currentUser {
+//            print("TODO: Implement returning a current user")
+//        }
 //        if Auth.auth().currentUser != nil { //if we have user...
 //            if let dictionary = UserDefaults.standard.object(forKey: kCURRENTUSER) {
 //                return User.init(dictionary: dictionary as! [String: Any])
@@ -191,10 +148,10 @@ class User: UserPublicInfo, ObservableObject {
             if let error = error {
                 completion(error.localizedDescription,nil)
             }
-            guard let user = firUser?.user else {
-                print("User not found after attempt to register")
-                completion(("User not found after attempt to register"), nil)
-                return }
+//            guard let user = firUser?.user else {
+//                print("User not found after attempt to register")
+//                completion(("User not found after attempt to register"), nil)
+//                return }
 //            let currentUser = User(userId: user.uid, username: "", firstName: "", lastName: "", email: email, phoneNumber: "", imageUrl: "", authTypes: [AuthType.email], createdAt: Date(), updatedAt: Date())
 //            registerUserEmailIntoDatabase(user: currentUser) { (error, user) in
 //                if let error = error {
@@ -211,7 +168,7 @@ class User: UserPublicInfo, ObservableObject {
                 completion(error)
                 return
             }
-            guard let userDetails = userDetails else { return }
+//            guard let userDetails = userDetails else { return }
 //            if userDetails.additionalUserInfo!.isNewUser { //if new user
 //                let user: User = User(userId: userDetails.user.uid, username: "", firstName: "", lastName: "", email: email, phoneNumber: "", imageUrl: "", authTypes: [.email], createdAt: Date(), updatedAt: Date())
 //                saveUserLocally(user: user)

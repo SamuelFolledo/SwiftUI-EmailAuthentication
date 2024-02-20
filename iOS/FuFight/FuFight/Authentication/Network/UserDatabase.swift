@@ -13,14 +13,14 @@ import Firebase
 func saveUserInBackground(user: User) {
     let ref = firDatabase.child(kUSER).child(user.userId)
     ref.setValue(userDictionaryFrom(user: user))
-    print("Finished saving user \(user.username) in Firebase")
+    print("Finished saving user \(user.displayName) in Firebase")
 }
 
 ///save user to UserDefaults/
 func saveUserLocally(user: User) {
     UserDefaults.standard.set(userDictionaryFrom(user: user), forKey: kCURRENTUSER)
     UserDefaults.standard.synchronize()
-    print("Finished saving user \(user.username) locally...")
+    print("Finished saving user \(user.displayName) locally...")
 }
 
 ///saves an extra copy of email address as the key, converting the email's last @ to _-_/
@@ -37,7 +37,7 @@ func fetchUserWith(userId: String, completion: @escaping (_ user: User?) -> Void
     let ref = firDatabase.child(kUSER).queryOrdered(byChild: kUSERID).queryEqual(toValue: userId)
     ref.observeSingleEvent(of: .value, with: { (snapshot) in
         if snapshot.exists() {
-            let userDictionary = ((snapshot.value as! NSDictionary).allValues as NSArray).firstObject! as! [String: Any] //if snapshot exist, convert it to a dictionary, then to a user we can return
+//            let userDictionary = ((snapshot.value as! NSDictionary).allValues as NSArray).firstObject! as! [String: Any] //if snapshot exist, convert it to a dictionary, then to a user we can return
 //            let user = User(dictionary: userDictionary)
 //            completion(user)
         } else { completion(nil) }
@@ -131,7 +131,7 @@ extension User {
             if let error = error { //if there's error put false on completion's shouldLogin parameter
                 completion(error.localizedDescription, false)
             }
-            guard let userResult = userResult else { return } //userResult contains lots of important info we will need in the future
+//            guard let userResult = userResult else { return } //userResult contains lots of important info we will need in the future
             //            print("USER RESULT = \(userResult)\nUSER ADDITIONAL INFO = \(userResult.additionalUserInfo)\n\n \(userResult.credential)")
 //            let user: User = User(userId: userResult.user.uid, username: "", firstName: "", lastName: "", email: "", phoneNumber: userResult.user.phoneNumber!, imageUrl: "", authTypes: [.phone], createdAt: Date(), updatedAt: Date())
 //            if userResult.additionalUserInfo!.isNewUser { //if new user, save locally and finish registering
