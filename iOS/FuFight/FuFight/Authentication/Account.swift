@@ -59,6 +59,8 @@ class Account: AccountPublicInfo, ObservableObject {
         print("Account \(displayName) is being deinitialize.")
     }
 
+    //MARK: Public Methods
+
     func update(with user: Account) {
         self.id = user.id
         self.update(username: user.username, imageUrl: user.imageUrl)
@@ -77,7 +79,7 @@ class Account: AccountPublicInfo, ObservableObject {
 //            print("TODO: Implement returning a current user")
 //        }
 //        if Auth.auth().currentAccount != nil { //if we have user...
-//            if let dictionary = AccountDefaults.standard.object(forKey: kCURRENTUSER) {
+//            if let dictionary = AccountDefaults.standard.object(forKey: kCURRENTACCOUNT) {
 //                return Account.init(dictionary: dictionary as! [String: Any])
 //            }
 //        }
@@ -134,7 +136,7 @@ class Account: AccountPublicInfo, ObservableObject {
 //MARK: Logout
     class func logOutCurrentAccount(withBlock: (_ success: Bool) -> Void) {
         print("Logging outttt...")
-        UserDefaults.standard.removeObject(forKey: kCURRENTUSER)
+        UserDefaults.standard.removeObject(forKey: kCURRENTACCOUNT)
         UserDefaults.standard.synchronize() //save the changes
         do {
             try Auth.auth().signOut()
@@ -154,7 +156,7 @@ class Account: AccountPublicInfo, ObservableObject {
                 firDatabase.child(kACCOUNT).child(user!.uid).removeValue { (error, ref) in
                     completion(error)
                 }
-                firDatabase.child(kREGISTEREDUSERS).child(user!.email!.emailEncryptedForFirebase()).removeValue { (error, ref) in //remove email reference in kREGISTEREDUSERS as well
+                firDatabase.child(kREGISTEREDACCOUNTS).child(user!.email!.emailEncryptedForFirebase()).removeValue { (error, ref) in //remove email reference in kREGISTEREDUSERS as well
                     completion(error)
                 }
             }

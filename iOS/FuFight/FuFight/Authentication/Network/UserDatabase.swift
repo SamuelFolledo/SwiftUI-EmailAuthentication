@@ -18,7 +18,7 @@ func saveAccountInBackground(user: Account) {
 
 ///save user to AccountDefaults/
 func saveAccountLocally(user: Account) {
-    UserDefaults.standard.set(userDictionaryFrom(user: user), forKey: kCURRENTUSER)
+    UserDefaults.standard.set(userDictionaryFrom(user: user), forKey: kCURRENTACCOUNT)
     UserDefaults.standard.synchronize()
     print("Finished saving user \(user.displayName) locally...")
 }
@@ -46,7 +46,7 @@ func fetchAccountWith(userId: String, completion: @escaping (_ user: Account?) -
 
 //MARK: - Update Account
 func updateCurrentAccount(withValues: [String : Any], withBlock: @escaping(_ success: Bool) -> Void) { //withBlock makes it run in the background //method that saves our current user's values offline and online
-    if UserDefaults.standard.object(forKey: kCURRENTUSER) != nil {
+    if UserDefaults.standard.object(forKey: kCURRENTACCOUNT) != nil {
         guard let currentAccount = Account.currentAccount() else { return }
         let userObject = userDictionaryFrom(user: currentAccount).mutableCopy() as! NSMutableDictionary
         userObject.setValuesForKeys(withValues)
@@ -56,7 +56,7 @@ func updateCurrentAccount(withValues: [String : Any], withBlock: @escaping(_ suc
                 withBlock(false)
                 return
             }
-            UserDefaults.standard.set(userObject, forKey: kCURRENTUSER)
+            UserDefaults.standard.set(userObject, forKey: kCURRENTACCOUNT)
             UserDefaults.standard.synchronize()
             withBlock(true)
         }
