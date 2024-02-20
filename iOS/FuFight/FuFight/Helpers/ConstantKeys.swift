@@ -22,8 +22,8 @@ public let kLASTNAME: String = "lastName"
 public let kFULLNAME: String = "fullName"
 public let kEMAIL: String = "email"
 public let kIMAGEURL: String = "imageUrl"
-public let kCURRENTUSER: String = "currentAccount" //for userDefaults
-public let kUSERIMAGE: String = "userImage"
+public let kCURRENTACCOUNT: String = "currentAccount"
+public let kACCOUNTIMAGE: String = "accountImage"
 public let kAUTHTYPES: String = "authenticationTypes"
 public let kPHONEAUTH: String = "phoneAuth"
 public let kEMAILAUTH: String = "emailAuth"
@@ -32,7 +32,7 @@ public let kGMAILAUTH: String = "gmailAuth"
 public let kANONYMOUSAUTH: String = "anonymousAuth"
 public let kAPPLEAUTH: String = "appleAuth"
 
-//Other properties for user
+//Other properties for account
 public let kACCOUNT: String = "account"
 public let kMESSAGES: String = "message"
 public let kPUSHID: String = "pushId"
@@ -51,7 +51,7 @@ public let kGAMEHISTORYVIEWCONTROLLER: String = "gameHistoryVC"
 public let kGAMEHISTORYCELL: String = "gameHistoryCell"
 
 //Account info
-public let kGAMESTATS: String = "gameStats" //this is for Firebase/users/uid/gameStats
+public let kGAMESTATS: String = "gameStats" //this is for Firebase/account/uid/gameStats
 public let kWINLOSESTAT: String = "winLoseStat"
 public let kWINS: String = "wins"
 public let kLOSES: String = "loses"
@@ -76,7 +76,7 @@ public let kLOGINCONTROLLER: String = "logInController"
 public let kANIMATIONCONTROLLER: String = "animationController"
 public let kMENUCONTROLLER: String = "menuController"
 
-public let kREGISTEREDUSERS: String = "registeredAccounts"
+public let kREGISTEREDACCOUNTS: String = "registeredAccounts"
 public let kPHONENUMBER: String = "phoneNumber"
 
 public let kFINISHREGISTRATIONVC: String = "finishRegistrationVC"
