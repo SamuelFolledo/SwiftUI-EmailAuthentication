@@ -64,9 +64,7 @@ class AuthenticationViewModel: ViewModel {
             updateStep(to: .phoneVerification)
         case .phoneVerification:
             TODO("Login/sign up with phone")
-            Task {
-                await transitionToHomeView()
-            }
+            transitionToHomeView()
         case .onboard:
             Task {
                 await finishAccountCreation()
@@ -162,7 +160,7 @@ private extension AuthenticationViewModel {
                     try await AccountNetworkManager.updateAuthenticatedAccount(username: topFieldText, photoURL: imageUrl)
                     account.username = topFieldText
                     account.imageUrl = imageUrl
-                    await transitionToHomeView()
+                    transitionToHomeView()
                     try await AccountNetworkManager.setData(account: account)
                     try await AccountManager.saveCurrent(account)
                 }
@@ -185,7 +183,7 @@ private extension AuthenticationViewModel {
                 account.update(with: fetchedAccount)
                 try await AccountManager.saveCurrent(account)
                 ///Transition to home view
-                await transitionToHomeView()
+                transitionToHomeView()
             } catch {
                 LOGE("Error Logging in \(error.localizedDescription)")
             }
@@ -194,10 +192,9 @@ private extension AuthenticationViewModel {
         }
     }
 
-    func transitionToHomeView() async {
-        DispatchQueue.main.async {
-            self.account.status = .valid
-        }
+    func transitionToHomeView() {
+        account.status = .valid
+        AccountManager.saveCurrent(account)
     }
 
     func resetFields() {

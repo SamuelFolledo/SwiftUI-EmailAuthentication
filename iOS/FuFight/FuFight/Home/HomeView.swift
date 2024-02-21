@@ -14,7 +14,6 @@ struct HomeView: View {
     var body: some View {
         VStack {
             homeNavBar
-                .ignoresSafeArea()
 
             Image(systemName: "globe")
                 .imageScale(.large)
@@ -36,10 +35,23 @@ struct HomeView: View {
     var homeNavBar: some View {
         VStack {
             HStack {
+                accountImage
+
                 Spacer()
 
                 logoutButton
             }
+        }
+        .ignoresSafeArea()
+    }
+
+    var accountImage: some View {
+        AsyncImage(url: vm.account.imageUrl) { image in
+            image
+                .resizable()
+                .frame(width: 50, height: 50)
+        } placeholder: {
+            ProgressView()
         }
     }
 

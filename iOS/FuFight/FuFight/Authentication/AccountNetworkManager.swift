@@ -148,4 +148,11 @@ extension AccountNetworkManager {
             throw error
         }
     }
+
+    ///Get uiImage from url
+//    static func downloadImage(from url: URL) async throws -> UIImage? {
+//        let (data, response) = try await URLSession.shared.data(from: url)
+//        LOGD("Finished downloading image: \(response.suggestedFilename ?? url.lastPathComponent)")
+//        return UIImage(data: data)
+//    }
 }

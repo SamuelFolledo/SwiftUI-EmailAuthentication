@@ -12,6 +12,16 @@ class AccountManager {
     private init() {}
     private static let defaults = UserDefaults.standard
 
+    static func saveCurrent(_ account: Account) {
+        Task {
+            do {
+                try await saveCurrent(account)
+            } catch {
+                LOGE("ACCOUNT: Failed to save current locally")
+            }
+        }
+    }
+
     static func saveCurrent(_ account: Account) async throws {
         do {
             let encoder = JSONEncoder()
@@ -19,6 +29,7 @@ class AccountManager {
             LOGD("ACCOUNT: Locally saving \(account.displayName) with status of \(account.status)")
             defaults.set(data, forKey: kCURRENTACCOUNT)
         } catch {
+//            LOGE("ACCOUNT: Failed to save current locally")
             throw error
         }
     }
