@@ -21,7 +21,7 @@ class Account: ObservableObject, Codable {
     @Published private(set) var createdAt: Date?
     @Published var status: Account.Status = .unfinished
     
-    var profilePhoto: UIImage = kDEFAULTPROFILEIMAGE
+    var profilePhoto: UIImage = kDEFAULTACCOUNTIMAGE
     var userId: String {
         return id!
     }
@@ -187,7 +187,7 @@ class Account: ObservableObject, Codable {
             try Auth.auth().signOut()
             deleteProfilePhoto()
             withBlock(true)
-        } catch let error as NSError {
+        } catch {
             withBlock(false)
         }
     }
