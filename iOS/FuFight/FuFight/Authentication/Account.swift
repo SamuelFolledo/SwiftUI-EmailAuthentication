@@ -21,7 +21,8 @@ class Account: ObservableObject, Codable {
     @Published private(set) var createdAt: Date?
     @Published var status: Account.Status = .unfinished
     
-    var profilePhoto: UIImage = kDEFAULTPROFILEIMAGE
+    //TODO: Remove or implement this profilePhoto
+    var profilePhoto: UIImage = kDEFAULTACCOUNTIMAGE
     var userId: String {
         return id!
     }
@@ -29,15 +30,18 @@ class Account: ObservableObject, Codable {
         return username ?? ""
     }
     static var current: Account? {
-        if let user = auth.currentUser {
-            return Account(user)
+        if let account = AccountManager.getCurrent() {
+            return account
+        } else if let firUser = auth.currentUser { //TODO: fetch database
+            return Account(firUser)
         }
-        return AccountManager.getCurrent()
+        return nil
     }
 
     //MARK: - Initializers
     init() { }
 
+    ///Initializer for sign up only
     convenience init(_ authResult: AuthDataResult) {
         self.init()
         self.email = authResult.user.email
@@ -108,8 +112,9 @@ class Account: ObservableObject, Codable {
         if let createdAt = user.createdAt {
             self.createdAt = createdAt
         }
-        self.profilePhoto = user.profilePhoto
-        self.status = user.status
+        //TODO: Uncomment line below or remove the need for this method
+//        self.profilePhoto = user.profilePhoto
+//        self.status = user.status
     }
 
     func reset() {
@@ -186,7 +191,7 @@ class Account: ObservableObject, Codable {
             try Auth.auth().signOut()
             deleteProfilePhoto()
             withBlock(true)
-        } catch let error as NSError {
+        } catch {
             withBlock(false)
         }
     }

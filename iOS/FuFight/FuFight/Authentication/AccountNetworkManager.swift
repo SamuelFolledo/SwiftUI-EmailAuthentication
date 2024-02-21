@@ -85,8 +85,8 @@ extension AccountNetworkManager {
 //MARK: - Storage Extension
 extension AccountNetworkManager {
     ///Uploads the image to Storage for the userId passed
-    static func storePhoto(_ image: UIImage, compressionQuality: Double = 0.3, for userId: String) async throws -> URL? {
-        guard let imageData = image.jpegData(compressionQuality: compressionQuality) else { return nil }
+    static func storePhoto(_ image: UIImage, for userId: String) async throws -> URL? {
+        guard let imageData = image.jpegData(compressionQuality: photoCompressionQuality) else { return nil }
         let metaData: StorageMetadata = StorageMetadata()
         metaData.contentType = "image/jpg"
         let photoReference = profilePhotoStorage.child("\(userId).jpg")
@@ -126,6 +126,19 @@ extension AccountNetworkManager {
         }
     }
 
+    ///fetch user's data from Firestore and returns an account
+    static func fetchData(userId: String) async throws -> Account?
+    {
+        let accountRef = accountDb.document(userId)
+        do {
+            let account = try await accountRef.getDocument(as: Account.self)
+            LOGD("DB: Finished fetching \(account.displayName)", from: self)
+            return account
+        } catch {
+            throw error
+        }
+    }
+
     static func deleteData(_ userId: String) async throws {
         do {
             let accountRef = accountDb.document(userId)
@@ -135,4 +148,11 @@ extension AccountNetworkManager {
             throw error
         }
     }
+
+    ///Get uiImage from url
+//    static func downloadImage(from url: URL) async throws -> UIImage? {
+//        let (data, response) = try await URLSession.shared.data(from: url)
+//        LOGD("Finished downloading image: \(response.suggestedFilename ?? url.lastPathComponent)")
+//        return UIImage(data: data)
+//    }
 }

@@ -83,7 +83,7 @@ extension Account {
 //                let email: String = userDetails[kEMAIL] as? String ?? ""
 //                let phoneNumber: String = userDetails[kPHONENUMBER] as? String ?? ""
 //                let imageUrl: String = userDetails[kIMAGEURL] as? String ?? ""
-//                let profilePhoto: UIImage = userDetails[kPROFILEPHOTO] as? UIImage ?? kDEFAULTPROFILEIMAGE
+//                let profilePhoto: UIImage = userDetails[kPROFILEPHOTO] as? UIImage ?? kDEFAULTACCOUNTIMAGE
 //                let createdAt: Date = userDetails[kCREATEDAT] as? Date ?? Date()
 //                let updatedAt: Date = userDetails[kUPDATEDAT] as? Date ?? Date()
 //                var authTypes: [AuthType] = userDetails[kAUTHTYPES] as? [AuthType] ?? [.unknown]

@@ -17,5 +17,5 @@ let accountDb = db.collection(kACCOUNT)
 let storage = Storage.storage().reference()
 let profilePhotoStorage = storage.child(kACCOUNT).child(kPROFILEPHOTO)
 
-//let defaultProfilePhoto = Image(systemName: "person.crop.circle")
+let photoCompressionQuality: Double = 0.3
 let defaultProfilePhoto: UIImage = UIImage(systemName: "person.crop.circle")!

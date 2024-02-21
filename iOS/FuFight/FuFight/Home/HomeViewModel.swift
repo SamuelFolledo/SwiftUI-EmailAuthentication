@@ -35,7 +35,7 @@ class HomeViewModel: ViewModel {
         Task {
             do {
                 try await AccountNetworkManager.logOut()
-                await transitionToAuthenticationView()
+                transitionToAuthenticationView()
                 try await AccountNetworkManager.setData(account: account)
                 try await AccountManager.saveCurrent(account)
             } catch {
@@ -53,16 +53,14 @@ private extension HomeViewModel {
                 let updatedAccount = Account(user)
                 LOGD("Auth ACCOUNT changes handler for \(user.displayName ?? "")")
                 updatedAccount.status = self.account.status
-                DispatchQueue.main.async {
-                    self.account.update(with: updatedAccount)
-                }
+                self.account.update(with: updatedAccount)
+                AccountManager.saveCurrent(self.account)
             }
         }
     }
 
-    func transitionToAuthenticationView() async {
-        DispatchQueue.main.async {
-            self.account.status = .logout
-        }
+    func transitionToAuthenticationView() {
+        account.status = .logout
+        AccountManager.saveCurrent(account)
     }
 }

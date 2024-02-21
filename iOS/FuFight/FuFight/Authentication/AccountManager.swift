@@ -12,6 +12,16 @@ class AccountManager {
     private init() {}
     private static let defaults = UserDefaults.standard
 
+    static func saveCurrent(_ account: Account) {
+        Task {
+            do {
+                try await saveCurrent(account)
+            } catch {
+                LOGE("ACCOUNT: Failed to save current locally")
+            }
+        }
+    }
+
     static func saveCurrent(_ account: Account) async throws {
         do {
             let encoder = JSONEncoder()
@@ -19,6 +29,7 @@ class AccountManager {
             LOGD("ACCOUNT: Locally saving \(account.displayName) with status of \(account.status)")
             defaults.set(data, forKey: kCURRENTACCOUNT)
         } catch {
+//            LOGE("ACCOUNT: Failed to save current locally")
             throw error
         }
     }
@@ -38,4 +49,22 @@ class AccountManager {
     static func deleteCurrent() {
         defaults.removeObject(forKey: kCURRENTACCOUNT)
     }
+
+//    static func saveCurrentImage(_ image: UIImage) {
+//        if let data = image.jpegData(compressionQuality: photoCompressionQuality),
+//           let encoded = try? PropertyListEncoder().encode(data) {
+//            UserDefaults.standard.set(encoded, forKey: kCURRENTIMAGEURL)
+//        }
+//    }
+//
+//    static func loadCurrentImage() -> UIImage? {
+//        if let data = UserDefaults.standard.data(forKey: kCURRENTIMAGEURL),
+//           let decoded = try? PropertyListDecoder().decode(Data.self, from: data),
+//           let image = UIImage(data: decoded) {
+//            LOGD("Finished loading current image from UserDefaults", from: self)
+//            return image
+//        }
+//        LOGE("Loading current image", from: self)
+//        return nil
+//    }
 }

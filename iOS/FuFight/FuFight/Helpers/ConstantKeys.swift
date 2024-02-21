@@ -23,6 +23,7 @@ public let kFULLNAME: String = "fullName"
 public let kEMAIL: String = "email"
 public let kIMAGEURL: String = "imageUrl"
 public let kCURRENTACCOUNT: String = "currentAccount"
+public let kCURRENTIMAGEURL: String = "currentImageUrl"
 public let kACCOUNTIMAGE: String = "accountImage"
 public let kAUTHTYPES: String = "authenticationTypes"
 public let kPHONEAUTH: String = "phoneAuth"
@@ -88,7 +89,7 @@ public let kTONAMEVC: String = "toNameVC"
 public let kTOAUTHMENUVC: String = "toAuthMenuVC"
 
 //images
-public let kDEFAULTPROFILEIMAGE: UIImage = UIImage(systemName: "person")!
+public let kDEFAULTACCOUNTIMAGE: UIImage = UIImage(systemName: "person")!
 //public let kBLANKIMAGE: UIImage = UIImage(named: "blankImage")!
 //public let kCORRECTIMAGE: UIImage = UIImage(named: "correct")!
 //public let kWRONGIMAGE: UIImage = UIImage(named: "wrong")!
