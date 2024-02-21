@@ -45,7 +45,7 @@ struct HomeView: View {
 
     var logoutButton: some View {
         Button(action: {
-            vm.logout()
+            vm.logOut()
         }) {
             Text("Log out")
                 .padding()

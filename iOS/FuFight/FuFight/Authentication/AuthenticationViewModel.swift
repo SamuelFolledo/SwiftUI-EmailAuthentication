@@ -129,9 +129,8 @@ class AuthenticationViewModel: ViewModel {
         //TODO: Show loading
         switch step {
         case .logIn:
-            print("TODO: Log in, then go to game view")
             Task {
-                await transitionToHomeView()
+                await logIn()
             }
         case .signUp:
             Task {
@@ -206,7 +205,7 @@ class AuthenticationViewModel: ViewModel {
             try await AccountNetworkManager.deleteStoredPhoto(currentUserId)
             try await AccountNetworkManager.deleteData(currentUserId)
             try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
-            try await AccountNetworkManager.logout()
+            try await AccountNetworkManager.logOut()
             AccountManager.deleteCurrent()
             account.reset()
         } catch {
@@ -252,8 +251,25 @@ private extension AuthenticationViewModel {
         }
     }
 
+    func logIn() async {
+        validateTopField()
+        //TODO: 1: Uncomment line below to prevent unsafe passwords
+//        bottomFieldHasError = !bottomFieldText.isValidPassword
+        if !topFieldHasError && !bottomFieldHasError {
+            do {
+                guard let authData = try await AccountNetworkManager.logIn(email: topFieldText, password: bottomFieldText) else { return }
+                let updatedAccount = Account(authData)
+                account.update(with: updatedAccount)
+                await transitionToHomeView()
+            } catch {
+                print("Error Logging in \(error.localizedDescription)")
+            }
+        } else {
+            print("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+        }
+    }
+
     func transitionToHomeView() async {
-//        let isPhone = step == .phone || step == .phoneVerification
         DispatchQueue.main.async {
             self.account.status = .valid
         }

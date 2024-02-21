@@ -31,10 +31,10 @@ class HomeViewModel: ViewModel {
     }
 
     //MARK: - Public Methods
-    func logout() {
+    func logOut() {
         Task {
             do {
-                try await AccountNetworkManager.logout()
+                try await AccountNetworkManager.logOut()
                 await transitionToAuthenticationView()
                 try await AccountNetworkManager.setData(account: account)
                 try await AccountManager.saveCurrent(account)

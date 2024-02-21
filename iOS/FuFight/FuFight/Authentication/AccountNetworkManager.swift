@@ -59,7 +59,16 @@ extension AccountNetworkManager {
         }
     }
 
-    static func logout() async throws {
+    static func logIn(email: String, password: String) async throws -> AuthDataResult? {
+        do {
+            let authData = try await auth.signIn(withEmail: email, password: password)
+            return authData
+        } catch {
+            throw error
+        }
+    }
+
+    static func logOut() async throws {
         do {
             try auth.signOut()
         } catch {
