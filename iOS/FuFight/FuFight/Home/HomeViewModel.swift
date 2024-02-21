@@ -39,7 +39,7 @@ class HomeViewModel: ViewModel {
                 try await AccountNetworkManager.setData(account: account)
                 try await AccountManager.saveCurrent(account)
             } catch {
-                print("Error deleting account \(error.localizedDescription)")
+                LOGE("Error logging out \(account.displayName): \(error.localizedDescription)")
             }
         }
     }
@@ -51,7 +51,7 @@ private extension HomeViewModel {
         auth.addStateDidChangeListener { (authDataResult, user) in
             if let user {
                 let updatedAccount = Account(user)
-                print("Auth ACCOUNT changes handler for \(user.displayName ?? "")")
+                LOGD("Auth ACCOUNT changes handler for \(user.displayName ?? "")")
                 updatedAccount.status = self.account.status
                 DispatchQueue.main.async {
                     self.account.update(with: updatedAccount)

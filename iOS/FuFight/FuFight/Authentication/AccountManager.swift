@@ -16,7 +16,7 @@ class AccountManager {
         do {
             let encoder = JSONEncoder()
             let data = try encoder.encode(account)
-            print("ACCOUNT: Locally saving \(account.displayName) with status of \(account.status)")
+            LOGD("ACCOUNT: Locally saving \(account.displayName) with status of \(account.status)")
             defaults.set(data, forKey: kCURRENTACCOUNT)
         } catch {
             throw error
@@ -27,10 +27,10 @@ class AccountManager {
         guard let data = defaults.data(forKey: kCURRENTACCOUNT) else { return nil }
         do {
             let account = try JSONDecoder().decode(Account.self, from: data)
-            print("ACCOUNT: Locally getting \(account.displayName) with status of \(account.status)")
+            LOGD("ACCOUNT: Locally getting \(account.displayName) with status of \(account.status)")
             return account
         } catch {
-            print("Error decoding current account \(error.localizedDescription)")
+            LOGE("Error decoding current account \(error.localizedDescription)")
             return nil
         }
     }

@@ -138,10 +138,10 @@ class AuthenticationViewModel: ViewModel {
                 topFieldIsActive = true
             }
         case .phone:
-            print("TODO: Send phone code")
+            TODO("Send phone code")
             updateStep(to: .phoneVerification)
         case .phoneVerification:
-            print("TODO: Login/sign up with phone")
+            TODO("Login/sign up with phone")
             Task {
                 await transitionToHomeView()
             }
@@ -159,10 +159,9 @@ class AuthenticationViewModel: ViewModel {
         case .signUp:
             updateStep(to: .logIn)
         case .phone, .onboard:
-            print("TODO: button should be hidden")
             break
         case .phoneVerification:
-            print("TODO: Cancel registration")
+            TODO("Cancel registration")
             updateStep(to: .logIn)
         }
     }
@@ -209,7 +208,7 @@ class AuthenticationViewModel: ViewModel {
             AccountManager.deleteCurrent()
             account.reset()
         } catch {
-            print("Error deleting account \(error.localizedDescription)")
+            LOGE("Error deleting account \(error.localizedDescription)")
         }
     }
 }
@@ -226,10 +225,10 @@ private extension AuthenticationViewModel {
                 account.update(with: updatedAccount)
                 updateStep(to: .onboard)
             } catch {
-                print("Error signing up \(error.localizedDescription)")
+                LOGE("Error signing up \(error.localizedDescription)")
             }
         } else {
-            print("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+            LOGE("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
         }
     }
 
@@ -246,7 +245,7 @@ private extension AuthenticationViewModel {
                     try await AccountManager.saveCurrent(account)
                 }
             } catch {
-                print("Error Finishing Account creation \(error.localizedDescription)")
+                LOGE("Error Finishing Account creation \(error.localizedDescription)")
             }
         }
     }
@@ -262,10 +261,10 @@ private extension AuthenticationViewModel {
                 account.update(with: updatedAccount)
                 await transitionToHomeView()
             } catch {
-                print("Error Logging in \(error.localizedDescription)")
+                LOGE("Error Logging in \(error.localizedDescription)")
             }
         } else {
-            print("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+            LOGE("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
         }
     }
 

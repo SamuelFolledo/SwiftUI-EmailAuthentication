@@ -126,7 +126,6 @@ public final class AccountAuthenticationViewModel {
                     }
                 }
             } else {
-                print("checkIfEmailExist emailAlreadyExist = nil")
                 completion("Weird email bug", nil)
             }
         })
@@ -137,7 +136,6 @@ public final class AccountAuthenticationViewModel {
         let emailRef = firDatabase.child(kREGISTEREDACCOUNTS).queryOrdered(byChild: kEMAIL).queryEqual(toValue: email)
         emailRef.observeSingleEvent(of: .value, with: { (snapshot) in
             if snapshot.exists() {
-                print("snapshot = \(snapshot)")
                 completion(true)
             } else {
                 completion(false)
@@ -150,7 +148,7 @@ public final class AccountAuthenticationViewModel {
             if let error = error {
                 completion(error.localizedDescription, nil)
             } else {
-                guard let currentAccount = Account.current else { print("No user"); return }
+                guard let currentAccount = Account.current else { return }
                 completion(nil, currentAccount)
             }
         }
@@ -202,7 +200,6 @@ public final class AccountAuthenticationViewModel {
 //            }
 //            if values.errors.count == 0 { //if no error, text a code or authenticate
 //                if !hasPhoneCode { //text for code
-//                    print("Texting code...")
 //                } else { //check bottom text
 //                    guard let bottomText = bottomTF.text?.trimmed, bottomText != "" else { //if password is empty...
 //                        values.bottomTF.hasError()
@@ -213,7 +210,6 @@ public final class AccountAuthenticationViewModel {
 //                }
 //            }
 //        }
-//        print("THERE ARE \(values.errors.count) ERRORS")
 //        return values
 //    }
     

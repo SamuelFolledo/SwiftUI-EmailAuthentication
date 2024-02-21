@@ -32,7 +32,6 @@
 //func getFacebookAccount(userDetails: [String: AnyObject], accessToken: String, completion: @escaping (_ user: Account?, _ error: String?) -> Void) {
 //    //    let id = userDetails["id"] as? String,
 //    guard let firstName = userDetails["first_name"] as? String, let lastName = userDetails["last_name"] as? String, let email = userDetails["email"] as? String else { //get user details
-//        print("Failed to get user's facebook details")
 //        return
 //    }
 //    let credential = FacebookAuthProvider.credential(withAccessToken: accessToken) //get credential
@@ -41,7 +40,6 @@
 //            completion(nil, error.localizedDescription)
 //        }
 //        guard let userResult = userResult else { return }
-//        //                print("USER RESULT = \(userResult.additionalAccountInfo?.profile)")
 //        if !userResult.additionalAccountInfo!.isNewAccount { //if not new user... get the user's info
 //            fetchAccountWith(userId: userResult.user.uid) { (userFetched) in
 //                if let user = userFetched {

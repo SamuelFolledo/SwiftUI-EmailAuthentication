@@ -13,14 +13,12 @@ import Firebase
 func saveAccountInBackground(user: Account) {
     let ref = firDatabase.child(kACCOUNT).child(user.userId)
     ref.setValue(userDictionaryFrom(user: user))
-    print("Finished saving user \(user.displayName) in Firebase")
 }
 
 ///save user to AccountDefaults/
 func saveAccountLocally(user: Account) {
     UserDefaults.standard.set(userDictionaryFrom(user: user), forKey: kCURRENTACCOUNT)
     UserDefaults.standard.synchronize()
-    print("Finished saving user \(user.displayName) locally...")
 }
 
 ///saves an extra copy of email address as the key, converting the email's last @ to _-_/
@@ -126,13 +124,11 @@ extension Account {
     class func registerAccountWith(phoneNumber: String, verificationCode: String, completion: @escaping (_ error: String?, _ shouldLogin: Bool) -> Void) {
         let verificationID = UserDefaults.standard.value(forKey: kVERIFICATIONCODE) //kVERIFICATIONCODE = "firebase_verification" //Once our user inputs phone number and request a code, firebase will send the modification code which is not the password code. This code is sent by Firebase in the background to identify if the application is actually running on the device that is requesting the code.
         let credentials = PhoneAuthProvider.provider().credential(withVerificationID: verificationID as! String, verificationCode: verificationCode)
-        print("Phone = \(phoneNumber) == \(verificationCode)")
         Auth.auth().signIn(with: credentials) { (userResult, error) in //Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook logIn Access Token, a Google ID Token/Access Token pair, etc.) and returns additional identity provider data.
             if let error = error { //if there's error put false on completion's shouldLogin parameter
                 completion(error.localizedDescription, false)
             }
 //            guard let userResult = userResult else { return } //userResult contains lots of important info we will need in the future
-            //            print("USER RESULT = \(userResult)\nUSER ADDITIONAL INFO = \(userResult.additionalAccountInfo)\n\n \(userResult.credential)")
 //            let user: Account = Account(userId: userResult.user.uid, username: "", firstName: "", lastName: "", email: "", phoneNumber: userResult.user.phoneNumber!, imageUrl: "", authTypes: [.phone], createdAt: Date(), updatedAt: Date())
 //            if userResult.additionalAccountInfo!.isNewAccount { //if new user, save locally and finish registering
 //                saveAccountLocally(user: user) //now we have the newly registered user, save it locally and in background

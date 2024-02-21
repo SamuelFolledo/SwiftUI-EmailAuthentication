@@ -30,6 +30,7 @@ extension AccountNetworkManager {
     static func createUser(email: String, password: String) async throws -> AuthDataResult? {
         do {
             let authData = try await auth.createUser(withEmail: email, password: password)
+            LOGD("AUTH: Finished creating user from email: \(authData.user.email ?? "")", from: self)
             return authData
         } catch {
             throw error
@@ -46,6 +47,7 @@ extension AccountNetworkManager {
         changeRequest?.photoURL = photoURL
         do {
             try await changeRequest?.commitChanges()
+            LOGD("AUTH: Finished updating user's displayName to \(username) and photoURL to \(photoURL.absoluteString)", from: self)
         } catch {
             throw error
         }
@@ -54,6 +56,7 @@ extension AccountNetworkManager {
     static func deleteAuthData(userId: String) async throws {
         do {
             try await auth.currentUser?.delete()
+            LOGD("AUTH: Finished deleting auth data for userId: \(userId)", from: self)
         } catch {
             throw error
         }
@@ -62,6 +65,7 @@ extension AccountNetworkManager {
     static func logIn(email: String, password: String) async throws -> AuthDataResult? {
         do {
             let authData = try await auth.signIn(withEmail: email, password: password)
+            LOGD("AUTH: Finished loggin in for \(authData.user.displayName ?? "")", from: self)
             return authData
         } catch {
             throw error
@@ -71,6 +75,7 @@ extension AccountNetworkManager {
     static func logOut() async throws {
         do {
             try auth.signOut()
+            LOGD("AUTH: Finished logging out", from: self)
         } catch {
             throw error
         }
@@ -88,6 +93,7 @@ extension AccountNetworkManager {
         do {
             let _ = try await photoReference.putDataAsync(imageData, metadata: metaData)
             let url = try await photoReference.downloadURL()
+            LOGD("STORAGE: Finished storing account's profile photo with downloadUrl: \(url.absoluteString)", from: self)
             return url
         } catch {
             throw error
@@ -98,6 +104,7 @@ extension AccountNetworkManager {
         let photoReference = profilePhotoStorage.child("\(userId).jpg")
         do {
             try await photoReference.delete()
+            LOGD("STORAGE: Finished deleting profile photo from userId: \(userId)", from: self)
         } catch {
             throw error
         }
@@ -112,6 +119,7 @@ extension AccountNetworkManager {
             let accountRef = accountDb.document(account.userId)
             do {
                 try accountRef.setData(from: account, merge: merge)
+                LOGD("DB: Finished setData for \(account.displayName)", from: self)
             } catch {
                 throw error
             }
@@ -122,6 +130,7 @@ extension AccountNetworkManager {
         do {
             let accountRef = accountDb.document(userId)
             try await accountRef.delete()
+            LOGD("DB: Finished deleting account with userId: \(userId)", from: self)
         } catch {
             throw error
         }
