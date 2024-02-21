@@ -57,9 +57,7 @@ class Account: ObservableObject, Codable {
         self.createdAt = firUser.metadata.creationDate
     }
 
-    deinit {
-        print("Account \(displayName) is being deinitialize.")
-    }
+    deinit { }
 
     //MARK: - Codable overrides
     private enum CodingKeys : String, CodingKey {
@@ -126,7 +124,6 @@ class Account: ObservableObject, Codable {
 //    
 //    class func currentAccount() -> Account? {
 ////        if let user = auth.currentAccount {
-////            print("TODO: Implement returning a current user")
 ////        }
 ////        if Auth.auth().currentAccount != nil { //if we have user...
 ////            if let dictionary = AccountDefaults.standard.object(forKey: kCURRENTACCOUNT) {
@@ -143,7 +140,6 @@ class Account: ObservableObject, Codable {
                 completion(error.localizedDescription,nil)
             }
 //            guard let user = firAccount?.user else {
-//                print("Account not found after attempt to register")
 //                completion(("Account not found after attempt to register"), nil)
 //                return }
 //            let currentAccount = Account(userId: user.uid, username: "", firstName: "", lastName: "", email: email, phoneNumber: "", imageUrl: "", authTypes: [AuthType.email], createdAt: Date())
@@ -176,7 +172,6 @@ class Account: ObservableObject, Codable {
 //                        saveAccountInBackground(user: user)
 //                        completion(nil)
 //                    } else {
-//                        print("No user fetched from \(String(describing: userDetails.user.email))")
 //                    }
 //                }
 //            }
@@ -185,7 +180,6 @@ class Account: ObservableObject, Codable {
     
 //MARK: Logout
     class func logOutCurrentAccount(withBlock: (_ success: Bool) -> Void) {
-        print("Logging outttt...")
         UserDefaults.standard.removeObject(forKey: kCURRENTACCOUNT)
         UserDefaults.standard.synchronize() //save the changes
         do {
@@ -193,7 +187,6 @@ class Account: ObservableObject, Codable {
             deleteProfilePhoto()
             withBlock(true)
         } catch let error as NSError {
-            print("error logging out \(error.localizedDescription)")
             withBlock(false)
         }
     }

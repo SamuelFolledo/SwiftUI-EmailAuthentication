@@ -129,9 +129,8 @@ class AuthenticationViewModel: ViewModel {
         //TODO: Show loading
         switch step {
         case .logIn:
-            print("TODO: Log in, then go to game view")
             Task {
-                await transitionToHomeView()
+                await logIn()
             }
         case .signUp:
             Task {
@@ -139,10 +138,10 @@ class AuthenticationViewModel: ViewModel {
                 topFieldIsActive = true
             }
         case .phone:
-            print("TODO: Send phone code")
+            TODO("Send phone code")
             updateStep(to: .phoneVerification)
         case .phoneVerification:
-            print("TODO: Login/sign up with phone")
+            TODO("Login/sign up with phone")
             Task {
                 await transitionToHomeView()
             }
@@ -160,10 +159,9 @@ class AuthenticationViewModel: ViewModel {
         case .signUp:
             updateStep(to: .logIn)
         case .phone, .onboard:
-            print("TODO: button should be hidden")
             break
         case .phoneVerification:
-            print("TODO: Cancel registration")
+            TODO("Cancel registration")
             updateStep(to: .logIn)
         }
     }
@@ -206,11 +204,11 @@ class AuthenticationViewModel: ViewModel {
             try await AccountNetworkManager.deleteStoredPhoto(currentUserId)
             try await AccountNetworkManager.deleteData(currentUserId)
             try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
-            try await AccountNetworkManager.logout()
+            try await AccountNetworkManager.logOut()
             AccountManager.deleteCurrent()
             account.reset()
         } catch {
-            print("Error deleting account \(error.localizedDescription)")
+            LOGE("Error deleting account \(error.localizedDescription)")
         }
     }
 }
@@ -227,10 +225,10 @@ private extension AuthenticationViewModel {
                 account.update(with: updatedAccount)
                 updateStep(to: .onboard)
             } catch {
-                print("Error signing up \(error.localizedDescription)")
+                LOGE("Error signing up \(error.localizedDescription)")
             }
         } else {
-            print("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+            LOGE("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
         }
     }
 
@@ -247,13 +245,30 @@ private extension AuthenticationViewModel {
                     try await AccountManager.saveCurrent(account)
                 }
             } catch {
-                print("Error Finishing Account creation \(error.localizedDescription)")
+                LOGE("Error Finishing Account creation \(error.localizedDescription)")
             }
         }
     }
 
+    func logIn() async {
+        validateTopField()
+        //TODO: 1: Uncomment line below to prevent unsafe passwords
+//        bottomFieldHasError = !bottomFieldText.isValidPassword
+        if !topFieldHasError && !bottomFieldHasError {
+            do {
+                guard let authData = try await AccountNetworkManager.logIn(email: topFieldText, password: bottomFieldText) else { return }
+                let updatedAccount = Account(authData)
+                account.update(with: updatedAccount)
+                await transitionToHomeView()
+            } catch {
+                LOGE("Error Logging in \(error.localizedDescription)")
+            }
+        } else {
+            LOGE("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+        }
+    }
+
     func transitionToHomeView() async {
-//        let isPhone = step == .phone || step == .phoneVerification
         DispatchQueue.main.async {
             self.account.status = .valid
         }
