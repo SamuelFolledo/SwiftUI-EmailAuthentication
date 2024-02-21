@@ -12,18 +12,26 @@ struct HomeView: View {
     var vm: HomeViewModel
 
     var body: some View {
-        VStack {
-            homeNavBar
+        NavigationView {
+            ScrollView {
+                VStack {
 
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
+                    Text("Welcome Home")
 
-            Text("Hello, world!")
+                    Spacer()
 
-            Spacer()
+                    Button("Play") {
+                        TODO("Play")
+                    }
+                }
+                .padding()
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        accountImage
+                    }
+                }
+            }
         }
-        .padding()
         .onAppear {
             vm.onAppear()
         }
@@ -32,39 +40,15 @@ struct HomeView: View {
         }
     }
 
-    var homeNavBar: some View {
-        VStack {
-            HStack {
-                accountImage
-
-                Spacer()
-
-                logoutButton
-            }
-        }
-        .ignoresSafeArea()
-    }
-
     var accountImage: some View {
-        AsyncImage(url: vm.account.imageUrl) { image in
-            image
-                .resizable()
-                .frame(width: 50, height: 50)
-        } placeholder: {
-            ProgressView()
+        Menu {
+            //TODO: Use for each
+            Button("Update Profile Picture", action: vm.editPhoto)
+            Button("Logout", action: vm.logOut)
+            Button("Delete Account", action: vm.deleteAccount)
+        } label: {
+            AccountImageView(url: vm.account.imageUrl, radius: 30)
         }
-    }
-
-    var logoutButton: some View {
-        Button(action: {
-            vm.logOut()
-        }) {
-            Text("Log out")
-                .padding()
-                .background(.clear)
-                .foregroundColor(Color.systemBlue)
-        }
-        .padding(.horizontal)
     }
 }
 

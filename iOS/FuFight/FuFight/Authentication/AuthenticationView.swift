@@ -64,6 +64,8 @@ struct AuthenticationView: View {
         if vm.step == .onboard {
             TappableImageView(selectedImage: $vm.selectedImage)
                 .frame(idealWidth: 200, idealHeight: 200)
+                .background(Color.red)
+                .clipShape(Circle())
                 .padding()
         }
     }
@@ -96,10 +98,13 @@ struct AuthenticationView: View {
 
     var topField: some View {
         UnderlinedTextField(
-            type: vm.step.topFieldType,
+            type: $vm.topFieldType,
             text: $vm.topFieldText,
             hasError: $vm.topFieldHasError,
-            isActive: $vm.topFieldIsActive)
+            isActive: $vm.topFieldIsActive) {
+                TODO("TODO: CHECK USERNAME HERE")
+                TODO("Add an action for top field's trailing button. Step: \(vm.step), and type: \(vm.bottomFieldType)")
+            }
         .onSubmit {
             vm.onTopFieldReturnButtonTapped()
         }
@@ -107,11 +112,12 @@ struct AuthenticationView: View {
 
     var bottomField: some View {
         UnderlinedTextField(
-            type: vm.step.bottomFieldType,
+            type: $vm.bottomFieldType,
             text: $vm.bottomFieldText,
             hasError: $vm.bottomFieldHasError,
-            isActive: $vm.bottomFieldIsActive,
-            isSecure: true)
+            isActive: $vm.bottomFieldIsActive) {
+                TODO("Add an action for bottom field's trailing button. Step: \(vm.step), and type: \(vm.bottomFieldType)")
+            }
         .onSubmit {
             vm.onBottomFieldReturnButtonTapped()
         }
