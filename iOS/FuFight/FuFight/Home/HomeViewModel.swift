@@ -43,6 +43,28 @@ class HomeViewModel: ViewModel {
             }
         }
     }
+
+    func editPhoto() {
+        TODO("Implement edit photo")
+    }
+
+    ///Delete in Auth, Firestore, Storage, and then locally
+    func deleteAccount() {
+        Task {
+            let currentUserId = account.id ?? Account.current?.userId ?? account.userId
+            do {
+                try await AccountNetworkManager.deleteStoredPhoto(currentUserId)
+                try await AccountNetworkManager.deleteData(currentUserId)
+                try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
+                try await AccountNetworkManager.logOut()
+                AccountManager.deleteCurrent()
+                account.reset()
+                account.status = .logout
+            } catch {
+                LOGE("Error deleting account \(error.localizedDescription)")
+            }
+        }
+    }
 }
 
 //MARK: - Private Methods

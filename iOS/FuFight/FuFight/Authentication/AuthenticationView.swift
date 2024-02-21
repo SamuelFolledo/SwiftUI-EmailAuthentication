@@ -64,6 +64,8 @@ struct AuthenticationView: View {
         if vm.step == .onboard {
             TappableImageView(selectedImage: $vm.selectedImage)
                 .frame(idealWidth: 200, idealHeight: 200)
+                .background(Color.red)
+                .clipShape(Circle())
                 .padding()
         }
     }
