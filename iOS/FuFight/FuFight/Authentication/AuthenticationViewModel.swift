@@ -13,9 +13,11 @@ class AuthenticationViewModel: ViewModel {
     private(set) var step: AuthStep
     let account: Account
     var username: String = ""
+    var topFieldType: FieldType = .emailOrUsername
     var topFieldText: String = ""
     var topFieldHasError: Bool = false
     var topFieldIsActive: Bool = false
+    var bottomFieldType: FieldType = .password
     var bottomFieldText: String = ""
     var bottomFieldHasError: Bool = false
     var bottomFieldIsActive: Bool = false

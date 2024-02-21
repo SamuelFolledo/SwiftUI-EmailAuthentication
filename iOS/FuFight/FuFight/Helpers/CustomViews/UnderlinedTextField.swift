@@ -11,10 +11,11 @@ enum FieldType {
     case email
     case emailOrUsername
     case password
+    case visiblePassword
     case username
     case phoneNumber
     case phoneCode
-    case unknown
+    case unspecified
 
     var placeHolder: String {
         switch self {
@@ -22,7 +23,7 @@ enum FieldType {
             return Str.emailTitle
         case .emailOrUsername:
             return Str.emailOrUsernameTitle
-        case .password:
+        case .password, .visiblePassword:
             return Str.passwordTitle
         case .username:
             return Str.usernameTitle
@@ -30,7 +31,7 @@ enum FieldType {
             return Str.phoneNumberTitle
         case .phoneCode:
             return Str.phoneSixDigitCodeTitle
-        case .unknown:
+        case .unspecified:
             return ""
         }
     }
@@ -39,7 +40,7 @@ enum FieldType {
         switch self {
         case .email, .emailOrUsername:
             return .emailAddress
-        case .password, .username, .unknown:
+        case .password, .visiblePassword, .username, .unspecified:
             return .default
         case .phoneNumber:
             return .phonePad
@@ -50,7 +51,7 @@ enum FieldType {
 
     var autocapitalization: TextInputAutocapitalization {
         switch self {
-        case .email, .emailOrUsername, .password, .phoneNumber, .phoneCode, .unknown:
+        case .email, .emailOrUsername, .password, .visiblePassword, .phoneNumber, .phoneCode, .unspecified:
             return .never
         case .username:
             return .words
@@ -63,7 +64,7 @@ enum FieldType {
             return .emailAddress
         case .emailOrUsername:
             return .username
-        case .password:
+        case .password, .visiblePassword:
             return .password
         case .username:
             return .username
@@ -71,7 +72,7 @@ enum FieldType {
             return .telephoneNumber
         case .phoneCode:
             return .oneTimeCode
-        case .unknown:
+        case .unspecified:
             return .givenName
         }
     }
@@ -80,47 +81,70 @@ enum FieldType {
         switch self {
         case .email, .emailOrUsername, .username, .phoneNumber:
             return .next
-        case .password, .phoneCode:
+        case .password, .visiblePassword, .phoneCode:
             return .done
-        case .unknown:
+        case .unspecified:
             return .return
         }
     }
 }
 
 struct UnderlinedTextField: View {
-    var type: FieldType
+    @Binding var type: FieldType
     @Binding var text: String
     @Binding var hasError: Bool
     ///isActive keeps track if this textfield is active and should ALWAYS be in sync with isFocused
     @Binding var isActive: Bool
     @FocusState private var isFocused: Bool
-    var isSecure: Bool
+    var trailingButtonAction: (() -> Void)?
 
-    init(type: FieldType, text: Binding<String>, hasError: Binding<Bool>, isActive: Binding<Bool>, isSecure: Bool = false) {
-        self.type = type
+    init(type: Binding<FieldType>, text: Binding<String>, hasError: Binding<Bool>, isActive: Binding<Bool>, _ trailingButtonAction: (() -> Void)? = nil) {
+        self._type = type
         self._text = text
         self._hasError = hasError
         self._isActive = isActive
-        self.isSecure = isSecure
+        self.trailingButtonAction = trailingButtonAction!
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            Group {
-                if isSecure {
-                    SecureField(type.placeHolder, text: $text)
-                } else {
-                    TextField(type.placeHolder, text: $text)
+            HStack {
+                Group {
+                    if type == .password {
+                        SecureField(type.placeHolder, text: $text)
+                    } else {
+                        TextField(type.placeHolder, text: $text)
+                    }
+                }
+                .padding()
+                .textFieldStyle(PlainTextFieldStyle())
+                .keyboardType(type.topFieldKeyboardType)
+                .textInputAutocapitalization(type.autocapitalization)
+                .focused($isFocused)
+                .textContentType(type.contentType)
+                .submitLabel(type.submitLabel)
+
+                Button {
+                    switch type {
+                    case .password:
+                        type = .visiblePassword
+                    case .visiblePassword:
+                        type = .password
+                    case .email, .emailOrUsername, .username, .phoneNumber, .phoneCode, .unspecified:
+                        trailingButtonAction?()
+                    }
+                } label: {
+                    switch type {
+                    case .password, .phoneCode:
+                        Image(systemName: "eye")
+                    case .visiblePassword:
+                        Image(systemName: "eye.slash")
+                    case .email, .emailOrUsername, .username, .phoneNumber, .unspecified:
+                        Text("")
+                            .hidden()
+                    }
                 }
             }
-            .padding()
-            .textFieldStyle(PlainTextFieldStyle())
-            .keyboardType(type.topFieldKeyboardType)
-            .textInputAutocapitalization(type.autocapitalization)
-            .focused($isFocused)
-            .textContentType(type.contentType)
-            .submitLabel(type.submitLabel)
         }
         .background(
             VStack {

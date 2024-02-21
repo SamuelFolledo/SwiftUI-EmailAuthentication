@@ -60,7 +60,7 @@ enum AuthStep {
     var bottomFieldType: FieldType {
         switch self {
         case .logIn, .signUp:
-            return .password
+            return Defaults.showPassword ? .visiblePassword : .password
         case .phone:
             return .phoneCode
         case .phoneVerification:
