@@ -79,10 +79,10 @@ enum FieldType {
 
     var submitLabel: SubmitLabel {
         switch self {
-        case .email, .emailOrUsername, .username, .phoneNumber:
+        case .email, .emailOrUsername, .phoneNumber:
             return .next
-        case .password, .visiblePassword, .phoneCode:
-            return .done
+        case .password, .visiblePassword, .phoneCode, .username:
+            return .continue
         case .unspecified:
             return .return
         }
@@ -116,7 +116,6 @@ struct UnderlinedTextField: View {
                         TextField(type.placeHolder, text: $text)
                     }
                 }
-                .padding()
                 .textFieldStyle(PlainTextFieldStyle())
                 .keyboardType(type.topFieldKeyboardType)
                 .textInputAutocapitalization(type.autocapitalization)
@@ -146,13 +145,13 @@ struct UnderlinedTextField: View {
                 }
             }
         }
+        .padding()
         .background(
             VStack {
                 Spacer()
                 
                 Rectangle()
                     .frame(height: 1.5)
-                    .padding(.horizontal)
                     .foregroundStyle(hasError ? Color.red : Color.label)
             }
         )

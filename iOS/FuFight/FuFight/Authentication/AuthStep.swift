@@ -27,21 +27,6 @@ enum AuthStep {
         }
     }
 
-    var topFieldType: FieldType {
-        switch self {
-        case .logIn:
-            return .emailOrUsername
-        case .signUp:
-            return .email
-        case .phone:
-            return .phoneNumber
-        case .phoneVerification:
-            return .phoneCode
-        case .onboard:
-            return .username
-        }
-    }
-
     var topButtonTitle: String {
         switch self {
         case .logIn:
@@ -54,20 +39,6 @@ enum AuthStep {
             return Str.verifyCode
         case .onboard:
             return Str.finishTitle
-        }
-    }
-
-    var bottomFieldType: FieldType {
-        switch self {
-        case .logIn, .signUp:
-            return Defaults.showPassword ? .visiblePassword : .password
-        case .phone:
-            return .phoneCode
-        case .phoneVerification:
-            return .phoneCode
-        case .onboard:
-            //Should not appear
-            return .username
         }
     }
 

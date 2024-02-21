@@ -17,7 +17,11 @@ class AuthenticationViewModel: ViewModel {
     var topFieldText: String = ""
     var topFieldHasError: Bool = false
     var topFieldIsActive: Bool = false
-    var bottomFieldType: FieldType = .password
+    var bottomFieldType: FieldType = Defaults.showPassword ? .visiblePassword : .password {
+        didSet {
+            Defaults.showPassword = bottomFieldType == .visiblePassword
+        }
+    }
     var bottomFieldText: String = ""
     var bottomFieldHasError: Bool = false
     var bottomFieldIsActive: Bool = false

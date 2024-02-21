@@ -93,3 +93,5 @@ public let kDEFAULTACCOUNTIMAGE: UIImage = UIImage(systemName: "person")!
 //public let kBLANKIMAGE: UIImage = UIImage(named: "blankImage")!
 //public let kCORRECTIMAGE: UIImage = UIImage(named: "correct")!
 //public let kWRONGIMAGE: UIImage = UIImage(named: "wrong")!
+
+public let kSHOWPASSWORD: String = "showPassword"

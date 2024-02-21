@@ -103,11 +103,12 @@ struct AuthenticationView: View {
             hasError: $vm.topFieldHasError,
             isActive: $vm.topFieldIsActive) {
                 TODO("TODO: CHECK USERNAME HERE")
-                TODO("Add an action for top field's trailing button. Step: \(vm.step), and type: \(vm.bottomFieldType)")
+                TODO("Add an action for top field's trailing button. Step: \(vm.step), and type: \(vm.topFieldType)")
             }
         .onSubmit {
             vm.onTopFieldReturnButtonTapped()
         }
+        .padding(.horizontal)
     }
 
     var bottomField: some View {
@@ -121,6 +122,7 @@ struct AuthenticationView: View {
         .onSubmit {
             vm.onBottomFieldReturnButtonTapped()
         }
+        .padding(.horizontal)
     }
 
     var topButton: some View {
