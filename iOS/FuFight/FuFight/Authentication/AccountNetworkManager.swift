@@ -126,6 +126,19 @@ extension AccountNetworkManager {
         }
     }
 
+    ///fetch user's data from Firestore and returns an account
+    static func fetchData(userId: String) async throws -> Account?
+    {
+        let accountRef = accountDb.document(userId)
+        do {
+            let account = try await accountRef.getDocument(as: Account.self)
+            LOGD("DB: Finished fetching \(account.displayName)", from: self)
+            return account
+        } catch {
+            throw error
+        }
+    }
+
     static func deleteData(_ userId: String) async throws {
         do {
             let accountRef = accountDb.document(userId)

@@ -256,9 +256,12 @@ private extension AuthenticationViewModel {
 //        bottomFieldHasError = !bottomFieldText.isValidPassword
         if !topFieldHasError && !bottomFieldHasError {
             do {
-                guard let authData = try await AccountNetworkManager.logIn(email: topFieldText, password: bottomFieldText) else { return }
-                let updatedAccount = Account(authData)
-                account.update(with: updatedAccount)
+                guard let authData = try await AccountNetworkManager.logIn(email: topFieldText, password: bottomFieldText),
+                      let fetchedAccount = try await AccountNetworkManager.fetchData(userId: authData.user.uid)
+                else { return }
+                //TODO: Fetch photo
+                account.update(with: fetchedAccount)
+                try await AccountManager.saveCurrent(account)
                 await transitionToHomeView()
             } catch {
                 LOGE("Error Logging in \(error.localizedDescription)")
@@ -288,7 +291,7 @@ private extension AuthenticationViewModel {
         topFieldText = topFieldText.trimmed
         switch step {
         case .logIn:
-            topFieldHasError = !topFieldText.isValidEmail || !topFieldText.isValidUsername
+            topFieldHasError = !(topFieldText.isValidEmail || topFieldText.isValidUsername)
         case .signUp:
             topFieldHasError = !topFieldText.isValidEmail
         case .phone, .phoneVerification:

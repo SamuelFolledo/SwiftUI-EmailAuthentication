@@ -38,6 +38,7 @@ class Account: ObservableObject, Codable {
     //MARK: - Initializers
     init() { }
 
+    ///Initializer for sign up only
     convenience init(_ authResult: AuthDataResult) {
         self.init()
         self.email = authResult.user.email
