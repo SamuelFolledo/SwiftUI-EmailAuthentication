@@ -31,6 +31,11 @@ struct HomeView: View {
                     }
                 }
             }
+            .overlay {
+                if let message = vm.globalLoadingMessage {
+                    ProgressView(message)
+                }
+            }
         }
         .onAppear {
             vm.onAppear()
@@ -38,6 +43,7 @@ struct HomeView: View {
         .onDisappear {
             vm.onDisappear()
         }
+        .allowsHitTesting(vm.globalLoadingMessage == nil)
     }
 
     var accountImage: some View {

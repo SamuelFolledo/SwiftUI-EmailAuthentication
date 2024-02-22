@@ -14,6 +14,8 @@ class AuthenticationViewModel: ViewModel {
     let account: Account
 
     var showForgotPassword: Bool = false
+    ///Set this to nil in order to remove loading indicator
+    var loadingMessage: String? = nil
     var rememberMe: Bool = Defaults.saveEmailAndPassword {
         didSet {
             Defaults.saveEmailAndPassword = rememberMe
@@ -73,14 +75,9 @@ class AuthenticationViewModel: ViewModel {
         //TODO: Show loading
         switch step {
         case .logIn:
-            Task {
-                await logIn()
-            }
+            logIn()
         case .signUp:
-            Task {
-                await signUp()
-                topFieldIsActive = true
-            }
+            signUp()
         case .phone:
             TODO("Send phone code")
             updateStep(to: .phoneVerification)
@@ -88,9 +85,7 @@ class AuthenticationViewModel: ViewModel {
             TODO("Login/sign up with phone")
             transitionToHomeView()
         case .onboard:
-            Task {
-                await finishAccountCreation()
-            }
+            finishOnboarding()
         }
     }
 
@@ -115,6 +110,7 @@ class AuthenticationViewModel: ViewModel {
                 try await auth.sendPasswordReset(withEmail: email)
             } catch {
                 LOGE("SendingPasswordReset to \(email): \(error.localizedDescription)")
+                handleError()
             }
         }
     }
@@ -152,61 +148,83 @@ class AuthenticationViewModel: ViewModel {
 }
 
 private extension AuthenticationViewModel {
-    func signUp() async {
-        validateTopField()
-        //TODO: 1: Uncomment line below to prevent unsafe passwords
-//        bottomFieldHasError = !bottomFieldText.isValidPassword
-        if !topFieldHasError && !bottomFieldHasError {
-            do {
-                guard let authData = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else { return }
-                let updatedAccount = Account(authData)
-                account.update(with: updatedAccount)
-                updateStep(to: .onboard)
-            } catch {
-                LOGE("Error signing up \(error.localizedDescription)")
-            }
-        } else {
-            LOGE("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
-        }
-    }
-
-    func finishAccountCreation() async {
-        validateTopField()
-        if !topFieldHasError {
-            do {
-                if let imageUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
-                    try await AccountNetworkManager.updateAuthenticatedAccount(username: topFieldText, photoURL: imageUrl)
-                    account.username = topFieldText
-                    account.imageUrl = imageUrl
-                    transitionToHomeView()
-                    try await AccountNetworkManager.setData(account: account)
-                    try await AccountManager.saveCurrent(account)
+    func signUp() {
+        Task {
+            validateTopField()
+            //TODO: 1: Uncomment line below to prevent unsafe passwords
+            //        bottomFieldHasError = !bottomFieldText.isValidPassword
+            if !topFieldHasError && !bottomFieldHasError {
+                do {
+                    loadingMessage = Str.creatingUser
+                    guard let authData = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else { return }
+                    let updatedAccount = Account(authData)
+                    account.update(with: updatedAccount)
+                    loadingMessage = nil
+                    updateStep(to: .onboard)
+                    topFieldIsActive = true
+                } catch {
+                    LOGE("Error signing up \(error.localizedDescription)")
+                    handleError()
                 }
-            } catch {
-                LOGE("Error Finishing Account creation \(error.localizedDescription)")
+            } else {
+                LOGE("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+                handleError()
             }
         }
     }
 
-    func logIn() async {
-        validateTopField()
-        //TODO: 1: Uncomment line below to prevent unsafe passwords
-//        bottomFieldHasError = !bottomFieldText.isValidPassword
-        if !topFieldHasError && !bottomFieldHasError {
-            do {
-                ///Authenticate in Auth, then create an account from the fetched data from the database using the authenticated user's userId
-                guard let authData = try await AccountNetworkManager.logIn(email: topFieldText, password: bottomFieldText),
-                      let fetchedAccount = try await AccountNetworkManager.fetchData(userId: authData.user.uid)
-                else { return }
-                account.update(with: fetchedAccount)
-                try await AccountManager.saveCurrent(account)
-                ///Transition to home view
-                transitionToHomeView()
-            } catch {
-                LOGE("Error Logging in \(error.localizedDescription)")
+    func finishOnboarding() {
+        Task {
+            validateTopField()
+            if !topFieldHasError {
+                do {
+                    ///Store user's photo to Storage
+                    loadingMessage = Str.storingPhoto
+                    if let imageUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
+                        loadingMessage = Str.updatingUser
+                        try await AccountNetworkManager.updateAuthenticatedAccount(username: topFieldText, photoURL: imageUrl)
+                        account.username = topFieldText
+                        account.imageUrl = imageUrl
+                        transitionToHomeView()
+                        loadingMessage = Str.savingUser
+                        try await AccountNetworkManager.setData(account: account)
+                        try await AccountManager.saveCurrent(account)
+                        loadingMessage = nil
+                    }
+                } catch {
+                    LOGE("Error Finishing Account creation \(error.localizedDescription)")
+                    handleError()
+                }
             }
-        } else {
-            LOGE("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+        }
+    }
+
+    func logIn() {
+        Task {
+            validateTopField()
+            //TODO: 1: Uncomment line below to prevent unsafe passwords
+            //        bottomFieldHasError = !bottomFieldText.isValidPassword
+            if !topFieldHasError && !bottomFieldHasError {
+                do {
+                    loadingMessage = Str.loggingIn
+                    ///Authenticate in Auth, then create an account from the fetched data from the database using the authenticated user's userId
+                    guard let authData = try await AccountNetworkManager.logIn(email: topFieldText, password: bottomFieldText) else { return }
+                    loadingMessage = Str.fetchingUserData
+                    guard let fetchedAccount = try await AccountNetworkManager.fetchData(userId: authData.user.uid) else { return }
+                    account.update(with: fetchedAccount)
+                    loadingMessage = Str.savingUser
+                    try await AccountManager.saveCurrent(account)
+                    loadingMessage = nil
+                    ///Transition to home view
+                    transitionToHomeView()
+                } catch {
+                    LOGE("Error Logging in \(error.localizedDescription)")
+                    handleError()
+                }
+            } else {
+                LOGE("Email has error \(topFieldHasError) or password has error \(bottomFieldHasError)")
+                handleError()
+            }
         }
     }
 
@@ -254,5 +272,10 @@ private extension AuthenticationViewModel {
         } else if !rememberMe && isPassword {
             Defaults.savedPassword = ""
         }
+    }
+
+    func handleError() {
+        ///Clear loading message in order to allow UI interactions again
+        loadingMessage = nil
     }
 }
