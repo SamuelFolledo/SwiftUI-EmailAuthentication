@@ -29,6 +29,7 @@ class AuthenticationViewModel: ViewModel {
     var topFieldText: String = Defaults.saveEmailAndPassword ? Defaults.savedEmail : "" {
         didSet {
             saveTopFieldTextIfNeeded()
+            updateTopFieldTypeIfNeeded()
         }
     }
     var topFieldHasError: Bool = false
@@ -210,19 +211,27 @@ private extension AuthenticationViewModel {
 
     func logIn() {
         validateTopField()
+        let isUsernameAuth = topFieldType == .username
         //TODO: 1: Uncomment line below to prevent unsafe passwords
         //        bottomFieldHasError = !bottomFieldText.isValidPassword
         guard !topFieldHasError else {
-            return handleError(MainError(type: .invalidEmail))
+            let errorType: MainErrorType = isUsernameAuth ? .invalidUsername : .invalidEmail
+            return handleError(MainError(type: errorType))
         }
         guard !bottomFieldHasError else {
             return handleError(MainError(type: .invalidPassword))
         }
         Task {
             do {
+                var email = topFieldText
+                loadingMessage = Str.fetchingEmail
+                if isUsernameAuth,
+                   let fetchedEmail = try await AccountNetworkManager.fetchEmailFrom(username: topFieldText) {
+                    email = fetchedEmail
+                }
                 loadingMessage = Str.loggingIn
                 ///Authenticate in Auth, then create an account from the fetched data from the database using the authenticated user's userId
-                guard let authData = try await AccountNetworkManager.logIn(email: topFieldText, password: bottomFieldText) else { return }
+                guard let authData = try await AccountNetworkManager.logIn(email: email, password: bottomFieldText) else { return }
                 loadingMessage = Str.fetchingUserData
                 guard let fetchedAccount = try await AccountNetworkManager.fetchData(userId: authData.user.uid) else { return }
                 account.update(with: fetchedAccount)
@@ -256,13 +265,47 @@ private extension AuthenticationViewModel {
         topFieldText = topFieldText.trimmed
         switch step {
         case .logIn:
-            topFieldHasError = !(topFieldText.isValidEmail || topFieldText.isValidUsername)
+            switch topFieldType {
+            case .password, .visiblePassword, .phoneNumber, .phoneCode, .unspecified:
+                break
+            case .email:
+                topFieldHasError = !topFieldText.isValidEmail
+            case .emailOrUsername:
+                topFieldHasError = !(topFieldText.isValidEmail || topFieldText.isValidUsername)
+            case .username:
+                topFieldHasError = !topFieldText.isValidUsername
+            }
         case .signUp:
             topFieldHasError = !topFieldText.isValidEmail
         case .phone, .phoneVerification:
             break
         case .onboard:
             topFieldHasError = !topFieldText.isValidUsername
+        }
+    }
+
+    ///change topFieldType from email to username if it has "@" and vice versa
+    func updateTopFieldTypeIfNeeded() {
+        switch step {
+        case .signUp, .phone, .phoneVerification, .onboard:
+            break
+        case .logIn:
+            if topFieldText.isEmpty {
+                topFieldType = .emailOrUsername
+                return
+            }
+            switch topFieldType {
+            case .password, .visiblePassword, .phoneNumber, .phoneCode, .unspecified:
+                break
+            case .email, .emailOrUsername:
+                if !topFieldText.contains("@") {
+                    topFieldType = .username
+                }
+            case .username:
+                if topFieldText.contains("@") {
+                    topFieldType = .email
+                }
+            }
         }
     }
 
