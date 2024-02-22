@@ -158,6 +158,17 @@ extension AccountNetworkManager {
         }
     }
 
+    static func isUnique(username: String) async throws -> Bool {
+        do {
+            let snapshot = try await accountDb.whereField(kUSERNAME, isEqualTo: username).limit(to: 1).getDocuments()
+            let hasDuplicate = !snapshot.documents.isEmpty
+            LOGD("DB: Username \(username) has duplicates = \(hasDuplicate)", from: self)
+            return hasDuplicate
+        } catch {
+            throw error
+        }
+    }
+
     ///Get uiImage from url
 //    static func downloadImage(from url: URL) async throws -> UIImage? {
 //        let (data, response) = try await URLSession.shared.data(from: url)

@@ -21,6 +21,7 @@ enum MainErrorType {
     case invalidEmail
     case invalidPassword
     case invalidUsername
+    case notUniqueUsername
 
     var title: String {
         switch self {
@@ -50,6 +51,8 @@ enum MainErrorType {
             "Invalid password"
         case .invalidUsername:
             "Invalid username"
+        case .notUniqueUsername:
+            "Username is already taken"
         }
     }
 }
