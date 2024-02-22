@@ -12,13 +12,31 @@ import SwiftUI
 class AuthenticationViewModel: ViewModel {
     private(set) var step: AuthStep
     let account: Account
-    var username: String = ""
+    var rememberMe: Bool = Defaults.saveEmailAndPassword {
+        didSet {
+            Defaults.saveEmailAndPassword = rememberMe
+            saveTopFieldTextIfNeeded()
+            saveBottomFieldTextIfNeeded()
+        }
+    }
     var topFieldType: FieldType = .emailOrUsername
-    var topFieldText: String = ""
+    var topFieldText: String = Defaults.saveEmailAndPassword ? Defaults.savedEmail : "" {
+        didSet {
+            saveTopFieldTextIfNeeded()
+        }
+    }
     var topFieldHasError: Bool = false
     var topFieldIsActive: Bool = false
-    var bottomFieldType: FieldType = .password
-    var bottomFieldText: String = ""
+    var bottomFieldType: FieldType = Defaults.showPassword ? .visiblePassword : .password {
+        didSet {
+            Defaults.showPassword = bottomFieldType == .visiblePassword
+        }
+    }
+    var bottomFieldText: String = Defaults.saveEmailAndPassword ? Defaults.savedPassword : "" {
+        didSet {
+            saveBottomFieldTextIfNeeded()
+        }
+    }
     var bottomFieldHasError: Bool = false
     var bottomFieldIsActive: Bool = false
     var error: Error?
@@ -118,21 +136,6 @@ class AuthenticationViewModel: ViewModel {
             resetFields()
         }
     }
-
-    ///Delete in Auth, Firestore, Storage, and then locally
-    func deleteAccount() async {
-        let currentUserId = account.id ?? Account.current?.userId ?? account.userId
-        do {
-            try await AccountNetworkManager.deleteStoredPhoto(currentUserId)
-            try await AccountNetworkManager.deleteData(currentUserId)
-            try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
-            try await AccountNetworkManager.logOut()
-            AccountManager.deleteCurrent()
-            account.reset()
-        } catch {
-            LOGE("Error deleting account \(error.localizedDescription)")
-        }
-    }
 }
 
 private extension AuthenticationViewModel {
@@ -220,6 +223,23 @@ private extension AuthenticationViewModel {
             break
         case .onboard:
             topFieldHasError = !topFieldText.isValidUsername
+        }
+    }
+
+    func saveTopFieldTextIfNeeded() {
+        if rememberMe && !topFieldText.isEmpty {
+            Defaults.savedEmail = topFieldText
+        } else if !rememberMe {
+            Defaults.savedEmail = ""
+        }
+    }
+
+    func saveBottomFieldTextIfNeeded() {
+        let isPassword = bottomFieldType == .password || bottomFieldType == .visiblePassword
+        if rememberMe && isPassword && !bottomFieldText.isEmpty {
+            Defaults.savedPassword = bottomFieldText
+        } else if !rememberMe && isPassword {
+            Defaults.savedPassword = ""
         }
     }
 }
