@@ -24,7 +24,9 @@ struct AuthenticationView: View {
 
                             Spacer()
 
-                            forgetPasswordButton
+                            if vm.step == .logIn {
+                                forgetPasswordButton
+                            }
                         }
 
                         authButtons
@@ -37,6 +39,15 @@ struct AuthenticationView: View {
             .safeAreaInset(edge: .bottom) {
                 if vm.step == .logIn || vm.step == .signUp {
                     bottomButton
+                }
+            }
+            .alert(Str.forgotPasswordTitleQuestion, isPresented: $vm.showForgotPassword) {
+                TextField(Str.enterYourEmail, text: $vm.topFieldText)
+                Button(Str.cancelTitle) {
+                    vm.showForgotPassword = false
+                }
+                Button(Str.submitTitle) {
+                    vm.requestPasswordReset()
                 }
             }
         }
@@ -91,7 +102,7 @@ struct AuthenticationView: View {
 
     var forgetPasswordButton: some View {
         Button(action: {
-            vm.rememberMe = !vm.rememberMe
+            vm.showForgotPassword = true
         }) {
             Text(Str.forgotPasswordTitleQuestion)
                 .background(.clear)

@@ -80,6 +80,15 @@ extension AccountNetworkManager {
             throw error
         }
     }
+
+    static func resetPassword(withEmail email: String) async throws {
+        do {
+            try await auth.sendPasswordReset(withEmail: email)
+            LOGD("AUTH: Finished resetPassword link to \(email)", from: self)
+        } catch {
+            throw error
+        }
+    }
 }
 
 //MARK: - Storage Extension

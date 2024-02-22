@@ -12,6 +12,8 @@ import SwiftUI
 class AuthenticationViewModel: ViewModel {
     private(set) var step: AuthStep
     let account: Account
+
+    var showForgotPassword: Bool = false
     var rememberMe: Bool = Defaults.saveEmailAndPassword {
         didSet {
             Defaults.saveEmailAndPassword = rememberMe
@@ -103,6 +105,17 @@ class AuthenticationViewModel: ViewModel {
         case .phoneVerification:
             TODO("Cancel registration")
             updateStep(to: .logIn)
+        }
+    }
+
+    func requestPasswordReset() {
+        let email = topFieldText
+        Task {
+            do {
+                try await auth.sendPasswordReset(withEmail: email)
+            } catch {
+                LOGE("SendingPasswordReset to \(email): \(error.localizedDescription)")
+            }
         }
     }
 
