@@ -19,6 +19,12 @@ struct AuthenticationView: View {
                     VStack(spacing: 12) {
                         fields
 
+                        HStack {
+                            rememberMeButton
+
+                            Spacer()
+                        }
+
                         buttons
                     }
 
@@ -31,12 +37,6 @@ struct AuthenticationView: View {
                     bottomButton
                 }
             }
-            .toolbar {
-                if let username = vm.account.username,
-                   !username.isEmpty {
-                    deleteAccountButton
-                }
-            }
         }
         .onAppear {
             vm.onAppear()
@@ -46,18 +46,22 @@ struct AuthenticationView: View {
         }
     }
 
-    var deleteAccountButton: some View {
+    var rememberMeButton: some View {
         Button(action: {
-            Task {
-                await vm.deleteAccount()
-            }
+            vm.rememberMe = !vm.rememberMe
         }) {
-            Text("Delete \(vm.account.displayName)?")
-                .padding()
-                .background(.clear)
-                .foregroundColor(Color.systemRed)
+            HStack {
+                Image(systemName: vm.rememberMe ? "checkmark.square.fill" : "square")
+                    .renderingMode(.template)
+                    .foregroundColor(.label)
+
+                Text("Remember me")
+                    .background(.clear)
+                    .foregroundColor(Color.label)
+                    .fontWeight(.semibold)
+            }
         }
-        .padding(.horizontal)
+        .padding()
     }
 
     @ViewBuilder func profilePicture() -> some View {
@@ -131,7 +135,8 @@ struct AuthenticationView: View {
         }) {
             Text(vm.step.topButtonTitle)
                 .padding()
-                .foregroundColor(!vm.topButtonIsEnabled ? .systemGray5 : .white)
+                .fontWeight(.bold)
+                .foregroundColor(!vm.topButtonIsEnabled ? .systemGray5 : .systemBackground)
         }
         .frame(maxWidth: .infinity)
         .background(!vm.topButtonIsEnabled ? .systemGray : Color.blue)
@@ -147,10 +152,11 @@ struct AuthenticationView: View {
         }) {
             Text(vm.step.bottomButtonTitle)
                 .padding()
-                .foregroundColor(.white)
+                .foregroundColor(.label)
+                .fontWeight(.bold)
         }
         .frame(maxWidth: .infinity)
-        .background(Color.red)
+        .background(Color.clear)
         .cornerRadius(8)
         .padding(.horizontal)
         .padding(.bottom, 20)

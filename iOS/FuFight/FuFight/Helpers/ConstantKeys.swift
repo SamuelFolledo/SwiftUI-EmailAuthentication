@@ -95,3 +95,6 @@ public let kDEFAULTACCOUNTIMAGE: UIImage = UIImage(systemName: "person")!
 //public let kWRONGIMAGE: UIImage = UIImage(named: "wrong")!
 
 public let kSHOWPASSWORD: String = "showPassword"
+public let kSAVEEMAILANDPASSWORD: String = "saveEmailAndPassword"
+public let kSAVEDEMAIL: String = "savedEmail"
+public let kSAVEDPASSWORD: String = "savedPassword"

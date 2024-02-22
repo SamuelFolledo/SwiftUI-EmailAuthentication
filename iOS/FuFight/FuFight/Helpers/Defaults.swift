@@ -18,4 +18,28 @@ struct Defaults {
             defaults.setValue(newValue, forKey: kSHOWPASSWORD)
         }
     }
+
+    static var saveEmailAndPassword: Bool {
+        get {
+            defaults.bool(forKey: kSAVEEMAILANDPASSWORD)
+        } set {
+            defaults.setValue(newValue, forKey: kSAVEEMAILANDPASSWORD)
+        }
+    }
+
+    static var savedEmail: String {
+        get {
+            defaults.string(forKey: kSAVEDEMAIL) ?? ""
+        } set {
+            defaults.setValue(newValue, forKey: kSAVEDEMAIL)
+        }
+    }
+
+    static var savedPassword: String {
+        get {
+            defaults.string(forKey: kSAVEDPASSWORD) ?? ""
+        } set {
+            defaults.setValue(newValue, forKey: kSAVEDPASSWORD)
+        }
+    }
 }
