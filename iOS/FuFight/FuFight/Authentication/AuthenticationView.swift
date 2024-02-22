@@ -23,9 +23,11 @@ struct AuthenticationView: View {
                             rememberMeButton
 
                             Spacer()
+
+                            forgetPasswordButton
                         }
 
-                        buttons
+                        authButtons
                     }
 
                     Spacer()
@@ -44,24 +46,6 @@ struct AuthenticationView: View {
         .onDisappear {
             vm.onDisappear()
         }
-    }
-
-    var rememberMeButton: some View {
-        Button(action: {
-            vm.rememberMe = !vm.rememberMe
-        }) {
-            HStack {
-                Image(systemName: vm.rememberMe ? "checkmark.square.fill" : "square")
-                    .renderingMode(.template)
-                    .foregroundColor(.label)
-
-                Text("Remember me")
-                    .background(.clear)
-                    .foregroundColor(Color.label)
-                    .fontWeight(.semibold)
-            }
-        }
-        .padding()
     }
 
     @ViewBuilder func profilePicture() -> some View {
@@ -87,7 +71,37 @@ struct AuthenticationView: View {
         }
     }
 
-    var buttons: some View {
+    var rememberMeButton: some View {
+        Button(action: {
+            vm.rememberMe = !vm.rememberMe
+        }) {
+            HStack {
+                Image(uiImage: vm.rememberMe ? checkedImage : uncheckedImage)
+                    .renderingMode(.template)
+                    .foregroundColor(.label)
+
+                Text(Str.rememberMe)
+                    .background(.clear)
+                    .foregroundColor(Color.label)
+                    .fontWeight(.semibold)
+            }
+        }
+        .padding()
+    }
+
+    var forgetPasswordButton: some View {
+        Button(action: {
+            vm.rememberMe = !vm.rememberMe
+        }) {
+            Text(Str.forgotPasswordTitleQuestion)
+                .background(.clear)
+                .foregroundColor(Color.systemBlue)
+                .fontWeight(.medium)
+        }
+        .padding()
+    }
+
+    var authButtons: some View {
         VStack {
             switch vm.step {
             case .logIn:

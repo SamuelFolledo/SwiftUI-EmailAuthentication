@@ -20,6 +20,8 @@ struct Str {
     static let passwordTitle = "Password"
     static let phoneNumberTitle = "Phone Number"
     static let phoneSixDigitCodeTitle = "6 Digit Code"
+    static let rememberMe = "Remember me"
+    static let forgotPasswordTitleQuestion = "Forgot Password?"
 
     static let createAccountTitle = "Create Account"
     static let cancelTitle = "Cancel"
