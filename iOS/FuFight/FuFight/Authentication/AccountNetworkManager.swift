@@ -169,6 +169,22 @@ extension AccountNetworkManager {
         }
     }
 
+    static func fetchEmailFrom(username: String) async throws -> String? {
+        do {
+            let snapshot = try await accountDb.whereField(kUSERNAME, isEqualTo: username).limit(to: 1).getDocuments()
+            for doc in snapshot.documents {
+                if doc.exists,
+                   let email = doc.data()[kEMAIL] as? String {
+                    LOGD("DB: Finished fetching email \(email) from username \(username)", from: self)
+                    return email
+                }
+            }
+            return nil
+        } catch {
+            throw error
+        }
+    }
+
     ///Get uiImage from url
 //    static func downloadImage(from url: URL) async throws -> UIImage? {
 //        let (data, response) = try await URLSession.shared.data(from: url)

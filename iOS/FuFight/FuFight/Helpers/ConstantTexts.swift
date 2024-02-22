@@ -43,4 +43,5 @@ struct Str {
     static let deletingUser = "Deleting user"
     static let loggingOut = "Logging out"
     static let checkingUsername = "Checking username"
+    static let fetchingEmail = "Fetching email"
 }
