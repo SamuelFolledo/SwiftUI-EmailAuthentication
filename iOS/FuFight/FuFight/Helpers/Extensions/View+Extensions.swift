@@ -14,3 +14,19 @@ extension View {
     }
 }
 #endif
+
+extension View {
+    ///Present alert with a dismiss button
+    func alert(title: String = "", message: String = "", dismissButton: AlertButton = AlertButton(title: "ok"), isPresented: Binding<Bool>) -> some View {
+        let title   = NSLocalizedString(title, comment: "")
+        let message = NSLocalizedString(message, comment: "")
+        return modifier(MainAlertModifier(title: title, message: message, dismissButton: dismissButton, isPresented: isPresented))
+    }
+
+    ///Present alert with a primary and secondary buttons
+    func alert(title: String = "", message: String = "", primaryButton: AlertButton, secondaryButton: AlertButton, isPresented: Binding<Bool>) -> some View {
+        let title   = NSLocalizedString(title, comment: "")
+        let message = NSLocalizedString(message, comment: "")
+        return modifier(MainAlertModifier(title: title, message: message, primaryButton: primaryButton, secondaryButton: secondaryButton, isPresented: isPresented))
+    }
+}

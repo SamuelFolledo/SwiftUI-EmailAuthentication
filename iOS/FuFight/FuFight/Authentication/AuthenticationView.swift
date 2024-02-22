@@ -56,6 +56,7 @@ struct AuthenticationView: View {
                     vm.requestPasswordReset()
                 }
             }
+            .alert(title: vm.error?.title ?? "", message: vm.error?.message ?? "", isPresented: $vm.hasError)
         }
         .onAppear {
             vm.onAppear()

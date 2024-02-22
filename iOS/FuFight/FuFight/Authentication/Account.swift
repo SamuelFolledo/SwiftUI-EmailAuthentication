@@ -278,6 +278,6 @@ extension Account {
         case valid
         ///When account is created but unfinished
         case unfinished
-        case logout
+        case logOut
     }
 }

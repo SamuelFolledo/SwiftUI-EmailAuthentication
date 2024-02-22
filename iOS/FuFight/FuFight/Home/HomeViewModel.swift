@@ -15,6 +15,8 @@ class HomeViewModel: ViewModel {
 
     ///Set this to nil in order to remove this global loading indicator, empty string will show it but have empty message
     var globalLoadingMessage: String? = nil
+    var hasError: Bool = false
+    var error: MainError?
 
     //MARK: - Initializer
     init(account: Account) {
@@ -44,10 +46,9 @@ class HomeViewModel: ViewModel {
                 try await AccountNetworkManager.setData(account: account)
                 globalLoadingMessage = Str.savingUser
                 try await AccountManager.saveCurrent(account)
-                globalLoadingMessage = nil
+                handleSuccess()
             } catch {
-                LOGE("Error logging out \(account.displayName): \(error.localizedDescription)")
-                handleError()
+                handleError(MainError(type: .logOut, message: error.localizedDescription))
             }
         }
     }
@@ -70,12 +71,11 @@ class HomeViewModel: ViewModel {
                 globalLoadingMessage = Str.loggingOut
                 try await AccountNetworkManager.logOut()
                 AccountManager.deleteCurrent()
-                globalLoadingMessage = nil
+                handleSuccess()
                 account.reset()
-                account.status = .logout
+                account.status = .logOut
             } catch {
-                LOGE("Error deleting account \(error.localizedDescription)")
-                handleError()
+                handleError(MainError(type: .deletingUser, message: error.localizedDescription))
             }
         }
     }
@@ -96,12 +96,21 @@ private extension HomeViewModel {
     }
 
     func transitionToAuthenticationView() {
-        account.status = .logout
+        account.status = .logOut
         AccountManager.saveCurrent(account)
     }
 
-    func handleError() {
+    func handleError(_ error: MainError) {
+        LOGE(error.fullMessage)
         ///Clear loading message in order to allow UI interactions again
         globalLoadingMessage = nil
+        self.error = error
+        hasError = true
+    }
+
+    func handleSuccess() {
+        globalLoadingMessage = nil
+        hasError = false
+        self.error = nil
     }
 }
