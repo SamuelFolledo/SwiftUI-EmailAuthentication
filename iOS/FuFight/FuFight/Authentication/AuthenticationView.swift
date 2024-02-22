@@ -34,11 +34,17 @@ struct AuthenticationView: View {
 
                     Spacer()
                 }
+                .allowsHitTesting(vm.loadingMessage == nil)
             }
             .navigationBarTitle(vm.step.title, displayMode: .large)
             .safeAreaInset(edge: .bottom) {
                 if vm.step == .logIn || vm.step == .signUp {
                     bottomButton
+                }
+            }
+            .overlay {
+                if let message = vm.loadingMessage {
+                    ProgressView(message)
                 }
             }
             .alert(Str.forgotPasswordTitleQuestion, isPresented: $vm.showForgotPassword) {
