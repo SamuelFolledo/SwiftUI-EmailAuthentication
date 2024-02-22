@@ -179,14 +179,20 @@ private extension AuthenticationViewModel {
         guard !topFieldHasError else {
             return handleError(MainError(type: .invalidUsername))
         }
+        let username = topFieldText
         Task {
             do {
+                ///Ensure non duplicated username
+                loadingMessage = Str.checkingUsername
+                guard try await !AccountNetworkManager.isUnique(username: username) else {
+                    return handleError(MainError(type: .notUniqueUsername))
+                }
                 ///Store user's photo to Storage
                 loadingMessage = Str.storingPhoto
                 if let imageUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
                     loadingMessage = Str.updatingUser
-                    try await AccountNetworkManager.updateAuthenticatedAccount(username: topFieldText, photoURL: imageUrl)
-                    account.username = topFieldText
+                    try await AccountNetworkManager.updateAuthenticatedAccount(username: username, photoURL: imageUrl)
+                    account.username = username
                     account.imageUrl = imageUrl
                     transitionToHomeView()
                     loadingMessage = Str.savingUser
