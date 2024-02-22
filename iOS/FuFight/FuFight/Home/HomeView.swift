@@ -9,7 +9,7 @@ import SwiftUI
 import FirebaseAuth
 
 struct HomeView: View {
-    var vm: HomeViewModel
+    @State var vm: HomeViewModel
 
     var body: some View {
         NavigationView {
@@ -24,6 +24,7 @@ struct HomeView: View {
                         TODO("Play")
                     }
                 }
+                .alert(title: vm.error?.title ?? "", message: vm.error?.message ?? "", isPresented: $vm.hasError)
                 .padding()
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {

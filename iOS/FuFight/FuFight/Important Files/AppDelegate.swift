@@ -10,7 +10,7 @@ import FirebaseCore
 
 /*
  [] TODO: 1: Prepare for production
-    - Validate login page's fields
+    - Validate logIn page's fields
     - Update Firebase's GoogleServiceInfo.plist
     - Update Firebase Storage's rules
  */
