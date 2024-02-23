@@ -86,7 +86,7 @@ class Account: ObservableObject, Codable {
         self.email = try values.decodeIfPresent(String.self, forKey: .email)!
         self.phoneNumber = try values.decodeIfPresent(String.self, forKey: .phoneNumber)
         self.createdAt = try values.decodeIfPresent(Date.self, forKey: .createdAt)!
-        let statusRawValue = try values.decodeIfPresent(Int.self, forKey: .status)!
+        let statusRawValue = try values.decodeIfPresent(String.self, forKey: .status)!
         self.status = Status(rawValue: statusRawValue) ?? .unfinished
     }
 
@@ -121,8 +121,8 @@ class Account: ObservableObject, Codable {
 
 //MARK: - Custom Account Classes
 extension Account {
-    enum Status: Int {
-        case valid
+    enum Status: String {
+        case online
         ///When account is created but unfinished
         case unfinished
         case logOut

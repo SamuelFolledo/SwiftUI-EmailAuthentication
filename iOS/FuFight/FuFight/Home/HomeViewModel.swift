@@ -46,9 +46,9 @@ class HomeViewModel: ViewModel {
                 try await AccountNetworkManager.setData(account: account)
                 updateLoadingMessage(to: Str.savingUser)
                 try await AccountManager.saveCurrent(account)
-                handleSuccess()
+                updateError(nil)
             } catch {
-                handleError(MainError(type: .logOut, message: error.localizedDescription))
+                updateError(MainError(type: .logOut, message: error.localizedDescription))
             }
         }
     }
@@ -66,16 +66,18 @@ class HomeViewModel: ViewModel {
                 try await AccountNetworkManager.deleteStoredPhoto(currentUserId)
                 updateLoadingMessage(to: Str.deletingData)
                 try await AccountNetworkManager.deleteData(currentUserId)
+                updateLoadingMessage(to: Str.deletingUsername)
+                try await AccountNetworkManager.deleteUsername(account.username!)
                 updateLoadingMessage(to: Str.deletingUser)
                 try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
                 updateLoadingMessage(to: Str.loggingOut)
                 try await AccountNetworkManager.logOut()
                 AccountManager.deleteCurrent()
-                handleSuccess()
+                updateError(nil)
                 account.reset()
                 account.status = .logOut
             } catch {
-                handleError(MainError(type: .deletingUser, message: error.localizedDescription))
+                updateError(MainError(type: .deletingUser, message: error.localizedDescription))
             }
         }
     }
@@ -100,18 +102,19 @@ private extension HomeViewModel {
         AccountManager.saveCurrent(account)
     }
 
-    func handleError(_ error: MainError) {
-        LOGE(error.fullMessage)
-        ///Clear loading message in order to allow UI interactions again
+    func updateError(_ error: MainError?) {
         updateLoadingMessage(to: nil)
-        self.error = error
-        hasError = true
-    }
-
-    func handleSuccess() {
-        updateLoadingMessage(to: nil)
-        hasError = false
-        self.error = nil
+        DispatchQueue.main.async {
+            if let error {
+                LOGE(error.fullMessage)
+                self.error = error
+                self.hasError = true
+            } else {
+                ///clear error messages
+                self.hasError = false
+                self.error = nil
+            }
+        }
     }
 
     func updateLoadingMessage(to message: String?) {

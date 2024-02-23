@@ -30,6 +30,7 @@ public let kOPPONENTUID: String = "opponentUid"
 
 //Firebase Storage and Database keys
 public let kACCOUNTS: String = "Accounts"
+public let kUSERNAMES: String = "Usernames"
 public let kPHOTOS: String = "Photos"
 
 //UserDefaults keys

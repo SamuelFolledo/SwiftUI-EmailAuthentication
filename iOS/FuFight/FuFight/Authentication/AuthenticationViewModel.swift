@@ -110,9 +110,9 @@ class AuthenticationViewModel: ViewModel {
         Task {
             do {
                 try await auth.sendPasswordReset(withEmail: email)
-                handleSuccess()
+                updateError(nil)
             } catch {
-                handleError(MainError(type: .passwordReset, message: error.localizedDescription))
+                updateError(MainError(type: .passwordReset, message: error.localizedDescription))
             }
         }
     }
@@ -156,21 +156,21 @@ private extension AuthenticationViewModel {
             //TODO: 1: Uncomment line below to prevent unsafe passwords
             //        bottomFieldHasError = !bottomFieldText.isValidPassword
             guard !topFieldHasError else {
-                return handleError(MainError(type: .invalidEmail))
+                return updateError(MainError(type: .invalidEmail))
             }
             guard !bottomFieldHasError else {
-                return handleError(MainError(type: .invalidPassword))
+                return updateError(MainError(type: .invalidPassword))
             }
             do {
                 updateLoadingMessage(to: Str.creatingUser)
                 guard let authData = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else { return }
                 let updatedAccount = Account(authData)
                 account.update(with: updatedAccount)
-                handleSuccess()
+                updateError(nil)
                 updateStep(to: .onboard)
                 topFieldIsActive = true
             } catch {
-                handleError(MainError(type: .signUp, message: error.localizedDescription))
+                updateError(MainError(type: .signUp, message: error.localizedDescription))
             }
         }
     }
@@ -178,15 +178,15 @@ private extension AuthenticationViewModel {
     func finishOnboarding() {
         validateTopField()
         guard !topFieldHasError else {
-            return handleError(MainError(type: .invalidUsername))
+            return updateError(MainError(type: .invalidUsername))
         }
         let username = topFieldText
         Task {
             do {
                 ///Ensure non duplicated username
                 updateLoadingMessage(to: Str.checkingUsername)
-                guard try await !AccountNetworkManager.isUnique(username: username) else {
-                    return handleError(MainError(type: .notUniqueUsername))
+                guard try await AccountNetworkManager.isUnique(username: username) else {
+                    return updateError(MainError(type: .notUniqueUsername))
                 }
                 ///Store user's photo to Storage
                 updateLoadingMessage(to: Str.storingPhoto)
@@ -195,16 +195,17 @@ private extension AuthenticationViewModel {
                     try await AccountNetworkManager.updateAuthenticatedAccount(username: username, photoURL: photoUrl)
                     account.username = username
                     account.photoUrl = photoUrl
-                    transitionToHomeView()
                     updateLoadingMessage(to: Str.savingUser)
+                    try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email ?? "")
                     try await AccountNetworkManager.setData(account: account)
                     try await AccountManager.saveCurrent(account)
-                    handleSuccess()
+                    updateError(nil)
+                    transitionToHomeView()
                 } else {
-                    handleError(MainError(type: .onboard, message: "Missing photoUrl"))
+                    updateError(MainError(type: .onboard, message: "Missing photoUrl"))
                 }
             } catch {
-                handleError(MainError(type: .onboard, message: error.localizedDescription))
+                updateError(MainError(type: .onboard, message: error.localizedDescription))
             }
         }
     }
@@ -216,10 +217,10 @@ private extension AuthenticationViewModel {
         //        bottomFieldHasError = !bottomFieldText.isValidPassword
         guard !topFieldHasError else {
             let errorType: MainErrorType = isUsernameAuth ? .invalidUsername : .invalidEmail
-            return handleError(MainError(type: errorType))
+            return updateError(MainError(type: errorType))
         }
         guard !bottomFieldHasError else {
-            return handleError(MainError(type: .invalidPassword))
+            return updateError(MainError(type: .invalidPassword))
         }
         Task {
             do {
@@ -237,17 +238,17 @@ private extension AuthenticationViewModel {
                 account.update(with: fetchedAccount)
                 updateLoadingMessage(to: Str.savingUser)
                 try await AccountManager.saveCurrent(account)
-                handleSuccess()
+                updateError(nil)
                 ///Transition to home view
                 transitionToHomeView()
             } catch {
-                handleError(MainError(type: .logIn, message: error.localizedDescription))
+                updateError(MainError(type: .logIn, message: error.localizedDescription))
             }
         }
     }
 
     func transitionToHomeView() {
-        account.status = .valid
+        account.status = .online
         AccountManager.saveCurrent(account)
     }
 
@@ -260,7 +261,7 @@ private extension AuthenticationViewModel {
         bottomFieldHasError = false
     }
 
-    ///Set topFieldHasError to true if text are not valid. This will also trim leading and trailing whitespaces
+    ///Set topFieldHasError to true if text are not online. This will also trim leading and trailing whitespaces
     func validateTopField() {
         topFieldText = topFieldText.trimmed
         switch step {
@@ -315,18 +316,19 @@ private extension AuthenticationViewModel {
         }
     }
 
-    func handleError(_ error: MainError) {
-        LOGE(error.fullMessage)
-        ///Clear loading message in order to allow UI interactions again
+    func updateError(_ error: MainError?) {
         updateLoadingMessage(to: nil)
-        self.error = error
-        hasError = true
-    }
-
-    func handleSuccess() {
-        updateLoadingMessage(to: nil)
-        hasError = false
-        self.error = nil
+        DispatchQueue.main.async {
+            if let error {
+                LOGE(error.fullMessage)
+                self.error = error
+                self.hasError = true
+            } else {
+                ///clear error messages
+                self.hasError = false
+                self.error = nil
+            }
+        }
     }
 
     func updateLoadingMessage(to message: String?) {
