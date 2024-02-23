@@ -190,18 +190,18 @@ private extension AuthenticationViewModel {
                 }
                 ///Store user's photo to Storage
                 loadingMessage = Str.storingPhoto
-                if let imageUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
+                if let photoUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
                     loadingMessage = Str.updatingUser
-                    try await AccountNetworkManager.updateAuthenticatedAccount(username: username, photoURL: imageUrl)
+                    try await AccountNetworkManager.updateAuthenticatedAccount(username: username, photoURL: photoUrl)
                     account.username = username
-                    account.imageUrl = imageUrl
+                    account.photoUrl = photoUrl
                     transitionToHomeView()
                     loadingMessage = Str.savingUser
                     try await AccountNetworkManager.setData(account: account)
                     try await AccountManager.saveCurrent(account)
                     handleSuccess()
                 } else {
-                    handleError(MainError(type: .onboard, message: "Missing imageUrl"))
+                    handleError(MainError(type: .onboard, message: "Missing photoUrl"))
                 }
             } catch {
                 handleError(MainError(type: .onboard, message: error.localizedDescription))
@@ -294,18 +294,7 @@ private extension AuthenticationViewModel {
                 topFieldType = .emailOrUsername
                 return
             }
-            switch topFieldType {
-            case .password, .visiblePassword, .phoneNumber, .phoneCode, .unspecified:
-                break
-            case .email, .emailOrUsername:
-                if !topFieldText.contains("@") {
-                    topFieldType = .username
-                }
-            case .username:
-                if topFieldText.contains("@") {
-                    topFieldType = .email
-                }
-            }
+            topFieldType = topFieldText.contains("@") ? .email : .username
         }
     }
 

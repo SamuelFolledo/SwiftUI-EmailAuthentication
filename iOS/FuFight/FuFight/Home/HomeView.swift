@@ -54,7 +54,7 @@ struct HomeView: View {
             Button("Logout", action: vm.logOut)
             Button("Delete Account", action: vm.deleteAccount)
         } label: {
-            AccountImageView(url: vm.account.imageUrl, radius: 30)
+            AccountImageView(url: vm.account.photoUrl, radius: 30)
         }
     }
 }

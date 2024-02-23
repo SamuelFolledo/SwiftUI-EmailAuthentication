@@ -95,10 +95,10 @@ extension AccountNetworkManager {
 extension AccountNetworkManager {
     ///Uploads the image to Storage for the userId passed
     static func storePhoto(_ image: UIImage, for userId: String) async throws -> URL? {
-        guard let imageData = image.jpegData(compressionQuality: photoCompressionQuality) else { return nil }
-        let metaData: StorageMetadata = StorageMetadata()
+        guard let imageData = image.jpegData(compressionQuality: accountPhotoCompressionQuality) else { return nil }
+        let metaData = StorageMetadata()
         metaData.contentType = "image/jpg"
-        let photoReference = profilePhotoStorage.child("\(userId).jpg")
+        let photoReference = accountPhotoStorage.child("\(userId).jpg")
         do {
             let _ = try await photoReference.putDataAsync(imageData, metadata: metaData)
             let url = try await photoReference.downloadURL()
@@ -110,7 +110,7 @@ extension AccountNetworkManager {
     }
 
     static func deleteStoredPhoto(_ userId: String) async throws {
-        let photoReference = profilePhotoStorage.child("\(userId).jpg")
+        let photoReference = accountPhotoStorage.child("\(userId).jpg")
         do {
             try await photoReference.delete()
             LOGD("STORAGE: Finished deleting profile photo from userId: \(userId)", from: self)
