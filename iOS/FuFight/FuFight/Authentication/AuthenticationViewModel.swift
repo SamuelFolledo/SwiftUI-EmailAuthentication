@@ -162,7 +162,7 @@ private extension AuthenticationViewModel {
                 return handleError(MainError(type: .invalidPassword))
             }
             do {
-                loadingMessage = Str.creatingUser
+                updateLoadingMessage(to: Str.creatingUser)
                 guard let authData = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else { return }
                 let updatedAccount = Account(authData)
                 account.update(with: updatedAccount)
@@ -184,19 +184,19 @@ private extension AuthenticationViewModel {
         Task {
             do {
                 ///Ensure non duplicated username
-                loadingMessage = Str.checkingUsername
+                updateLoadingMessage(to: Str.checkingUsername)
                 guard try await !AccountNetworkManager.isUnique(username: username) else {
                     return handleError(MainError(type: .notUniqueUsername))
                 }
                 ///Store user's photo to Storage
-                loadingMessage = Str.storingPhoto
+                updateLoadingMessage(to: Str.storingPhoto)
                 if let photoUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
-                    loadingMessage = Str.updatingUser
+                    updateLoadingMessage(to: Str.updatingUser)
                     try await AccountNetworkManager.updateAuthenticatedAccount(username: username, photoURL: photoUrl)
                     account.username = username
                     account.photoUrl = photoUrl
                     transitionToHomeView()
-                    loadingMessage = Str.savingUser
+                    updateLoadingMessage(to: Str.savingUser)
                     try await AccountNetworkManager.setData(account: account)
                     try await AccountManager.saveCurrent(account)
                     handleSuccess()
@@ -224,18 +224,18 @@ private extension AuthenticationViewModel {
         Task {
             do {
                 var email = topFieldText
-                loadingMessage = Str.fetchingEmail
+                updateLoadingMessage(to: Str.fetchingEmail)
                 if isUsernameAuth,
                    let fetchedEmail = try await AccountNetworkManager.fetchEmailFrom(username: topFieldText) {
                     email = fetchedEmail
                 }
-                loadingMessage = Str.loggingIn
+                updateLoadingMessage(to: Str.loggingIn)
                 ///Authenticate in Auth, then create an account from the fetched data from the database using the authenticated user's userId
                 guard let authData = try await AccountNetworkManager.logIn(email: email, password: bottomFieldText) else { return }
-                loadingMessage = Str.fetchingUserData
+                updateLoadingMessage(to: Str.fetchingUserData)
                 guard let fetchedAccount = try await AccountNetworkManager.fetchData(userId: authData.user.uid) else { return }
                 account.update(with: fetchedAccount)
-                loadingMessage = Str.savingUser
+                updateLoadingMessage(to: Str.savingUser)
                 try await AccountManager.saveCurrent(account)
                 handleSuccess()
                 ///Transition to home view
@@ -318,14 +318,20 @@ private extension AuthenticationViewModel {
     func handleError(_ error: MainError) {
         LOGE(error.fullMessage)
         ///Clear loading message in order to allow UI interactions again
-        loadingMessage = nil
+        updateLoadingMessage(to: nil)
         self.error = error
         hasError = true
     }
 
     func handleSuccess() {
-        loadingMessage = nil
+        updateLoadingMessage(to: nil)
         hasError = false
         self.error = nil
+    }
+
+    func updateLoadingMessage(to message: String?) {
+        DispatchQueue.main.async {
+            self.loadingMessage = message
+        }
     }
 }

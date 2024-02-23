@@ -14,7 +14,7 @@ class HomeViewModel: ViewModel {
     var authChangesListener: AuthStateDidChangeListenerHandle?
 
     ///Set this to nil in order to remove this global loading indicator, empty string will show it but have empty message
-    var globalLoadingMessage: String? = nil
+    var loadingMessage: String? = nil
     var hasError: Bool = false
     var error: MainError?
 
@@ -39,12 +39,12 @@ class HomeViewModel: ViewModel {
     func logOut() {
         Task {
             do {
-                globalLoadingMessage = Str.loggingOut
+                updateLoadingMessage(to: Str.loggingOut)
                 try await AccountNetworkManager.logOut()
                 transitionToAuthenticationView()
-                globalLoadingMessage = Str.updatingUser
+                updateLoadingMessage(to: Str.updatingUser)
                 try await AccountNetworkManager.setData(account: account)
-                globalLoadingMessage = Str.savingUser
+                updateLoadingMessage(to: Str.savingUser)
                 try await AccountManager.saveCurrent(account)
                 handleSuccess()
             } catch {
@@ -62,13 +62,13 @@ class HomeViewModel: ViewModel {
         Task {
             let currentUserId = account.id ?? Account.current?.userId ?? account.userId
             do {
-                globalLoadingMessage = Str.deletingStoredPhoto
+                updateLoadingMessage(to: Str.deletingStoredPhoto)
                 try await AccountNetworkManager.deleteStoredPhoto(currentUserId)
-                globalLoadingMessage = Str.deletingData
+                updateLoadingMessage(to: Str.deletingData)
                 try await AccountNetworkManager.deleteData(currentUserId)
-                globalLoadingMessage = Str.deletingUser
+                updateLoadingMessage(to: Str.deletingUser)
                 try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
-                globalLoadingMessage = Str.loggingOut
+                updateLoadingMessage(to: Str.loggingOut)
                 try await AccountNetworkManager.logOut()
                 AccountManager.deleteCurrent()
                 handleSuccess()
@@ -103,14 +103,20 @@ private extension HomeViewModel {
     func handleError(_ error: MainError) {
         LOGE(error.fullMessage)
         ///Clear loading message in order to allow UI interactions again
-        globalLoadingMessage = nil
+        updateLoadingMessage(to: nil)
         self.error = error
         hasError = true
     }
 
     func handleSuccess() {
-        globalLoadingMessage = nil
+        updateLoadingMessage(to: nil)
         hasError = false
         self.error = nil
+    }
+
+    func updateLoadingMessage(to message: String?) {
+        DispatchQueue.main.async {
+            self.loadingMessage = message
+        }
     }
 }
