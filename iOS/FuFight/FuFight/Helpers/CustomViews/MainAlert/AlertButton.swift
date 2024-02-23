@@ -54,7 +54,7 @@ struct AlertButton: View {
     let isBordered: Bool
     var action: (() -> Void)? = nil
 
-    init(title: LocalizedStringKey, textColor: UIColor = .label, bgColor: UIColor = .systemGray, isBordered: Bool = true, action: (() -> Void)? = nil) {
+    init(title: LocalizedStringKey, textColor: UIColor = .systemBackground, bgColor: UIColor = .systemBackground, isBordered: Bool = true, action: (() -> Void)? = nil) {
         self.title = title
         self.textColor = textColor
         self.bgColor = bgColor
@@ -77,18 +77,24 @@ struct AlertButton: View {
         Button {
             action?()
         } label: {
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color(uiColor: textColor))
-                .padding(.horizontal, 10)
+            HStack {
+                Spacer()
+
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color(uiColor: textColor))
+                    .contentShape(Rectangle())
+
+                Spacer()
+            }
         }
         .frame(height: 30)
         .frame(maxWidth: .infinity)
         .background(
-            Color(uiColor: isBordered ? .clear : bgColor)
+            Color(uiColor: isBordered ? .label : bgColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: 25)
-                        .stroke(Color(uiColor: isBordered ? bgColor : .clear), lineWidth: 2)
+                        .stroke(Color(uiColor: isBordered ? bgColor : .label), lineWidth: 2)
                 )
         )
         .cornerRadius(15)
