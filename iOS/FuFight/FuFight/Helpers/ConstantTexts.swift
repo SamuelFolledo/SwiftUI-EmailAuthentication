@@ -8,7 +8,10 @@
 import Foundation
 
 struct Str {
+    //Title must be capitalized every word
+
     static let logInTitle = "Log In"
+    static let logOutTitle = "Log Out"
     static let signUpTitle = "Sign Up"
     static let phoneTitle = "Phone"
     static let phoneCodeTitle = "Phone Code"
@@ -22,16 +25,23 @@ struct Str {
     static let phoneSixDigitCodeTitle = "6 Digit Code"
     static let rememberMe = "Remember me"
     static let forgotPasswordTitleQuestion = "Forgot Password?"
-
+    static let updatePasswordTitle = "Update Password"
     static let createAccountTitle = "Create Account"
+    static let deleteAccountTitle = "Delete Account"
     static let submitTitle = "Submit"
     static let cancelTitle = "Cancel"
+    static let saveTitle = "Save"
+    static let deleteTitle = "Delete"
+
+    //Non- titles
     static let sendCode = "Send code"
     static let verifyCode = "Verify code"
     static let dontHaveAnAccount = "Don't have an account? Sign up."
     static let alreadyHaveAnAccount = "Already have an account? Log in."
     static let finishTitle = "Finish"
     static let enterYourEmail = "Enter your email"
+
+    //MARK: - Logs
     static let loggingIn = "Logging in"
     static let fetchingUserData = "Fetching user's data"
     static let savingUser = "Saving user"
