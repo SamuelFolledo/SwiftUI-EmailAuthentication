@@ -9,32 +9,25 @@ import SwiftUI
 import PhotosUI
 
 struct TappableImageView: View {
+//    @State var photoManager = PhotoManager() //Since photo permission is not needed for accessing photos, PhotoManager is not needed
     @State private var photosPickerPresented = false
-    @State private var selectedPhotos = [PhotosPickerItem]()
-    @State private var selectedImages = [Image]()
+    @State private var selectedPhoto: PhotosPickerItem?
     @Binding var selectedImage: UIImage
 
     var body: some View {
         VStack {
-            Image(uiImage: selectedImage)
-                .resizable()
-                .scaledToFit()
-                .onTapGesture {
-                    selectedPhotos.removeAll()
-                    photosPickerPresented.toggle()
-                }
+            PhotosPicker(selection: $selectedPhoto, matching: .any(of: [.images, .screenshots, .panoramas])) {
+                Image(uiImage: selectedImage)
+                    .resizable()
+                    .scaledToFit()
+            }
         }
-        .photosPicker(isPresented: $photosPickerPresented, selection: $selectedPhotos)
-        .onChange(of: selectedPhotos) {
+        .onChange(of: selectedPhoto) {
             Task {
-                selectedImages.removeAll()
-                for item in selectedPhotos {
-                    if let image = try? await item.loadTransferable(type: Image.self) {
-                        selectedImages.append(image)
-                    }
-                    if let data = try? await item.loadTransferable(type: Data.self) {
-                        self.selectedImage = UIImage(data: data) ?? defaultProfilePhoto
-                    }
+                if let selectedPhoto,
+                   let data = try? await selectedPhoto.loadTransferable(type: Data.self) {
+                    self.selectedImage = UIImage(data: data) ?? defaultProfilePhoto
+                    self.selectedPhoto = nil
                 }
             }
         }
