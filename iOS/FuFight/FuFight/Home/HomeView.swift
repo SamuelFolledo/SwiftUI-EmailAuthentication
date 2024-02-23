@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FirebaseAuth
 
 struct HomeView: View {
     @State var vm: HomeViewModel
@@ -48,12 +47,7 @@ struct HomeView: View {
     }
 
     var accountImage: some View {
-        Menu {
-            //TODO: Use for each
-            Button("Update Profile Picture", action: vm.editPhoto)
-            Button("Logout", action: vm.logOut)
-            Button("Delete Account", action: vm.deleteAccount)
-        } label: {
+        NavigationLink(destination: AccountView(vm: AccountViewModel(account: vm.account))) {
             AccountImageView(url: vm.account.photoUrl, radius: 30)
         }
     }

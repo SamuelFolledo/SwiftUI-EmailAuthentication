@@ -103,7 +103,7 @@ struct UnderlinedTextField: View {
         self._text = text
         self._hasError = hasError
         self._isActive = isActive
-        self.trailingButtonAction = trailingButtonAction!
+        self.trailingButtonAction = trailingButtonAction
     }
 
     var body: some View {

@@ -36,54 +36,12 @@ class HomeViewModel: ViewModel {
     }
 
     //MARK: - Public Methods
-    func logOut() {
-        Task {
-            do {
-                updateLoadingMessage(to: Str.loggingOut)
-                try await AccountNetworkManager.logOut()
-                transitionToAuthenticationView()
-                updateLoadingMessage(to: Str.updatingUser)
-                try await AccountNetworkManager.setData(account: account)
-                updateLoadingMessage(to: Str.savingUser)
-                try await AccountManager.saveCurrent(account)
-                updateError(nil)
-            } catch {
-                updateError(MainError(type: .logOut, message: error.localizedDescription))
-            }
-        }
-    }
-
-    func editPhoto() {
-        TODO("Implement edit photo")
-    }
-
-    ///Delete in Auth, Firestore, Storage, and then locally
-    func deleteAccount() {
-        Task {
-            let currentUserId = account.id ?? Account.current?.userId ?? account.userId
-            do {
-                updateLoadingMessage(to: Str.deletingStoredPhoto)
-                try await AccountNetworkManager.deleteStoredPhoto(currentUserId)
-                updateLoadingMessage(to: Str.deletingData)
-                try await AccountNetworkManager.deleteData(currentUserId)
-                updateLoadingMessage(to: Str.deletingUsername)
-                try await AccountNetworkManager.deleteUsername(account.username!)
-                updateLoadingMessage(to: Str.deletingUser)
-                try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
-                updateLoadingMessage(to: Str.loggingOut)
-                try await AccountNetworkManager.logOut()
-                AccountManager.deleteCurrent()
-                updateError(nil)
-                account.reset()
-                account.status = .logOut
-            } catch {
-                updateError(MainError(type: .deletingUser, message: error.localizedDescription))
-            }
-        }
-    }
 }
 
 //MARK: - Private Methods
+private extension HomeViewModel { }
+
+//MARK: Reusable methods for all ViewModel
 private extension HomeViewModel {
     func observeAuthChanges() {
         auth.addStateDidChangeListener { (authDataResult, user) in
@@ -95,11 +53,6 @@ private extension HomeViewModel {
                 AccountManager.saveCurrent(self.account)
             }
         }
-    }
-
-    func transitionToAuthenticationView() {
-        account.status = .logOut
-        AccountManager.saveCurrent(account)
     }
 
     func updateError(_ error: MainError?) {

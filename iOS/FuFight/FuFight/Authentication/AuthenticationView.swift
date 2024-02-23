@@ -164,47 +164,23 @@ struct AuthenticationView: View {
         Button(action: {
             vm.topButtonTapped()
         }) {
-            HStack {
-                Spacer()
-
-                Text(vm.step.topButtonTitle)
-                    .padding()
-                    .fontWeight(.bold)
-                    .foregroundColor(!vm.topButtonIsEnabled ? .systemGray5 : .systemBackground)
-                    .contentShape(Rectangle())
-
-                Spacer()
-            }
+            Text(vm.step.topButtonTitle)
+                .fontWeight(.bold)
         }
-        .frame(maxWidth: .infinity)
-        .background(!vm.topButtonIsEnabled ? .systemGray : Color.blue)
+        .appButton(.system)
+        .padding(.horizontal, 8)
         .disabled(!vm.topButtonIsEnabled)
-        .cornerRadius(8)
-        .padding(.horizontal)
-        .opacity(!vm.topButtonIsEnabled ? 0.8 : 1)
     }
 
     var bottomButton: some View {
         Button(action: {
             vm.bottomButtonTapped()
         }) {
-            HStack {
-                Spacer()
-
-                Text(vm.step.bottomButtonTitle)
-                    .padding()
-                    .foregroundColor(.label)
-                    .fontWeight(.bold)
-                    .contentShape(Rectangle())
-
-                Spacer()
-            }
+            Text(vm.step.bottomButtonTitle)
+                .fontWeight(.bold)
         }
-        .frame(maxWidth: .infinity)
-        .background(Color.clear)
-        .cornerRadius(8)
-        .padding(.horizontal)
-        .padding(.bottom, 20)
+        .padding(.horizontal, 8)
+        .appButton(.tertiary)
     }
 }
 
