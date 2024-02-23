@@ -178,11 +178,12 @@ struct MainAlert: View {
 struct MainAlert_Previews: PreviewProvider {
 
     static var previews: some View {
-        var showType: Bool = true
+        let showType: Bool = true
 
         let dismissButton   = AlertButton(title: "Ok")
         let primaryButton   = AlertButton(title: "Ok")
         let secondaryButton = AlertButton(title: "Cancel")
+
         let dismissButton2   = AlertButton(type: .ok)
         let primaryButton2   = AlertButton(type: .ok)
         let secondaryButton2 = AlertButton(type: .cancel)
@@ -193,22 +194,19 @@ struct MainAlert_Previews: PreviewProvider {
                     If you don't like your job, quit.
                     If you don't have enough time, stop watching TV.
                     """
-        if showType {
-            return VStack {
-                MainAlert(title: title, message: message, dismissButton: dismissButton, primaryButton: nil,           secondaryButton: nil)
-                MainAlert(title: title, message: message, dismissButton: nil,           primaryButton: primaryButton, secondaryButton: secondaryButton)
-            }
-            .previewDevice("iPhone 13 Pro Max")
-            .preferredColorScheme(.light)
-        } else {
-            return VStack {
+
+        return VStack {
+            if showType {
+                MainAlert(title: title, message: message, dismissButton: dismissButton2, primaryButton: nil,           secondaryButton: nil)
+                MainAlert(title: title, message: message, dismissButton: nil,           primaryButton: primaryButton2, secondaryButton: secondaryButton2)
+            } else {
                 MainAlert(title: title, message: message, dismissButton: nil,           primaryButton: nil,           secondaryButton: nil)
                 MainAlert(title: title, message: message, dismissButton: dismissButton, primaryButton: nil,           secondaryButton: nil)
                 MainAlert(title: title, message: message, dismissButton: nil,           primaryButton: primaryButton, secondaryButton: secondaryButton)
             }
-            .previewDevice("iPhone 13 Pro Max")
-            .preferredColorScheme(.light)
         }
+        .previewDevice("iPhone 13 Pro Max")
+        .preferredColorScheme(.light)
     }
 }
 #endif

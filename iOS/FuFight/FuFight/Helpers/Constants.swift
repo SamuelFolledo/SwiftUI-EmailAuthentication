@@ -27,6 +27,5 @@ let accountPhotoStorage = storage.child(kACCOUNTS).child(kPHOTOS)
 let defaultProfilePhoto: UIImage = UIImage(systemName: "person.crop.circle")!
 let checkedImage: UIImage = UIImage(systemName: "checkmark.square.fill")!
 let uncheckedImage: UIImage = UIImage(systemName: "square")!
-let kDEFAULTACCOUNTIMAGE: UIImage = UIImage(systemName: "person")!
 
 let accountPhotoCompressionQuality: Double = 0.3
