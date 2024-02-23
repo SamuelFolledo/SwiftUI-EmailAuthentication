@@ -294,18 +294,7 @@ private extension AuthenticationViewModel {
                 topFieldType = .emailOrUsername
                 return
             }
-            switch topFieldType {
-            case .password, .visiblePassword, .phoneNumber, .phoneCode, .unspecified:
-                break
-            case .email, .emailOrUsername:
-                if !topFieldText.contains("@") {
-                    topFieldType = .username
-                }
-            case .username:
-                if topFieldText.contains("@") {
-                    topFieldType = .email
-                }
-            }
+            topFieldType = topFieldText.contains("@") ? .email : .username
         }
     }
 
