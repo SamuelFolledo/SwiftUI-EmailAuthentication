@@ -41,6 +41,7 @@ struct Str {
     static let deletingStoredPhoto = "Deleting stored photo"
     static let deletingData = "Deleting user's data"
     static let deletingUser = "Deleting user"
+    static let deletingUsername = "Deleting username"
     static let loggingOut = "Logging out"
     static let checkingUsername = "Checking username"
     static let fetchingEmail = "Fetching email"

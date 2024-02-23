@@ -11,16 +11,22 @@ import FirebaseFirestore
 import FirebaseStorage
 import SwiftUI
 
+//MARK: Firebase Auth constants
 let auth = Auth.auth()
+
+//MARK: Firebase Firestore database constants
 let db = Firestore.firestore()
-let accountDb = db.collection(kACCOUNTS)
+let accountsDb = db.collection(kACCOUNTS)
+let usernamesDb = db.collection(kUSERNAMES)
+
+//MARK: Firebase Storage constants
 let storage = Storage.storage().reference()
 let accountPhotoStorage = storage.child(kACCOUNTS).child(kPHOTOS)
-
-let accountPhotoCompressionQuality: Double = 0.3
 
 //Constant images
 let defaultProfilePhoto: UIImage = UIImage(systemName: "person.crop.circle")!
 let checkedImage: UIImage = UIImage(systemName: "checkmark.square.fill")!
 let uncheckedImage: UIImage = UIImage(systemName: "square")!
-public let kDEFAULTACCOUNTIMAGE: UIImage = UIImage(systemName: "person")!
+let kDEFAULTACCOUNTIMAGE: UIImage = UIImage(systemName: "person")!
+
+let accountPhotoCompressionQuality: Double = 0.3

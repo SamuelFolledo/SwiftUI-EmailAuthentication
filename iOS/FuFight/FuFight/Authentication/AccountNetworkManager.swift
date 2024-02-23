@@ -120,14 +120,14 @@ extension AccountNetworkManager {
     }
 }
 
-//MARK: - Firestore Extension
+//MARK: - Firestore Database Extension
 extension AccountNetworkManager {
-    ///Update user's data on the databaes. Set merge to false to override existing data
+    ///Update user's data on the database. Set merge to false to override existing data
     static func setData(account: Account?, merge: Bool = true) async throws {
         if let account {
-            let accountRef = accountDb.document(account.userId)
+            let accountsRef = accountsDb.document(account.userId)
             do {
-                try accountRef.setData(from: account, merge: merge)
+                try accountsRef.setData(from: account, merge: merge)
                 LOGD("DB: Finished setData for \(account.displayName)", from: self)
             } catch {
                 throw error
@@ -138,9 +138,9 @@ extension AccountNetworkManager {
     ///fetch user's data from Firestore and returns an account
     static func fetchData(userId: String) async throws -> Account?
     {
-        let accountRef = accountDb.document(userId)
+        let accountsRef = accountsDb.document(userId)
         do {
-            let account = try await accountRef.getDocument(as: Account.self)
+            let account = try await accountsRef.getDocument(as: Account.self)
             LOGD("DB: Finished fetching \(account.displayName)", from: self)
             return account
         } catch {
@@ -148,36 +148,67 @@ extension AccountNetworkManager {
         }
     }
 
+    ///Delete user's data from Accounts collection
     static func deleteData(_ userId: String) async throws {
         do {
-            let accountRef = accountDb.document(userId)
-            try await accountRef.delete()
+            let accountsRef = accountsDb.document(userId)
+            try await accountsRef.delete()
             LOGD("DB: Finished deleting account with userId: \(userId)", from: self)
         } catch {
             throw error
         }
     }
 
-    static func isUnique(username: String) async throws -> Bool {
+    ///Set username to the database into both Accounts and Username collections
+    static func setUsername(_ username: String, userId: String, email: String) async throws {
         do {
-            let snapshot = try await accountDb.whereField(kUSERNAME, isEqualTo: username).limit(to: 1).getDocuments()
-            let hasDuplicate = !snapshot.documents.isEmpty
-            LOGD("DB: Username \(username) has duplicates = \(hasDuplicate)", from: self)
-            return hasDuplicate
+            let accountsRef = accountsDb.document(userId)
+            try await accountsRef.setData([kUSERNAME: username], merge: true)
+
+            let loweredUsername = username.lowercased()
+            let usernameData: [String: Any] = [kUSERID: userId, kEMAIL: email, kUSERNAME: username]
+            let usernameRef = usernamesDb.document(loweredUsername)
+            try await usernameRef.setData(usernameData, merge: true)
         } catch {
             throw error
         }
     }
 
+    ///Delete user's data from Usernames collection
+    static func deleteUsername(_ username: String) async throws {
+        do {
+            let loweredUsername = username.lowercased()
+            let usernameRef = usernamesDb.document(loweredUsername)
+            try await usernameRef.delete()
+            LOGD("DB: Finished deleting account in Usernames collection username: \(username)", from: self)
+        } catch {
+            throw error
+        }
+    }
+
+    ///Check Users collection in database if username is unique
+    static func isUnique(username: String) async throws -> Bool {
+        do {
+            let loweredUsername = username.lowercased()
+            let document = try await usernamesDb.document(loweredUsername).getDocument()
+            let isUnique = !document.exists
+            LOGD("DB: Username \(username) is unique = \(isUnique)", from: self)
+            return isUnique
+        } catch {
+            throw error
+        }
+    }
+
+    ///Fetch the email from Usernames collection
     static func fetchEmailFrom(username: String) async throws -> String? {
         do {
-            let snapshot = try await accountDb.whereField(kUSERNAME, isEqualTo: username).limit(to: 1).getDocuments()
-            for doc in snapshot.documents {
-                if doc.exists,
-                   let email = doc.data()[kEMAIL] as? String {
-                    LOGD("DB: Finished fetching email \(email) from username \(username)", from: self)
-                    return email
-                }
+            let loweredUsername = username.lowercased()
+            let document = try await usernamesDb.document(loweredUsername).getDocument()
+            if document.exists,
+               let usernameData = document.data(),
+               let email = usernameData[kEMAIL] as? String {
+                LOGD("DB: Finished fetching email \(email) from username \(username)", from: self)
+                return email
             }
             return nil
         } catch {

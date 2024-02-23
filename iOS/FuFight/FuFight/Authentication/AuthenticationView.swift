@@ -165,10 +165,17 @@ struct AuthenticationView: View {
         Button(action: {
             vm.topButtonTapped()
         }) {
-            Text(vm.step.topButtonTitle)
-                .padding()
-                .fontWeight(.bold)
-                .foregroundColor(!vm.topButtonIsEnabled ? .systemGray5 : .systemBackground)
+            HStack {
+                Spacer()
+
+                Text(vm.step.topButtonTitle)
+                    .padding()
+                    .fontWeight(.bold)
+                    .foregroundColor(!vm.topButtonIsEnabled ? .systemGray5 : .systemBackground)
+                    .contentShape(Rectangle())
+
+                Spacer()
+            }
         }
         .frame(maxWidth: .infinity)
         .background(!vm.topButtonIsEnabled ? .systemGray : Color.blue)
@@ -182,10 +189,17 @@ struct AuthenticationView: View {
         Button(action: {
             vm.bottomButtonTapped()
         }) {
-            Text(vm.step.bottomButtonTitle)
-                .padding()
-                .foregroundColor(.label)
-                .fontWeight(.bold)
+            HStack {
+                Spacer()
+
+                Text(vm.step.bottomButtonTitle)
+                    .padding()
+                    .foregroundColor(.label)
+                    .fontWeight(.bold)
+                    .contentShape(Rectangle())
+
+                Spacer()
+            }
         }
         .frame(maxWidth: .infinity)
         .background(Color.clear)
