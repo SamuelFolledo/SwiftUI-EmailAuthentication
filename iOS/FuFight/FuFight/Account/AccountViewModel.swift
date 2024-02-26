@@ -8,13 +8,9 @@
 import SwiftUI
 
 @Observable
-class AccountViewModel: ViewModel {
+class AccountViewModel: BaseViewModel {
     var account: Account
 
-    ///Set this to nil in order to remove this global loading indicator, empty string will show it but have empty message
-    var loadingMessage: String? = nil
-    var hasError: Bool = false
-    var error: MainError?
     var selectedImage: UIImage = defaultProfilePhoto
 
     var usernameFieldText: String = Account.current?.username ?? ""
@@ -28,14 +24,6 @@ class AccountViewModel: ViewModel {
     init(account: Account) {
         self.account = account
     }
-
-    //MARK: - ViewModel Overrides
-
-    func onAppear() {
-        observeAuthChanges()
-    }
-
-    func onDisappear() { }
 
     //MARK: - Public Methods
     func logOut() {
@@ -98,41 +86,5 @@ private extension AccountViewModel {
     func transitionToAuthenticationView() {
         account.status = .logOut
         AccountManager.saveCurrent(account)
-    }
-}
-
-//MARK: Reusable methods for all ViewModel
-private extension AccountViewModel {
-    func observeAuthChanges() {
-        auth.addStateDidChangeListener { (authDataResult, user) in
-            if let user {
-                let updatedAccount = Account(user)
-                LOGD("Auth ACCOUNT changes handler for \(user.displayName ?? "")")
-                updatedAccount.status = self.account.status
-                self.account.update(with: updatedAccount)
-                AccountManager.saveCurrent(self.account)
-            }
-        }
-    }
-    
-    func updateError(_ error: MainError?) {
-        updateLoadingMessage(to: nil)
-        DispatchQueue.main.async {
-            if let error {
-                LOGE(error.fullMessage)
-                self.error = error
-                self.hasError = true
-            } else {
-                ///clear error messages
-                self.hasError = false
-                self.error = nil
-            }
-        }
-    }
-
-    func updateLoadingMessage(to message: String?) {
-        DispatchQueue.main.async {
-            self.loadingMessage = message
-        }
     }
 }

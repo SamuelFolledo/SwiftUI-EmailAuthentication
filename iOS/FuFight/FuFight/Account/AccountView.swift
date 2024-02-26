@@ -29,7 +29,7 @@ struct AccountView: View {
                     logOutButton
                 }
             }
-            .alert(title: vm.error?.title ?? "", message: vm.error?.message ?? "", isPresented: $vm.hasError)
+            .alert(title: vm.alertTitle, message: vm.alertMessage, isPresented: $vm.isAlertPresented)
             .padding()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
