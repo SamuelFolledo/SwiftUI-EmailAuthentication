@@ -53,10 +53,11 @@ extension AccountNetworkManager {
         }
     }
 
+    ///Deletes and log out the current authenticated user
     static func deleteAuthData(userId: String) async throws {
         do {
             try await auth.currentUser?.delete()
-            LOGD("AUTH: Finished deleting auth data for userId: \(userId)", from: self)
+            LOGD("AUTH: Finished deleting and logging out the authenticated user with userId: \(userId)", from: self)
         } catch {
             throw error
         }

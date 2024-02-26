@@ -8,13 +8,15 @@
 import SwiftUI
 
 enum AlertButtonType {
-    case cancel, ok, custom
+    case cancel, secondaryCancel, ok, secondaryOk, custom, delete
 
     var title: LocalizedStringKey {
         switch self {
-        case .cancel:
+        case .cancel, .secondaryCancel:
             return "Cancel"
-        case .ok:
+        case .delete:
+            return "Delete"
+        case .ok, .secondaryOk:
             return "Ok"
         case .custom:
             return ""
@@ -23,10 +25,12 @@ enum AlertButtonType {
 
     var bgColor: UIColor {
         switch self {
-        case .cancel:
+        case .cancel, .secondaryCancel:
             return .systemBackground
-        case .ok:
-            return .systemBlue
+        case .delete:
+            return .systemRed
+        case .ok, .secondaryOk:
+            return .systemBackground
         case .custom:
             return .clear
         }
@@ -36,8 +40,12 @@ enum AlertButtonType {
         switch self {
         case .cancel:
             return .systemRed
-        case .ok:
+        case .delete:
             return .systemBackground
+        case .ok:
+            return .systemBlue
+        case .secondaryCancel, .secondaryOk:
+            return .label
         case .custom:
             return .systemBlue
         }
@@ -47,7 +55,7 @@ enum AlertButtonType {
 struct AlertButton: View {
     // MARK: - Value
     // MARK: Public
-    var type: AlertButtonType?
+    var type: AlertButtonType
     let title: LocalizedStringKey
     let textColor: UIColor
     let bgColor: UIColor
@@ -60,9 +68,10 @@ struct AlertButton: View {
         self.bgColor = bgColor
         self.isBordered = isBordered
         self.action = action
+        self.type = .custom
     }
 
-    init(type: AlertButtonType, textColor: UIColor? = nil, bgColor: UIColor? = nil, isBordered: Bool = true, action: (() -> Void)? = nil) {
+    init(type: AlertButtonType, isBordered: Bool = false, action: (() -> Void)? = nil) {
         self.type = type
         self.title = type.title
         self.textColor = type.textColor
@@ -94,9 +103,34 @@ struct AlertButton: View {
             Color(uiColor: isBordered ? .label : bgColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: 25)
-                        .stroke(Color(uiColor: isBordered ? bgColor : .label), lineWidth: 2)
+                        .stroke(Color(uiColor: isBordered ? bgColor : .clear), lineWidth: 2)
                 )
         )
         .cornerRadius(15)
+    }
+}
+
+struct AlertButton_Previews: PreviewProvider {
+
+    static var previews: some View {
+        let dismissButton   = AlertButton(title: "Ok")
+        let primaryButton   = AlertButton(title: "Ok")
+        let secondaryButton = AlertButton(title: "Cancel")
+
+        let dismissButton2   = AlertButton(type: .cancel)
+        let primaryButton2   = AlertButton(type: .delete)
+        let secondaryButton2 = AlertButton(type: .ok)
+
+        return VStack {
+            dismissButton
+            primaryButton
+            secondaryButton
+
+            dismissButton2
+            primaryButton2
+            secondaryButton2
+        }
+        .padding()
+        .preferredColorScheme(.light)
     }
 }

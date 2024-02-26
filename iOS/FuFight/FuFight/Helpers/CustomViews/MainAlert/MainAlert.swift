@@ -96,7 +96,7 @@ struct MainAlert: View {
     @ViewBuilder
     private var primaryButtonView: some View {
         if let button = primaryButton {
-            AlertButton(title: button.title) {
+            let buttonAction = {
                 animate(isShown: false) {
                     dismiss()
                 }
@@ -104,6 +104,11 @@ struct MainAlert: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                     button.action?()
                 }
+            }
+            if button.type == .custom {
+                AlertButton(title: button.title, action: buttonAction)
+            } else {
+                AlertButton(type: button.type, action: buttonAction)
             }
         }
     }
@@ -111,7 +116,7 @@ struct MainAlert: View {
     @ViewBuilder
     private var secondaryButtonView: some View {
         if let button = secondaryButton {
-            AlertButton(title: button.title) {
+            let buttonAction = {
                 animate(isShown: false) {
                     dismiss()
                 }
@@ -120,13 +125,18 @@ struct MainAlert: View {
                     button.action?()
                 }
             }
+            if button.type == .custom {
+                AlertButton(title: button.title, action: buttonAction)
+            } else {
+                AlertButton(type: button.type, action: buttonAction)
+            }
         }
     }
 
     @ViewBuilder
     private var dismissButtonView: some View {
         if let button = dismissButton {
-            AlertButton(title: button.title) {
+            let buttonAction = {
                 animate(isShown: false) {
                     dismiss()
                 }
@@ -134,6 +144,11 @@ struct MainAlert: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                     button.action?()
                 }
+            }
+            if button.type == .custom {
+                AlertButton(title: button.title, action: buttonAction)
+            } else {
+                AlertButton(type: button.type, action: buttonAction)
             }
         }
     }
@@ -185,8 +200,8 @@ struct MainAlert_Previews: PreviewProvider {
         let secondaryButton = AlertButton(title: "Cancel")
 
         let dismissButton2   = AlertButton(type: .ok)
-        let primaryButton2   = AlertButton(type: .ok)
-        let secondaryButton2 = AlertButton(type: .cancel)
+        let primaryButton2   = AlertButton(type: .delete)
+        let secondaryButton2 = AlertButton(type: .ok)
 
         let title = "This is your life. Do what you want and do it often."
         let message = """

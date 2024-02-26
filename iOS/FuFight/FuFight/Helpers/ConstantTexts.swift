@@ -28,6 +28,7 @@ struct Str {
     static let updatePasswordTitle = "Update Password"
     static let createAccountTitle = "Create Account"
     static let deleteAccountTitle = "Delete Account"
+    static let deleteAccountQuestion = "Deleting Account Forever?"
     static let submitTitle = "Submit"
     static let cancelTitle = "Cancel"
     static let saveTitle = "Save"
