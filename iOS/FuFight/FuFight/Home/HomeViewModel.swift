@@ -9,14 +9,9 @@ import SwiftUI
 import FirebaseAuth
 
 @Observable
-class HomeViewModel: ViewModel {
+class HomeViewModel: BaseViewModel {
     var account: Account
     var authChangesListener: AuthStateDidChangeListenerHandle?
-
-    ///Set this to nil in order to remove this global loading indicator, empty string will show it but have empty message
-    var loadingMessage: String? = nil
-    var hasError: Bool = false
-    var error: MainError?
 
     //MARK: - Initializer
     init(account: Account) {
@@ -25,11 +20,13 @@ class HomeViewModel: ViewModel {
 
     //MARK: - ViewModel Overrides
 
-    func onAppear() {
+    override func onAppear() {
+        super.onAppear()
         observeAuthChanges()
     }
 
-    func onDisappear() {
+    override func onDisappear() {
+        super.onDisappear()
         if let authChangesListener {
             auth.removeStateDidChangeListener(authChangesListener)
         }
@@ -52,27 +49,6 @@ private extension HomeViewModel {
                 self.account.update(with: updatedAccount)
                 AccountManager.saveCurrent(self.account)
             }
-        }
-    }
-
-    func updateError(_ error: MainError?) {
-        updateLoadingMessage(to: nil)
-        DispatchQueue.main.async {
-            if let error {
-                LOGE(error.fullMessage)
-                self.error = error
-                self.hasError = true
-            } else {
-                ///clear error messages
-                self.hasError = false
-                self.error = nil
-            }
-        }
-    }
-
-    func updateLoadingMessage(to message: String?) {
-        DispatchQueue.main.async {
-            self.loadingMessage = message
         }
     }
 }

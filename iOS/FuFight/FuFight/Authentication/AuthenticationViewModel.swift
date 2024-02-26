@@ -9,15 +9,11 @@ import UIKit
 import SwiftUI
 
 @Observable
-class AuthenticationViewModel: ViewModel {
+class AuthenticationViewModel: BaseViewModel {
     private(set) var step: AuthStep
     let account: Account
 
     var showForgotPassword: Bool = false
-    ///Set this to nil in order to remove loading indicator
-    var loadingMessage: String? = nil
-    var hasError: Bool = false
-    var error: MainError?
     var rememberMe: Bool = Defaults.saveEmailAndPassword {
         didSet {
             Defaults.saveEmailAndPassword = rememberMe
@@ -65,11 +61,6 @@ class AuthenticationViewModel: ViewModel {
         self.step = step
         self.account = account
     }
-
-    //MARK: - ViewModel Overrides
-    func onAppear() { }
-
-    func onDisappear() { }
 
     //MARK: - Public Methods
     func topButtonTapped() {
@@ -288,14 +279,18 @@ private extension AuthenticationViewModel {
     ///change topFieldType from email to username if it has "@" and vice versa
     func updateTopFieldTypeIfNeeded() {
         switch step {
-        case .signUp, .phone, .phoneVerification, .onboard:
-            break
+        case .onboard:
+            topFieldType = .username
+        case .signUp:
+            topFieldType = .email
         case .logIn:
             if topFieldText.isEmpty {
                 topFieldType = .emailOrUsername
                 return
             }
             topFieldType = topFieldText.contains("@") ? .email : .username
+        case .phone, .phoneVerification:
+            break
         }
     }
 
@@ -313,27 +308,6 @@ private extension AuthenticationViewModel {
             Defaults.savedPassword = bottomFieldText
         } else if !rememberMe && isPassword {
             Defaults.savedPassword = ""
-        }
-    }
-
-    func updateError(_ error: MainError?) {
-        updateLoadingMessage(to: nil)
-        DispatchQueue.main.async {
-            if let error {
-                LOGE(error.fullMessage)
-                self.error = error
-                self.hasError = true
-            } else {
-                ///clear error messages
-                self.hasError = false
-                self.error = nil
-            }
-        }
-    }
-
-    func updateLoadingMessage(to message: String?) {
-        DispatchQueue.main.async {
-            self.loadingMessage = message
         }
     }
 }

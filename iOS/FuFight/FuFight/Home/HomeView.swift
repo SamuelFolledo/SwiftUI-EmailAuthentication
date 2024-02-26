@@ -23,7 +23,7 @@ struct HomeView: View {
                         TODO("Play")
                     }
                 }
-                .alert(title: vm.error?.title ?? "", message: vm.error?.message ?? "", isPresented: $vm.hasError)
+                .alert(title: vm.alertTitle, message: vm.alertMessage, isPresented: $vm.isAlertPresented)
                 .padding()
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
