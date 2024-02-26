@@ -19,8 +19,11 @@ enum MainErrorType {
     case deletingUser
     case passwordReset
     case invalidEmail
+    case emptyEmail
     case invalidPassword
+    case emptyPassword
     case invalidUsername
+    case emptyUsername
     case notUniqueUsername
 
     var title: String {
@@ -53,6 +56,12 @@ enum MainErrorType {
             "Invalid username"
         case .notUniqueUsername:
             "Username is already taken"
+        case .emptyEmail:
+            "Email is empty"
+        case .emptyPassword:
+            "Password is empty"
+        case .emptyUsername:
+            "Username is empty"
         }
     }
 }

@@ -16,7 +16,7 @@ class Account: ObservableObject, Codable {
     @DocumentID var id: String?
     @Published var username: String?
     @Published var photoUrl: URL?
-    @Published private(set) var email: String?
+    @Published var email: String?
     @Published private(set) var phoneNumber: String?
     @Published private(set) var createdAt: Date?
     @Published var status: Account.Status = .unfinished

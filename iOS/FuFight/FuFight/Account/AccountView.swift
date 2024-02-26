@@ -34,7 +34,7 @@ struct AccountView: View {
             .padding()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    saveButton
+                    editSaveButton
                 }
             }
         }
@@ -52,9 +52,9 @@ struct AccountView: View {
         .allowsHitTesting(vm.loadingMessage == nil)
     }
 
-    var saveButton: some View {
-        Button(action: vm.saveButtonTapped) {
-            Text(Str.saveTitle)
+    var editSaveButton: some View {
+        Button(action: vm.editSaveButtonTapped) {
+            Text(vm.isViewingMode ? Str.editTitle : Str.saveTitle)
         }
         .appButton(.tertiary)
     }
@@ -69,7 +69,8 @@ struct AccountView: View {
             type: .constant(.username),
             text: $vm.usernameFieldText,
             hasError: $vm.usernameFieldHasError,
-            isActive: $vm.usernameFieldIsActive) {
+            isActive: $vm.usernameFieldIsActive, 
+            isDisabled: $vm.isViewingMode) {
                 TODO("TODO: CHECK USERNAME HERE")
             }
             .onSubmit {
@@ -82,14 +83,15 @@ struct AccountView: View {
             type: .constant(.email),
             text: $vm.emailFieldText,
             hasError: $vm.emailFieldHasError,
-            isActive: $vm.emailFieldIsActive)
+            isActive: $vm.emailFieldIsActive, 
+            isDisabled: $vm.isViewingMode)
             .onSubmit {
                 vm.emailFieldIsActive = false
             }
             .padding(.horizontal)
     }
     var changePasswordButton: some View {
-        Button(action: vm.saveButtonTapped) {
+        Button(action: vm.editSaveButtonTapped) {
             Text(Str.updatePasswordTitle)
                 .frame(maxWidth: .infinity)
         }

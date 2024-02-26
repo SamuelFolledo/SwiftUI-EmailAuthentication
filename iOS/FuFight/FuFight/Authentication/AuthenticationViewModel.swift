@@ -171,7 +171,7 @@ private extension AuthenticationViewModel {
         guard !topFieldHasError else {
             return updateError(MainError(type: .invalidUsername))
         }
-        let username = topFieldText
+        let username = topFieldText.trimmed
         Task {
             do {
                 ///Ensure non duplicated username
@@ -183,11 +183,11 @@ private extension AuthenticationViewModel {
                 updateLoadingMessage(to: Str.storingPhoto)
                 if let photoUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
                     updateLoadingMessage(to: Str.updatingUser)
-                    try await AccountNetworkManager.updateAuthenticatedAccount(username: username, photoURL: photoUrl)
+                    try await AccountNetworkManager.updateAuthenticatedUser(username: username, photoUrl: photoUrl)
                     account.username = username
                     account.photoUrl = photoUrl
                     updateLoadingMessage(to: Str.savingUser)
-                    try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email ?? "")
+                    try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email)
                     try await AccountNetworkManager.setData(account: account)
                     try await AccountManager.saveCurrent(account)
                     updateError(nil)

@@ -37,22 +37,6 @@ extension AccountNetworkManager {
         }
     }
 
-    ///Update current account's information on Auth.auth()
-    static func updateAuthenticatedAccount(username: String, photoURL: URL) async throws {
-        guard !username.isEmpty && !photoURL.absoluteString.isEmpty else {
-            fatalError("Error updating authenticated account's username to \(username), and photoUrl to \(photoURL)")
-        }
-        let changeRequest = auth.currentUser?.createProfileChangeRequest()
-        changeRequest?.displayName = username
-        changeRequest?.photoURL = photoURL
-        do {
-            try await changeRequest?.commitChanges()
-            LOGD("AUTH: Finished updating user's displayName to \(username) and photoURL to \(photoURL.absoluteString)", from: self)
-        } catch {
-            throw error
-        }
-    }
-
     ///Deletes and log out the current authenticated user
     static func deleteAuthData(userId: String) async throws {
         do {
@@ -86,6 +70,48 @@ extension AccountNetworkManager {
         do {
             try await auth.sendPasswordReset(withEmail: email)
             LOGD("AUTH: Finished resetPassword link to \(email)", from: self)
+        } catch {
+            throw error
+        }
+    }
+
+    static func reauthenticateUser(withEmail email: String, password: String) async throws {
+        do {
+            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+            try await auth.currentUser?.reauthenticate(with: credential)
+            LOGD("AUTH: Finished reauthenticating user withEmail: \(email)", from: self)
+        } catch {
+            throw error
+        }
+    }
+
+    static func updatePassword(_ password: String) async throws {
+        do {
+            try await auth.currentUser?.updatePassword(to: password)
+            LOGD("AUTH: Finished updating user's password", from: self)
+        } catch {
+            throw error
+        }
+    }
+
+    ///Update current account's username and/or photUrl
+    static func updateAuthenticatedUser(username: String? = nil, photoUrl: URL? = nil) async throws {
+        let username = (username ?? "").trimmed
+        let photoUrlString = (photoUrl?.absoluteString ?? "").trimmed
+        let hasUsername = !username.isEmpty
+        let hasPhotoUrl = !photoUrlString.isEmpty
+        let changeRequest = auth.currentUser?.createProfileChangeRequest()
+        if hasUsername {
+            LOGD("Updating authenticated user's username to \(username)")
+            changeRequest?.displayName = username
+        }
+        if hasPhotoUrl {
+            LOGD("Updating authenticated user's photoUrl to \(photoUrlString)")
+            changeRequest?.photoURL = photoUrl
+        }
+        do {
+            try await changeRequest?.commitChanges()
+            LOGD("AUTH: Finished updating user's displayName to \(username) and photoUrl to \(photoUrlString)", from: self)
         } catch {
             throw error
         }
@@ -161,15 +187,22 @@ extension AccountNetworkManager {
     }
 
     ///Set username to the database into both Accounts and Username collections
-    static func setUsername(_ username: String, userId: String, email: String) async throws {
+    static func setUsername(_ username: String, userId: String, email: String? = nil) async throws {
+        let username = username.trimmed
+        guard !userId.isEmpty,
+              !username.isEmpty else { return }
         do {
+            ///Update Accounts collection
             let accountsRef = accountsDb.document(userId)
             try await accountsRef.setData([kUSERNAME: username], merge: true)
-
+            ///Update Usernames collection
             let loweredUsername = username.lowercased()
-            let usernameData: [String: Any] = [kUSERID: userId, kEMAIL: email, kUSERNAME: username]
+            var data: [String: Any] = [kUSERID: userId, kUSERNAME: username]
+            if let email {
+                data[kEMAIL] = email.trimmed
+            }
             let usernameRef = usernamesDb.document(loweredUsername)
-            try await usernameRef.setData(usernameData, merge: true)
+            try await usernameRef.setData(data, merge: true)
         } catch {
             throw error
         }
@@ -178,7 +211,7 @@ extension AccountNetworkManager {
     ///Delete user's data from Usernames collection
     static func deleteUsername(_ username: String) async throws {
         do {
-            let loweredUsername = username.lowercased()
+            let loweredUsername = username.trimmed.lowercased()
             let usernameRef = usernamesDb.document(loweredUsername)
             try await usernameRef.delete()
             LOGD("DB: Finished deleting account in Usernames collection username: \(username)", from: self)
@@ -190,7 +223,7 @@ extension AccountNetworkManager {
     ///Check Users collection in database if username is unique
     static func isUnique(username: String) async throws -> Bool {
         do {
-            let loweredUsername = username.lowercased()
+            let loweredUsername = username.trimmed.lowercased()
             let document = try await usernamesDb.document(loweredUsername).getDocument()
             let isUnique = !document.exists
             LOGD("DB: Username \(username) is unique = \(isUnique)", from: self)
@@ -203,7 +236,7 @@ extension AccountNetworkManager {
     ///Fetch the email from Usernames collection
     static func fetchEmailFrom(username: String) async throws -> String? {
         do {
-            let loweredUsername = username.lowercased()
+            let loweredUsername = username.trimmed.lowercased()
             let document = try await usernamesDb.document(loweredUsername).getDocument()
             if document.exists,
                let usernameData = document.data(),

@@ -33,6 +33,7 @@ struct Str {
     static let cancelTitle = "Cancel"
     static let saveTitle = "Save"
     static let deleteTitle = "Delete"
+    static let editTitle = "Edit"
 
     //Non- titles
     static let sendCode = "Send code"
@@ -52,8 +53,11 @@ struct Str {
     static let deletingStoredPhoto = "Deleting stored photo"
     static let deletingData = "Deleting user's data"
     static let deletingUser = "Deleting user"
+    static let updatingUsername = "Updating username"
     static let deletingUsername = "Deleting username"
     static let loggingOut = "Logging out"
     static let checkingUsername = "Checking username"
     static let fetchingEmail = "Fetching email"
+    static let usernameIsEmpty = "Username is empty"
+    static let emailIsEmpty = "Email is empty"
 }
