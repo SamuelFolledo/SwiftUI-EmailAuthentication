@@ -19,6 +19,7 @@ class AccountViewModel: BaseViewModel {
     var emailFieldText: String = Account.current?.email ?? ""
     var emailFieldHasError: Bool = false
     var emailFieldIsActive: Bool = false
+    var isDeleteAccountAlertPresented: Bool = false
 
     //MARK: - Initializer
     init(account: Account) {
@@ -56,8 +57,6 @@ class AccountViewModel: BaseViewModel {
                 try await AccountNetworkManager.deleteUsername(account.username!)
                 updateLoadingMessage(to: Str.deletingUser)
                 try await AccountNetworkManager.deleteAuthData(userId: currentUserId)
-                updateLoadingMessage(to: Str.loggingOut)
-                try await AccountNetworkManager.logOut()
                 AccountManager.deleteCurrent()
                 updateError(nil)
                 account.reset()

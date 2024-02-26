@@ -30,6 +30,7 @@ struct AccountView: View {
                 }
             }
             .alert(title: vm.alertTitle, message: vm.alertMessage, isPresented: $vm.isAlertPresented)
+            .alert(title: Str.deleteAccountQuestion, primaryButton: AlertButton(type: .delete, action: vm.deleteAccount), secondaryButton: AlertButton(type: .secondaryCancel), isPresented: $vm.isDeleteAccountAlertPresented)
             .padding()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -90,18 +91,23 @@ struct AccountView: View {
     var changePasswordButton: some View {
         Button(action: vm.saveButtonTapped) {
             Text(Str.updatePasswordTitle)
+                .frame(maxWidth: .infinity)
         }
         .appButton(.primary)
     }
     var deleteAccountButton: some View {
-        Button(action: vm.deleteAccount) {
+        Button {
+            vm.isDeleteAccountAlertPresented = true
+        } label: {
             Text(Str.deleteTitle)
+                .frame(maxWidth: .infinity)
         }
         .appButton(.destructive)
     }
     var logOutButton: some View {
         Button(action: vm.logOut) {
             Text(Str.logOutTitle)
+                .frame(maxWidth: .infinity)
         }
         .appButton(.destructive, isBordered: true)
     }
