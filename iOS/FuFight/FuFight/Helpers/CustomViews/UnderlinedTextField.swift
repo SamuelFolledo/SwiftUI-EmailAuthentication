@@ -95,14 +95,16 @@ struct UnderlinedTextField: View {
     @Binding var hasError: Bool
     ///isActive keeps track if this textfield is active and should ALWAYS be in sync with isFocused
     @Binding var isActive: Bool
+    @Binding var isDisabled: Bool
     @FocusState private var isFocused: Bool
     var trailingButtonAction: (() -> Void)?
 
-    init(type: Binding<FieldType>, text: Binding<String>, hasError: Binding<Bool>, isActive: Binding<Bool>, _ trailingButtonAction: (() -> Void)? = nil) {
+    init(type: Binding<FieldType>, text: Binding<String>, hasError: Binding<Bool>, isActive: Binding<Bool>, isDisabled: Binding<Bool> = .constant(false), _ trailingButtonAction: (() -> Void)? = nil) {
         self._type = type
         self._text = text
         self._hasError = hasError
         self._isActive = isActive
+        self._isDisabled = isDisabled
         self.trailingButtonAction = trailingButtonAction
     }
 
@@ -112,8 +114,10 @@ struct UnderlinedTextField: View {
                 Group {
                     if type == .password {
                         SecureField(type.placeHolder, text: $text)
+                            .foregroundStyle(isDisabled ? .secondary : .primary)
                     } else {
                         TextField(type.placeHolder, text: $text)
+                            .foregroundStyle(isDisabled ? .secondary : .primary)
                     }
                 }
                 .textFieldStyle(PlainTextFieldStyle())
@@ -135,9 +139,9 @@ struct UnderlinedTextField: View {
                 } label: {
                     switch type {
                     case .password, .phoneCode:
-                        Image(systemName: "eye")
+                        Image(systemName: "eye").tint(Color.label)
                     case .visiblePassword:
-                        Image(systemName: "eye.slash")
+                        Image(systemName: "eye.slash").tint(Color.label)
                     case .email, .emailOrUsername, .username, .phoneNumber, .unspecified:
                         Text("")
                             .hidden()
@@ -152,7 +156,7 @@ struct UnderlinedTextField: View {
                 
                 Rectangle()
                     .frame(height: 1.5)
-                    .foregroundStyle(hasError ? Color.red : Color.label)
+                    .foregroundStyle(hasError ? Color.red : (isDisabled ? Color.systemGray2 : Color.label))
             }
         )
         .onChange(of: text) {
@@ -161,5 +165,7 @@ struct UnderlinedTextField: View {
         .onChange(of: isActive) {
             isFocused = isActive
         }
+        .disabled(isDisabled)
+        .opacity(isDisabled ? 0.8 : 1)
     }
 }

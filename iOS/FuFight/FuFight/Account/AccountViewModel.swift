@@ -11,8 +11,8 @@ import SwiftUI
 class AccountViewModel: BaseViewModel {
     var account: Account
 
+    var isViewingMode: Bool = true
     var selectedImage: UIImage = defaultProfilePhoto
-
     var usernameFieldText: String = Account.current?.username ?? ""
     var usernameFieldHasError: Bool = false
     var usernameFieldIsActive: Bool = false
@@ -71,12 +71,51 @@ class AccountViewModel: BaseViewModel {
         TODO("Implement edit photo")
     }
 
-    func saveButtonTapped() {
-        TODO("Save")
+    func editSaveButtonTapped() {
+        if !isViewingMode {
+            //TODO: Validate fields
+            let username = usernameFieldText.trimmed
+            let email = emailFieldText.trimmed
+            guard !username.isEmpty, !email.isEmpty else { return }
+            Task {
+                ///Update authenticated user's displayName
+                let didChangeUsername = username.lowercased() != account.displayName.trimmed.lowercased()
+                if didChangeUsername {
+                    updateLoadingMessage(to: Str.updatingUsername)
+                    try await AccountNetworkManager.updateAuthenticatedUser(username: username)
+                    ///Delete old username
+                    updateLoadingMessage(to: Str.deletingUsername)
+                    try await AccountNetworkManager.deleteUsername(account.username!)
+                    account.username = username
+                }
+                var email: String? = nil
+                let didChangeEmail = emailFieldText.trimmed.lowercased() != account.email!.trimmed.lowercased()
+                if didChangeEmail {
+                    email = emailFieldText.trimmed
+                    account.email = email
+                    //TODO: Update email
+                }
+                ///Save username
+                updateLoadingMessage(to: Str.savingUser)
+                try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email)
+                try await AccountNetworkManager.setData(account: account)
+                try await AccountManager.saveCurrent(account)
+                updateError(nil)
+                LOGD("Successfully editted user with \(auth.currentUser!.displayName!) and \(auth.currentUser!.email!)")
+            }
+        }
+        isViewingMode = !isViewingMode
     }
 
     func changePasswordButtonTapped() {
-        TODO("Update password")
+        Task {
+            let currentUserId = account.id ?? Account.current?.userId ?? account.userId
+            do {
+                TODO("Update password")
+            } catch {
+                updateError(MainError(type: .deletingUser, message: error.localizedDescription))
+            }
+        }
     }
 }
 
