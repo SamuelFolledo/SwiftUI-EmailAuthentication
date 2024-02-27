@@ -9,6 +9,7 @@ import Foundation
 
 @Observable
 class BaseViewModel: ViewModel {
+    var dismissAction: (() -> Void)?
     var isAlertPresented: Bool = false
     private(set) var alertTitle = ""
     private(set) var alertMessage = ""
@@ -53,5 +54,9 @@ class BaseViewModel: ViewModel {
         DispatchQueue.main.async {
             self.loadingMessage = message
         }
+    }
+
+    func dismissView() {
+        dismissAction?()
     }
 }

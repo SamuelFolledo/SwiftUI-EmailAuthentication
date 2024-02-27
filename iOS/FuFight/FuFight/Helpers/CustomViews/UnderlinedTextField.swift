@@ -7,36 +7,59 @@
 
 import SwiftUI
 
-enum FieldType {
+enum PasswordType {
+    case current
+    case new
+    case confirmNew
+
+    var title: String {
+        switch self {
+        case .current:
+            Str.passwordTitle
+        case .new:
+            Str.newTitle
+        case .confirmNew:
+            Str.confirmNewPasswordTitle
+        }
+    }
+
+    var placeholder: String {
+        switch self {
+        case .current:
+            Str.enterPassword
+        case .new:
+            Str.enterNewPassword
+        case .confirmNew:
+            Str.confirmNewPassword
+        }
+    }
+}
+
+enum FieldType: Equatable {
     case email
     case emailOrUsername
-    case password
-    case visiblePassword
-    case confirmPassword
-    case visibleConfirmPassword
+    case password(_ type: PasswordType)
     case username
     case phoneNumber
     case phoneCode
-    case unspecified
+    case unspecified(title: String, placeholder: String)
 
-    var placeHolder: String {
+    var placeholder: String {
         switch self {
         case .email:
             Str.enterEmail
         case .emailOrUsername:
             Str.enterEmailOrUsername
-        case .password, .visiblePassword:
-            Str.enterPassword
-        case .confirmPassword, .visibleConfirmPassword:
-            Str.enterPasswordAgain
+        case .password(let type):
+            type.placeholder
         case .username:
             Str.enterUsername
         case .phoneNumber:
             Str.enterPhoneNumber
         case .phoneCode:
             Str.enterPhoneSixDigitCode
-        case .unspecified:
-            ""
+        case .unspecified(_, let placeholder):
+            placeholder
         }
     }
 
@@ -44,7 +67,7 @@ enum FieldType {
         switch self {
         case .email, .emailOrUsername:
             .emailAddress
-        case .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword, .username, .unspecified:
+        case .password, .username, .unspecified:
             .default
         case .phoneNumber:
             .phonePad
@@ -55,7 +78,7 @@ enum FieldType {
 
     var autocapitalization: TextInputAutocapitalization {
         switch self {
-        case .email, .emailOrUsername, .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword, .phoneNumber, .phoneCode, .unspecified:
+        case .email, .emailOrUsername, .password, .phoneNumber, .phoneCode, .unspecified:
             .never
         case .username:
             .words
@@ -68,7 +91,7 @@ enum FieldType {
             .emailAddress
         case .emailOrUsername:
             .username
-        case .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword:
+        case .password:
             .password
         case .username:
             .username
@@ -85,7 +108,7 @@ enum FieldType {
         switch self {
         case .email, .emailOrUsername, .phoneNumber:
             .next
-        case .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword, .phoneCode, .username:
+        case .password, .phoneCode, .username:
             .continue
         case .unspecified:
             .return
@@ -98,18 +121,16 @@ enum FieldType {
             Str.emailTitle
         case .emailOrUsername:
             Str.emailOrUsernameTitle
-        case .password, .visiblePassword:
-            Str.passwordTitle
-        case .confirmPassword, .visibleConfirmPassword:
-            Str.confirmPasswordTitle
+        case .password(let type):
+            type.title
         case .username:
             Str.usernameTitle
         case .phoneNumber:
             Str.phoneNumberTitle
         case .phoneCode:
             Str.phoneCodeTitle
-        case .unspecified:
-            ""
+        case .unspecified(let title, _):
+            title
         }
     }
 }
@@ -117,6 +138,7 @@ enum FieldType {
 struct UnderlinedTextField: View {
     @Binding var type: FieldType
     @Binding var text: String
+    @Binding var isSecure: Bool
     @Binding var hasError: Bool
     ///isActive keeps track if this textfield is active and should ALWAYS be in sync with isFocused
     @Binding var isActive: Bool
@@ -126,9 +148,10 @@ struct UnderlinedTextField: View {
 
     @FocusState private var isFocused: Bool
 
-    init(type: Binding<FieldType>, text: Binding<String>, hasError: Binding<Bool>, isActive: Binding<Bool>, isDisabled: Binding<Bool> = .constant(false), showTitle: Bool = true, _ trailingButtonAction: (() -> Void)? = nil) {
+    init(type: Binding<FieldType>, text: Binding<String>, isSecure: Binding<Bool> = .constant(false), hasError: Binding<Bool>, isActive: Binding<Bool>, isDisabled: Binding<Bool> = .constant(false), showTitle: Bool = true, _ trailingButtonAction: (() -> Void)? = nil) {
         self._type = type
         self._text = text
+        self._isSecure = isSecure
         self._hasError = hasError
         self._isActive = isActive
         self._isDisabled = isDisabled
@@ -145,11 +168,11 @@ struct UnderlinedTextField: View {
 
             HStack {
                 Group {
-                    if type == .password {
-                        SecureField(type.placeHolder, text: $text)
+                    if isSecure {
+                        SecureField(type.placeholder, text: $text)
                             .foregroundStyle(isDisabled ? .secondary : .primary)
                     } else {
-                        TextField(type.placeHolder, text: $text)
+                        TextField(type.placeholder, text: $text)
                             .foregroundStyle(isDisabled ? .secondary : .primary)
                     }
                 }
@@ -160,14 +183,11 @@ struct UnderlinedTextField: View {
                 .textContentType(type.contentType)
                 .submitLabel(type.submitLabel)
 
-                trailingButton
+                accessories
             }
         }
         .padding(.vertical)
         .background(background)
-        .onChange(of: text) {
-            hasError = text.isEmpty
-        }
         .onChange(of: isActive) {
             isFocused = isActive
         }
@@ -185,30 +205,80 @@ struct UnderlinedTextField: View {
         }
     }
 
+    var accessories: some View {
+        HStack {
+            checkmark()
+
+            trailingButton
+        }
+    }
+
     var trailingButton: some View {
         Button {
             switch type {
-            case .password:
-                type = .visiblePassword
-            case .visiblePassword:
-                type = .password
-            case .confirmPassword:
-                type = .visibleConfirmPassword
-            case .visibleConfirmPassword:
-                type = .confirmPassword
+            case .password(_):
+                isSecure = !isSecure
             case .email, .emailOrUsername, .username, .phoneNumber, .phoneCode, .unspecified:
                 trailingButtonAction?()
             }
         } label: {
             switch type {
-            case .password, .phoneCode, .confirmPassword:
-                Image(systemName: "eye").tint(Color.label)
-            case .visiblePassword, .visibleConfirmPassword:
-                Image(systemName: "eye.slash").tint(Color.label)
+            case .phoneCode:
+                isSecuredImage()
+            case .password(_):
+                isSecuredImage()
             case .email, .emailOrUsername, .username, .phoneNumber, .unspecified:
-                Text("")
-                    .hidden()
+                EmptyView()
             }
         }
     }
+
+    @ViewBuilder func checkmark() -> some View {
+        if hasError {
+            invalidImage
+        } else {
+            if text.isEmpty {
+                EmptyView()
+            } else {
+                switch type {
+                case .password(let passwordType):
+                    switch passwordType {
+                    case .current:
+                        EmptyView()
+                    case .new:
+                        //TODO: 1 Uncomment lines below to prevent unsafe password
+//                        if text.isValidPassword {
+//                            validImage
+//                        } else {
+//                            invalidImage
+//                        }
+                        validImage
+                    case .confirmNew:
+                        validImage
+                    }
+                case .email, .emailOrUsername, .username, .phoneNumber, .phoneCode, .unspecified:
+                    EmptyView()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder func isSecuredImage() -> some View {
+        if isSecure {
+            securedImage
+        } else {
+            nonSecuredImage
+        }
+    }
+}
+
+#Preview {
+    VStack {
+        UnderlinedTextField(type: .constant(.email), text: .constant("samuelfolledo@gmail.com"), hasError: .constant(false), isActive: .constant(false))
+
+        UnderlinedTextField(type: .constant(.password(.confirmNew)), text: .constant("pass123"), isSecure: .constant(true), hasError: .constant(true), isActive: .constant(false))
+
+        UnderlinedTextField(type: .constant(.password(.confirmNew)), text: .constant("Pass123!"), isSecure: .constant(false), hasError: .constant(false), isActive: .constant(false))
+    }
+    .padding()
 }

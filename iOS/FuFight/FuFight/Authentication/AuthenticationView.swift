@@ -148,6 +148,7 @@ struct AuthenticationView: View {
         UnderlinedTextField(
             type: $vm.bottomFieldType,
             text: $vm.bottomFieldText,
+            isSecure: $vm.bottomFieldIsSecure,
             hasError: $vm.bottomFieldHasError,
             isActive: $vm.bottomFieldIsActive) {
                 TODO("Add an action for bottom field's trailing button. Step: \(vm.step), and type: \(vm.bottomFieldType)")
