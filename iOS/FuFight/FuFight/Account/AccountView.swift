@@ -88,8 +88,10 @@ struct AccountView: View {
             }
     }
     var changePasswordButton: some View {
-        Button(action: vm.editSaveButtonTapped) {
-            Text(Str.updatePasswordTitle)
+        NavigationLink {
+            UpdatePasswordView()
+        } label: {
+            Text(Str.changePasswordTitle)
                 .frame(maxWidth: .infinity)
         }
         .appButton(.primary)

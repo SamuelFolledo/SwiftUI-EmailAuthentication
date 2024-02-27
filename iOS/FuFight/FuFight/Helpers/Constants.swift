@@ -36,5 +36,12 @@ let boldedButtonFont = buttonFont.weight(.bold)
 let defaultProfilePhoto: UIImage = UIImage(systemName: "person.crop.circle")!
 let checkedImage: UIImage = UIImage(systemName: "checkmark.square.fill")!
 let uncheckedImage: UIImage = UIImage(systemName: "square")!
-
+let securedImage: some View = Image(systemName: "eye")
+    .foregroundColor(.label)
+let nonSecuredImage: some View = Image(systemName: "eye.slash")
+    .foregroundColor(.label)
+let invalidImage: some View = Image(systemName: "xmark.circle.fill")
+    .foregroundColor(Color.systemRed)
+let validImage: some View = Image(systemName: "checkmark.circle.fill")
+    .foregroundColor(Color.systemGreen)
 let accountPhotoCompressionQuality: Double = 0.3

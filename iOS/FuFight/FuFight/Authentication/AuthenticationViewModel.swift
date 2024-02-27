@@ -30,14 +30,15 @@ class AuthenticationViewModel: BaseViewModel {
     }
     var topFieldHasError: Bool = false
     var topFieldIsActive: Bool = false
-    var bottomFieldType: FieldType = Defaults.showPassword ? .visiblePassword : .password {
-        didSet {
-            Defaults.showPassword = bottomFieldType == .visiblePassword
-        }
-    }
+    var bottomFieldType: FieldType = .password(.current)
     var bottomFieldText: String = Defaults.saveEmailAndPassword ? Defaults.savedPassword : "" {
         didSet {
             saveBottomFieldTextIfNeeded()
+        }
+    }
+    var bottomFieldIsSecure = !Defaults.showPassword {
+        didSet {
+            Defaults.showPassword = !bottomFieldIsSecure
         }
     }
     var bottomFieldHasError: Bool = false
@@ -259,7 +260,7 @@ private extension AuthenticationViewModel {
         switch step {
         case .logIn:
             switch topFieldType {
-            case .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword, .phoneNumber, .phoneCode, .unspecified:
+            case .password, .phoneNumber, .phoneCode, .unspecified:
                 break
             case .email:
                 topFieldHasError = !topFieldText.isValidEmail
@@ -304,7 +305,7 @@ private extension AuthenticationViewModel {
     }
 
     func saveBottomFieldTextIfNeeded() {
-        let isPassword = bottomFieldType == .password || bottomFieldType == .visiblePassword
+        let isPassword = bottomFieldType == .password(.current)
         if rememberMe && isPassword && !bottomFieldText.isEmpty {
             Defaults.savedPassword = bottomFieldText
         } else if !rememberMe && isPassword {
