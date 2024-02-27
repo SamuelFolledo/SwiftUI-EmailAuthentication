@@ -12,7 +12,14 @@ class AccountViewModel: BaseViewModel {
     var account: Account
 
     var isViewingMode: Bool = true
-    var selectedImage: UIImage = defaultProfilePhoto
+    var selectedImage: UIImage? = nil {
+        didSet {
+            if isViewingMode && selectedImage != nil {
+                ///If there's a new photo and we are not in editing mode, go to editing mode
+                isViewingMode = false
+            }
+        }
+    }
     var usernameFieldText: String = Account.current?.username ?? ""
     var usernameFieldHasError: Bool = false
     var usernameFieldIsActive: Bool = false
@@ -24,6 +31,12 @@ class AccountViewModel: BaseViewModel {
     //MARK: - Initializer
     init(account: Account) {
         self.account = account
+    }
+
+    override func onDisappear() {
+        super.onDisappear()
+        selectedImage = nil
+        isViewingMode = true
     }
 
     //MARK: - Public Methods
@@ -73,36 +86,7 @@ class AccountViewModel: BaseViewModel {
 
     func editSaveButtonTapped() {
         if !isViewingMode {
-            //TODO: Validate fields
-            let username = usernameFieldText.trimmed
-            let email = emailFieldText.trimmed
-            guard !username.isEmpty, !email.isEmpty else { return }
-            Task {
-                ///Update authenticated user's displayName
-                let didChangeUsername = username.lowercased() != account.displayName.trimmed.lowercased()
-                if didChangeUsername {
-                    updateLoadingMessage(to: Str.updatingUsername)
-                    try await AccountNetworkManager.updateAuthenticatedUser(username: username)
-                    ///Delete old username
-                    updateLoadingMessage(to: Str.deletingUsername)
-                    try await AccountNetworkManager.deleteUsername(account.username!)
-                    account.username = username
-                }
-                var email: String? = nil
-                let didChangeEmail = emailFieldText.trimmed.lowercased() != account.email!.trimmed.lowercased()
-                if didChangeEmail {
-                    email = emailFieldText.trimmed
-                    account.email = email
-                    //TODO: Update email
-                }
-                ///Save username
-                updateLoadingMessage(to: Str.savingUser)
-                try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email)
-                try await AccountNetworkManager.setData(account: account)
-                try await AccountManager.saveCurrent(account)
-                updateError(nil)
-                LOGD("Successfully editted user with \(auth.currentUser!.displayName!) and \(auth.currentUser!.email!)")
-            }
+            saveUser()
         }
         isViewingMode = !isViewingMode
     }
@@ -124,5 +108,52 @@ private extension AccountViewModel {
     func transitionToAuthenticationView() {
         account.status = .logOut
         AccountManager.saveCurrent(account)
+    }
+
+    func saveUser() {
+        //TODO: Validate fields
+        let username = usernameFieldText.trimmed
+        let email = emailFieldText.trimmed
+        guard !username.isEmpty, !email.isEmpty else { return }
+        Task {
+            ///If there's any photo changes, set account's photo in Storage and save the photo URL
+            var newPhotoUrl: URL? = nil
+            updateLoadingMessage(to: Str.storingPhoto)
+            if let selectedImage,
+               let photoUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
+                newPhotoUrl = photoUrl
+                account.photoUrl = newPhotoUrl
+            }
+            ///Update username if needed
+            var newUsername: String? = nil
+            let didChangeUsername = username.lowercased() != account.displayName.trimmed.lowercased()
+            if didChangeUsername {
+                ///Delete old username
+                updateLoadingMessage(to: Str.deletingUsername)
+                try await AccountNetworkManager.deleteUsername(account.username!)
+                newUsername = username
+                account.username = newUsername
+            }
+            if newUsername != nil || newPhotoUrl != nil {
+                ///Update authenticated user's displayName and photoUrl
+                updateLoadingMessage(to: Str.updatingUsername)
+                try await AccountNetworkManager.updateAuthenticatedUser(username: newUsername, photoUrl: newPhotoUrl)
+            }
+            var email: String? = nil
+            let didChangeEmail = emailFieldText.trimmed.lowercased() != account.email!.trimmed.lowercased()
+            if didChangeEmail {
+                email = emailFieldText.trimmed
+                account.email = email
+                //TODO: Update email
+            }
+            ///Save username
+            updateLoadingMessage(to: Str.savingUser)
+            try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email)
+            try await AccountNetworkManager.setData(account: account)
+            try await AccountManager.saveCurrent(account)
+            updateError(nil)
+            selectedImage = nil
+            LOGD("Successfully editted user with \(auth.currentUser!.displayName!) and \(auth.currentUser!.email!)")
+        }
     }
 }

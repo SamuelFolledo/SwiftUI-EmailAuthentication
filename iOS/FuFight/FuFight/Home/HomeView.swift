@@ -48,7 +48,7 @@ struct HomeView: View {
 
     var accountImage: some View {
         NavigationLink(destination: AccountView(vm: AccountViewModel(account: vm.account))) {
-            AccountImageView(url: vm.account.photoUrl, radius: 30)
+            AccountImage(url: vm.account.photoUrl, radius: 30)
         }
     }
 }

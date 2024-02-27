@@ -68,9 +68,7 @@ struct AuthenticationView: View {
 
     @ViewBuilder func profilePicture() -> some View {
         if vm.step == .onboard {
-            TappableImageView(selectedImage: $vm.selectedImage)
-                .frame(idealWidth: 200, idealHeight: 200)
-                .clipShape(Circle())
+            AccountImagePicker(selectedImage: $vm.selectedImage, url: .constant(nil))
                 .padding()
         }
     }
@@ -165,6 +163,7 @@ struct AuthenticationView: View {
             vm.topButtonTapped()
         }) {
             Text(vm.step.topButtonTitle)
+                .frame(maxWidth: .infinity)
                 .fontWeight(.bold)
         }
         .appButton(.system)
@@ -177,6 +176,7 @@ struct AuthenticationView: View {
             vm.bottomButtonTapped()
         }) {
             Text(vm.step.bottomButtonTitle)
+                .frame(maxWidth: .infinity)
                 .fontWeight(.bold)
         }
         .padding(.horizontal, 8)

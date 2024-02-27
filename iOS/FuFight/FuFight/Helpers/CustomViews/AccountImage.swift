@@ -1,5 +1,5 @@
 //
-//  AccountImageView.swift
+//  AccountImage.swift
 //  FuFight
 //
 //  Created by Samuel Folledo on 2/21/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AccountImageView: View {
+struct AccountImage: View {
     let url: URL?
     let radius: CGFloat
     let circleColor: Color = .gray
@@ -22,7 +22,7 @@ struct AccountImageView: View {
 //                .frame(width: radius * 2, height: radius * 2)
                 .frame(width: squareSide, height: squareSide)
 
-            AsyncImage(url: url) { image in
+            CachedAsyncImage(url: url) { image in
                 image
                     .resizable()
                     .aspectRatio(1.0, contentMode: .fill)
