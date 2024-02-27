@@ -98,7 +98,7 @@ struct AuthenticationView: View {
                 Text(Str.rememberMe)
                     .background(.clear)
                     .foregroundColor(Color.label)
-                    .fontWeight(.semibold)
+                    .font(buttonFont)
             }
         }
         .padding()
@@ -111,7 +111,7 @@ struct AuthenticationView: View {
             Text(Str.forgotPasswordTitleQuestion)
                 .background(.clear)
                 .foregroundColor(Color.systemBlue)
-                .fontWeight(.medium)
+                .font(buttonFont)
         }
         .padding()
     }
@@ -164,11 +164,11 @@ struct AuthenticationView: View {
         }) {
             Text(vm.step.topButtonTitle)
                 .frame(maxWidth: .infinity)
-                .fontWeight(.bold)
+                .font(boldedButtonFont)
         }
         .appButton(.system)
-        .padding(.horizontal, 8)
         .disabled(!vm.topButtonIsEnabled)
+        .padding(.horizontal)
     }
 
     var bottomButton: some View {
@@ -177,10 +177,10 @@ struct AuthenticationView: View {
         }) {
             Text(vm.step.bottomButtonTitle)
                 .frame(maxWidth: .infinity)
-                .fontWeight(.bold)
+                .font(boldedButtonFont)
         }
-        .padding(.horizontal, 8)
         .appButton(.tertiary)
+        .padding(.horizontal)
     }
 }
 

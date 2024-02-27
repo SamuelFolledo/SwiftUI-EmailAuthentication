@@ -259,7 +259,7 @@ private extension AuthenticationViewModel {
         switch step {
         case .logIn:
             switch topFieldType {
-            case .password, .visiblePassword, .phoneNumber, .phoneCode, .unspecified:
+            case .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword, .phoneNumber, .phoneCode, .unspecified:
                 break
             case .email:
                 topFieldHasError = !topFieldText.isValidEmail

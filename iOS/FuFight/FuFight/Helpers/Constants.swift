@@ -23,6 +23,15 @@ let usernamesDb = db.collection(kUSERNAMES)
 let storage = Storage.storage().reference()
 let accountPhotoStorage = storage.child(kACCOUNTS).child(kPHOTOS)
 
+//Fonts
+let defaultFontSize: CGFloat = 16
+let smallTitleFont = Font.system(size: defaultFontSize + 4, weight: .bold)
+let textFont = Font.system(size: defaultFontSize, weight: .regular)
+let mediumTextFont = textFont.weight(.medium)
+let boldedTextFont = textFont.weight(.bold)
+let buttonFont = Font.system(size: defaultFontSize, weight: .semibold)
+let boldedButtonFont = buttonFont.weight(.bold)
+
 //Constant images
 let defaultProfilePhoto: UIImage = UIImage(systemName: "person.crop.circle")!
 let checkedImage: UIImage = UIImage(systemName: "checkmark.square.fill")!

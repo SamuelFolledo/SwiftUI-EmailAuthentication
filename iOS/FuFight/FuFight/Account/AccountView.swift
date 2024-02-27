@@ -75,7 +75,6 @@ struct AccountView: View {
             .onSubmit {
                 vm.usernameFieldIsActive = false
             }
-            .padding(.horizontal)
     }
     var emailField: some View {
         UnderlinedTextField(
@@ -87,7 +86,6 @@ struct AccountView: View {
             .onSubmit {
                 vm.emailFieldIsActive = false
             }
-            .padding(.horizontal)
     }
     var changePasswordButton: some View {
         Button(action: vm.editSaveButtonTapped) {

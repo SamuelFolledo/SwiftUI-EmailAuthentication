@@ -12,6 +12,8 @@ enum FieldType {
     case emailOrUsername
     case password
     case visiblePassword
+    case confirmPassword
+    case visibleConfirmPassword
     case username
     case phoneNumber
     case phoneCode
@@ -20,71 +22,94 @@ enum FieldType {
     var placeHolder: String {
         switch self {
         case .email:
-            return Str.emailTitle
+            Str.enterEmail
         case .emailOrUsername:
-            return Str.emailOrUsernameTitle
+            Str.enterEmailOrUsername
         case .password, .visiblePassword:
-            return Str.passwordTitle
+            Str.enterPassword
+        case .confirmPassword, .visibleConfirmPassword:
+            Str.enterPasswordAgain
         case .username:
-            return Str.usernameTitle
+            Str.enterUsername
         case .phoneNumber:
-            return Str.phoneNumberTitle
+            Str.enterPhoneNumber
         case .phoneCode:
-            return Str.phoneSixDigitCodeTitle
+            Str.enterPhoneSixDigitCode
         case .unspecified:
-            return ""
+            ""
         }
     }
 
     var topFieldKeyboardType: UIKeyboardType {
         switch self {
         case .email, .emailOrUsername:
-            return .emailAddress
-        case .password, .visiblePassword, .username, .unspecified:
-            return .default
+            .emailAddress
+        case .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword, .username, .unspecified:
+            .default
         case .phoneNumber:
-            return .phonePad
+            .phonePad
         case .phoneCode:
-            return .numberPad
+            .numberPad
         }
     }
 
     var autocapitalization: TextInputAutocapitalization {
         switch self {
-        case .email, .emailOrUsername, .password, .visiblePassword, .phoneNumber, .phoneCode, .unspecified:
-            return .never
+        case .email, .emailOrUsername, .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword, .phoneNumber, .phoneCode, .unspecified:
+            .never
         case .username:
-            return .words
+            .words
         }
     }
 
     var contentType: UITextContentType {
         switch self {
         case .email:
-            return .emailAddress
+            .emailAddress
         case .emailOrUsername:
-            return .username
-        case .password, .visiblePassword:
-            return .password
+            .username
+        case .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword:
+            .password
         case .username:
-            return .username
+            .username
         case .phoneNumber:
-            return .telephoneNumber
+            .telephoneNumber
         case .phoneCode:
-            return .oneTimeCode
+            .oneTimeCode
         case .unspecified:
-            return .givenName
+            .givenName
         }
     }
 
     var submitLabel: SubmitLabel {
         switch self {
         case .email, .emailOrUsername, .phoneNumber:
-            return .next
-        case .password, .visiblePassword, .phoneCode, .username:
-            return .continue
+            .next
+        case .password, .visiblePassword, .confirmPassword, .visibleConfirmPassword, .phoneCode, .username:
+            .continue
         case .unspecified:
-            return .return
+            .return
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .email:
+            Str.emailTitle
+        case .emailOrUsername:
+            Str.emailOrUsernameTitle
+        case .password, .visiblePassword:
+            Str.passwordTitle
+        case .confirmPassword, .visibleConfirmPassword:
+            Str.confirmPasswordTitle
+        case .username:
+            Str.usernameTitle
+        case .phoneNumber:
+            Str.phoneNumberTitle
+        case .phoneCode:
+            Str.phoneCodeTitle
+        case .unspecified:
+            ""
         }
     }
 }
@@ -96,20 +121,28 @@ struct UnderlinedTextField: View {
     ///isActive keeps track if this textfield is active and should ALWAYS be in sync with isFocused
     @Binding var isActive: Bool
     @Binding var isDisabled: Bool
-    @FocusState private var isFocused: Bool
+    var showTitle: Bool
     var trailingButtonAction: (() -> Void)?
 
-    init(type: Binding<FieldType>, text: Binding<String>, hasError: Binding<Bool>, isActive: Binding<Bool>, isDisabled: Binding<Bool> = .constant(false), _ trailingButtonAction: (() -> Void)? = nil) {
+    @FocusState private var isFocused: Bool
+
+    init(type: Binding<FieldType>, text: Binding<String>, hasError: Binding<Bool>, isActive: Binding<Bool>, isDisabled: Binding<Bool> = .constant(false), showTitle: Bool = true, _ trailingButtonAction: (() -> Void)? = nil) {
         self._type = type
         self._text = text
         self._hasError = hasError
         self._isActive = isActive
         self._isDisabled = isDisabled
+        self.showTitle = showTitle
         self.trailingButtonAction = trailingButtonAction
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 8) {
+            if showTitle {
+                Text(type.title)
+                    .font(boldedTextFont)
+            }
+
             HStack {
                 Group {
                     if type == .password {
@@ -127,38 +160,11 @@ struct UnderlinedTextField: View {
                 .textContentType(type.contentType)
                 .submitLabel(type.submitLabel)
 
-                Button {
-                    switch type {
-                    case .password:
-                        type = .visiblePassword
-                    case .visiblePassword:
-                        type = .password
-                    case .email, .emailOrUsername, .username, .phoneNumber, .phoneCode, .unspecified:
-                        trailingButtonAction?()
-                    }
-                } label: {
-                    switch type {
-                    case .password, .phoneCode:
-                        Image(systemName: "eye").tint(Color.label)
-                    case .visiblePassword:
-                        Image(systemName: "eye.slash").tint(Color.label)
-                    case .email, .emailOrUsername, .username, .phoneNumber, .unspecified:
-                        Text("")
-                            .hidden()
-                    }
-                }
+                trailingButton
             }
         }
-        .padding()
-        .background(
-            VStack {
-                Spacer()
-                
-                Rectangle()
-                    .frame(height: 1.5)
-                    .foregroundStyle(hasError ? Color.red : (isDisabled ? Color.systemGray2 : Color.label))
-            }
-        )
+        .padding(.vertical)
+        .background(background)
         .onChange(of: text) {
             hasError = text.isEmpty
         }
@@ -167,5 +173,42 @@ struct UnderlinedTextField: View {
         }
         .disabled(isDisabled)
         .opacity(isDisabled ? 0.8 : 1)
+    }
+
+    var background: some View {
+        VStack {
+            Spacer()
+
+            Rectangle()
+                .frame(height: 1.5)
+                .foregroundStyle(hasError ? Color.red : (isDisabled ? Color.systemGray2 : Color.label))
+        }
+    }
+
+    var trailingButton: some View {
+        Button {
+            switch type {
+            case .password:
+                type = .visiblePassword
+            case .visiblePassword:
+                type = .password
+            case .confirmPassword:
+                type = .visibleConfirmPassword
+            case .visibleConfirmPassword:
+                type = .confirmPassword
+            case .email, .emailOrUsername, .username, .phoneNumber, .phoneCode, .unspecified:
+                trailingButtonAction?()
+            }
+        } label: {
+            switch type {
+            case .password, .phoneCode, .confirmPassword:
+                Image(systemName: "eye").tint(Color.label)
+            case .visiblePassword, .visibleConfirmPassword:
+                Image(systemName: "eye.slash").tint(Color.label)
+            case .email, .emailOrUsername, .username, .phoneNumber, .unspecified:
+                Text("")
+                    .hidden()
+            }
+        }
     }
 }
