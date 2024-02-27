@@ -90,7 +90,7 @@ struct AlertButton: View {
                 Spacer()
 
                 Text(title)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(mediumTextFont)
                     .foregroundColor(Color(uiColor: textColor))
                     .contentShape(Rectangle())
 

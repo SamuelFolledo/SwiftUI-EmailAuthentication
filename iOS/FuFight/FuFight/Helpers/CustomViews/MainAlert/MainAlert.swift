@@ -60,7 +60,7 @@ struct MainAlert: View {
     private var titleView: some View {
         if !title.isEmpty {
             Text(title)
-                .font(.system(size: 18, weight: .bold))
+                .font(smallTitleFont)
                 .foregroundColor(.black)
                 .lineSpacing(24 - UIFont.systemFont(ofSize: 18, weight: .bold).lineHeight)
                 .multilineTextAlignment(.leading)

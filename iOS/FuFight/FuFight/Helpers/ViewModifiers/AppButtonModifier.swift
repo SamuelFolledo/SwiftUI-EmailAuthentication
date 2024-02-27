@@ -52,7 +52,7 @@ struct AppButtonModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .fontWeight(.semibold)
+            .font(buttonFont)
             .padding()
             .background(background)
             .foregroundColor(
