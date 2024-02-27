@@ -59,9 +59,8 @@ struct AccountView: View {
         .appButton(.tertiary)
     }
     var profilePicture: some View {
-        TappableImageView(selectedImage: $vm.selectedImage)
-            .frame(idealWidth: 200, idealHeight: 200)
-            .clipShape(Circle())
+        AccountImagePicker(selectedImage: $vm.selectedImage, url: $vm.account.photoUrl)
+            .frame(width: 200, height: 200)
             .padding()
     }
     var usernameField: some View {

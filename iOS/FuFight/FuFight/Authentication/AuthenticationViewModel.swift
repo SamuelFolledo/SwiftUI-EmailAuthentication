@@ -42,7 +42,7 @@ class AuthenticationViewModel: BaseViewModel {
     }
     var bottomFieldHasError: Bool = false
     var bottomFieldIsActive: Bool = false
-    var selectedImage: UIImage = defaultProfilePhoto
+    var selectedImage: UIImage? = nil
 
     var topButtonIsEnabled: Bool {
         switch step {
@@ -181,7 +181,8 @@ private extension AuthenticationViewModel {
                 }
                 ///Store user's photo to Storage
                 updateLoadingMessage(to: Str.storingPhoto)
-                if let photoUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
+                if let selectedImage,
+                   let photoUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
                     updateLoadingMessage(to: Str.updatingUser)
                     try await AccountNetworkManager.updateAuthenticatedUser(username: username, photoUrl: photoUrl)
                     account.username = username
