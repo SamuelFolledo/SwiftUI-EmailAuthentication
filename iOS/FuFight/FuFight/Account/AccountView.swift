@@ -31,13 +31,7 @@ struct AccountView: View {
             }
             .alert(title: vm.alertTitle, message: vm.alertMessage, isPresented: $vm.isAlertPresented)
             .alert(title: Str.deleteAccountQuestion, primaryButton: AlertButton(type: .delete, action: vm.deleteAccount), secondaryButton: AlertButton(type: .secondaryCancel), isPresented: $vm.isDeleteAccountAlertPresented)
-            .alert(Str.enterPasswordTitle, isPresented: $vm.isReauthenticationAlertPresented) {
-                SecureField(Str.passwordTitle, text: $vm.password)
-                Button(Str.logInTitle, action: vm.reauthenticateUser)
-                Button(Str.cancelTitle, role: .cancel) { }
-            } message: {
-                Text(Str.logInAgainToMakeChanges)
-            }
+            .alert(withText: $vm.password, fieldType: .password(.current), title: Str.logInAgainToMakeChanges, primaryButton: AlertButton(title: Str.logInTitle), isPresented: $vm.isReauthenticationAlertPresented)
             .padding()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
