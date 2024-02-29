@@ -71,7 +71,7 @@ private extension UpdatePasswordViewModel {
                 LOGD("Finished updating password for \(auth.currentUser!.displayName!)")
                 dismissView()
             } catch {
-                updateError(MainError(type: .deletingUser, message: error.localizedDescription))
+                updateError(MainError(type: .reauthenticatingUser, message: error.localizedDescription))
             }
         }
     }

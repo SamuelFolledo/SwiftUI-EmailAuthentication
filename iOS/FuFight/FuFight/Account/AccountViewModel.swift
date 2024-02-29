@@ -23,10 +23,10 @@ class AccountViewModel: BaseViewModel {
     var usernameFieldText: String = Account.current?.username ?? ""
     var usernameFieldHasError: Bool = false
     var usernameFieldIsActive: Bool = false
-    var emailFieldText: String = Account.current?.email ?? ""
-    var emailFieldHasError: Bool = false
-    var emailFieldIsActive: Bool = false
     var isDeleteAccountAlertPresented: Bool = false
+    private var isRecentlyAuthenticated = false
+    var isReauthenticationAlertPresented = false
+    var password = ""
 
     //MARK: - Initializer
     init(account: Account) {
@@ -80,24 +80,36 @@ class AccountViewModel: BaseViewModel {
         }
     }
 
-    func editPhoto() {
-        TODO("Implement edit photo")
+    func deleteButtonTapped() {
+        if isRecentlyAuthenticated {
+            isDeleteAccountAlertPresented = true
+        } else {
+            isReauthenticationAlertPresented = true
+        }
     }
 
     func editSaveButtonTapped() {
-        if !isViewingMode {
+        if isViewingMode {
+            if !isRecentlyAuthenticated {
+                isReauthenticationAlertPresented = true
+                return
+            }
+        } else {
             saveUser()
         }
         isViewingMode = !isViewingMode
     }
 
-    func changePasswordButtonTapped() {
+    func reauthenticateUser() {
+        guard !isRecentlyAuthenticated else { return }
         Task {
-            let currentUserId = account.id ?? Account.current?.userId ?? account.userId
             do {
-                TODO("Update password")
+                updateLoadingMessage(to: Str.reauthenticatingAccount)
+                try await AccountNetworkManager.reauthenticateUser(password: password)
+                isRecentlyAuthenticated = true
+                updateError(nil)
             } catch {
-                updateError(MainError(type: .deletingUser, message: error.localizedDescription))
+                updateError(MainError(type: .reauthenticatingUser, message: error.localizedDescription))
             }
         }
     }
@@ -111,19 +123,20 @@ private extension AccountViewModel {
     }
 
     func saveUser() {
-        //TODO: Validate fields
+        //TODO: Validate username only
         let username = usernameFieldText.trimmed
-        let email = emailFieldText.trimmed
-        guard !username.isEmpty, !email.isEmpty else { return }
+        guard !username.isEmpty else { return }
         Task {
             ///If there's any photo changes, set account's photo in Storage and save the photo URL
             var newPhotoUrl: URL? = nil
-            updateLoadingMessage(to: Str.storingPhoto)
-            if let selectedImage,
-               let photoUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
-                newPhotoUrl = photoUrl
-                account.photoUrl = newPhotoUrl
+            if let selectedImage {
+                updateLoadingMessage(to: Str.storingPhoto)
+                if let photoUrl = try await AccountNetworkManager.storePhoto(selectedImage, for: account.userId) {
+                    newPhotoUrl = photoUrl
+                    account.photoUrl = newPhotoUrl
+                }
             }
+
             ///Update username if needed
             var newUsername: String? = nil
             let didChangeUsername = username.lowercased() != account.displayName.trimmed.lowercased()
@@ -136,24 +149,24 @@ private extension AccountViewModel {
             }
             if newUsername != nil || newPhotoUrl != nil {
                 ///Update authenticated user's displayName and photoUrl
-                updateLoadingMessage(to: Str.updatingUsername)
+                updateLoadingMessage(to: Str.updatingAuthenticatedUser)
                 try await AccountNetworkManager.updateAuthenticatedUser(username: newUsername, photoUrl: newPhotoUrl)
             }
-            var email: String? = nil
-            let didChangeEmail = emailFieldText.trimmed.lowercased() != account.email!.trimmed.lowercased()
-            if didChangeEmail {
-                email = emailFieldText.trimmed
-                account.email = email
-                //TODO: Update email
+
+            ///Save account if there are any changes
+            if didChangeUsername || newPhotoUrl != nil {
+                if didChangeUsername {
+                    updateLoadingMessage(to: Str.updatingUsername)
+                    try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email)
+                }
+                updateLoadingMessage(to: Str.savingUser)
+                try await AccountNetworkManager.setData(account: account)
+                try await AccountManager.saveCurrent(account)
             }
-            ///Save username
-            updateLoadingMessage(to: Str.savingUser)
-            try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email)
-            try await AccountNetworkManager.setData(account: account)
-            try await AccountManager.saveCurrent(account)
+            try await auth.currentUser?.reload()
+            LOGD("Successfully editted user with \(auth.currentUser!.displayName!) and \(auth.currentUser!.email!)")
             updateError(nil)
             selectedImage = nil
-            LOGD("Successfully editted user with \(auth.currentUser!.displayName!) and \(auth.currentUser!.email!)")
         }
     }
 }

@@ -31,6 +31,11 @@ struct AccountView: View {
             }
             .alert(title: vm.alertTitle, message: vm.alertMessage, isPresented: $vm.isAlertPresented)
             .alert(title: Str.deleteAccountQuestion, primaryButton: AlertButton(type: .delete, action: vm.deleteAccount), secondaryButton: AlertButton(type: .secondaryCancel), isPresented: $vm.isDeleteAccountAlertPresented)
+            .alert(Str.logInAgainToMakeChanges, isPresented: $vm.isReauthenticationAlertPresented) {
+                SecureField(Str.enterPassword, text: $vm.password)
+                Button(Str.logInTitle, action: vm.reauthenticateUser)
+                Button(Str.cancelTitle, role: .cancel) { }
+            }
             .padding()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -70,7 +75,7 @@ struct AccountView: View {
             hasError: $vm.usernameFieldHasError,
             isActive: $vm.usernameFieldIsActive, 
             isDisabled: $vm.isViewingMode) {
-                TODO("TODO: CHECK USERNAME HERE")
+                TODO("Is username unique?")
             }
             .onSubmit {
                 vm.usernameFieldIsActive = false
@@ -79,13 +84,8 @@ struct AccountView: View {
     var emailField: some View {
         UnderlinedTextField(
             type: .constant(.email),
-            text: $vm.emailFieldText,
-            hasError: $vm.emailFieldHasError,
-            isActive: $vm.emailFieldIsActive, 
-            isDisabled: $vm.isViewingMode)
-            .onSubmit {
-                vm.emailFieldIsActive = false
-            }
+            text: .constant(Account.current?.email ?? ""),
+            isDisabled: .constant(true))
     }
     var changePasswordButton: some View {
         NavigationLink {
@@ -97,9 +97,7 @@ struct AccountView: View {
         .appButton(.primary)
     }
     var deleteAccountButton: some View {
-        Button {
-            vm.isDeleteAccountAlertPresented = true
-        } label: {
+        Button(action: vm.deleteButtonTapped) {
             Text(Str.deleteTitle)
                 .frame(maxWidth: .infinity)
         }

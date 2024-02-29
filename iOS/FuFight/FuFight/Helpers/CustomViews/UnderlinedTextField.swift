@@ -148,7 +148,7 @@ struct UnderlinedTextField: View {
 
     @FocusState private var isFocused: Bool
 
-    init(type: Binding<FieldType>, text: Binding<String>, isSecure: Binding<Bool> = .constant(false), hasError: Binding<Bool>, isActive: Binding<Bool>, isDisabled: Binding<Bool> = .constant(false), showTitle: Bool = true, _ trailingButtonAction: (() -> Void)? = nil) {
+    init(type: Binding<FieldType>, text: Binding<String>, isSecure: Binding<Bool> = .constant(false), hasError: Binding<Bool> = .constant(false), isActive: Binding<Bool> = .constant(false), isDisabled: Binding<Bool> = .constant(false), showTitle: Bool = true, _ trailingButtonAction: (() -> Void)? = nil) {
         self._type = type
         self._text = text
         self._isSecure = isSecure

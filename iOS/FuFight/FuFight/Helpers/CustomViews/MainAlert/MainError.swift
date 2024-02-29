@@ -25,6 +25,7 @@ enum MainErrorType {
     case invalidUsername
     case emptyUsername
     case notUniqueUsername
+    case reauthenticatingUser
 
     var title: String {
         switch self {
@@ -62,6 +63,8 @@ enum MainErrorType {
             "Password is empty"
         case .emptyUsername:
             "Username is empty"
+        case .reauthenticatingUser:
+            "Error reauthenticating user"
         }
     }
 }
