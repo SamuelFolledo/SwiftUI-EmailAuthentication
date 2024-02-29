@@ -16,6 +16,10 @@ struct MainAlert: View {
     let dismissButton: AlertButton?
     let primaryButton: AlertButton?
     let secondaryButton: AlertButton?
+    ///Show a TextField if this is not nil
+    let fieldType: FieldType?
+    @Binding var text: String
+    @State var isFieldSecure: Bool = false
 
     // MARK: Private
     @State private var opacity: CGFloat           = 0
@@ -24,6 +28,27 @@ struct MainAlert: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    ///Default initializer
+    init(title: String, message: String, dismissButton: AlertButton?, primaryButton: AlertButton?, secondaryButton: AlertButton?) {
+        self.title = title
+        self.message = message
+        self.dismissButton = dismissButton
+        self.primaryButton = primaryButton
+        self.secondaryButton = secondaryButton
+        fieldType = nil
+        _text = .constant("")
+    }
+
+    ///Initializer for alerts with a TextField
+    init(withText text: Binding<String>, fieldType: FieldType, title: String, primaryButton: AlertButton?, secondaryButton: AlertButton?) {
+        self.fieldType = fieldType
+        self.title = title
+        self.primaryButton = primaryButton
+        self.secondaryButton = secondaryButton
+        _text = text
+        self.message = ""
+        self.dismissButton = nil
+    }
 
     // MARK: - View
     // MARK: Public
@@ -40,11 +65,16 @@ struct MainAlert: View {
         .task {
             animate(isShown: true)
         }
+        .onAppear {
+            if let fieldType {
+                isFieldSecure = fieldType.isSensitive
+            }
+        }
     }
 
     // MARK: Private
     private var alertView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 12) {
             titleView
             messageView
             buttonsView
@@ -70,7 +100,9 @@ struct MainAlert: View {
 
     @ViewBuilder
     private var messageView: some View {
-        if !message.isEmpty {
+        if let fieldType {
+            UnderlinedTextField(type: .constant(fieldType), text: $text, isSecure: $isFieldSecure, showTitle: false)
+        } else if !message.isEmpty {
             Text(message)
                 .font(.system(size: title.isEmpty ? 18 : 16))
                 .foregroundColor(title.isEmpty ? .black : .gray)

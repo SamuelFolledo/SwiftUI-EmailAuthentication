@@ -10,7 +10,7 @@ import SwiftUI
 enum AlertButtonType {
     case cancel, secondaryCancel, ok, secondaryOk, custom, delete
 
-    var title: LocalizedStringKey {
+    var title: String {
         switch self {
         case .cancel, .secondaryCancel:
             return "Cancel"
@@ -56,13 +56,13 @@ struct AlertButton: View {
     // MARK: - Value
     // MARK: Public
     var type: AlertButtonType
-    let title: LocalizedStringKey
+    let title: String
     let textColor: UIColor
     let bgColor: UIColor
     let isBordered: Bool
     var action: (() -> Void)? = nil
 
-    init(title: LocalizedStringKey, textColor: UIColor = .systemBackground, bgColor: UIColor = .systemBackground, isBordered: Bool = true, action: (() -> Void)? = nil) {
+    init(title: String, textColor: UIColor = .systemBackground, bgColor: UIColor = .systemBackground, isBordered: Bool = true, action: (() -> Void)? = nil) {
         self.title = title
         self.textColor = textColor
         self.bgColor = bgColor

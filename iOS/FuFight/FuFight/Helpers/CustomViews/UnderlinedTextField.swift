@@ -133,6 +133,15 @@ enum FieldType: Equatable {
             title
         }
     }
+
+    var isSensitive: Bool {
+        switch self {
+        case .password(_), .phoneCode:
+            true
+        default:
+            false
+        }
+    }
 }
 
 struct UnderlinedTextField: View {
@@ -215,19 +224,15 @@ struct UnderlinedTextField: View {
 
     var trailingButton: some View {
         Button {
-            switch type {
-            case .password(_):
+            if type.isSensitive {
                 isSecure = !isSecure
-            case .email, .emailOrUsername, .username, .phoneNumber, .phoneCode, .unspecified:
+            } else {
                 trailingButtonAction?()
             }
         } label: {
-            switch type {
-            case .phoneCode:
+            if type.isSensitive {
                 isSecuredImage()
-            case .password(_):
-                isSecuredImage()
-            case .email, .emailOrUsername, .username, .phoneNumber, .unspecified:
+            } else {
                 EmptyView()
             }
         }
