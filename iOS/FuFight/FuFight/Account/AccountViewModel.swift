@@ -20,7 +20,7 @@ class AccountViewModel: BaseViewModel {
             }
         }
     }
-    var usernameFieldText: String = Account.current?.username ?? ""
+    var usernameFieldText: String = ""
     var usernameFieldHasError: Bool = false
     var usernameFieldIsActive: Bool = false
     var isDeleteAccountAlertPresented: Bool = false
@@ -33,10 +33,11 @@ class AccountViewModel: BaseViewModel {
         self.account = account
     }
 
-    override func onDisappear() {
-        super.onDisappear()
+    override func onAppear() {
+        super.onAppear()
         selectedImage = nil
         isViewingMode = true
+        usernameFieldText = Account.current?.username ?? ""
     }
 
     //MARK: - Public Methods
@@ -90,14 +91,14 @@ class AccountViewModel: BaseViewModel {
 
     func editSaveButtonTapped() {
         if isViewingMode {
-            if !isRecentlyAuthenticated {
+            if isRecentlyAuthenticated {
+                isViewingMode = false
+            } else {
                 isReauthenticationAlertPresented = true
-                return
             }
         } else {
             saveUser()
         }
-        isViewingMode = !isViewingMode
     }
 
     func reauthenticateUser() {
@@ -108,6 +109,7 @@ class AccountViewModel: BaseViewModel {
                 try await AccountNetworkManager.reauthenticateUser(password: password)
                 isRecentlyAuthenticated = true
                 updateError(nil)
+                TODO("After logging in, edit should go to edit, delete shoud delete the account")
             } catch {
                 updateError(MainError(type: .reauthenticatingUser, message: error.localizedDescription))
             }
@@ -130,6 +132,22 @@ private extension AccountViewModel {
             return updateError(MainError(type: .invalidUsername))
         }
         Task {
+            ///Update username if needed
+            var newUsername: String? = nil
+            let didChangeUsername = username.lowercased() != account.displayName.trimmed.lowercased()
+            if didChangeUsername {
+                ///Check if username is unique
+                if try await !AccountNetworkManager.isUnique(username: username) {
+                    updateError(MainError(type: .notUniqueUsername))
+                    return
+                }
+                ///Delete old username
+                updateLoadingMessage(to: Str.deletingUsername)
+                try await AccountNetworkManager.deleteUsername(account.username!)
+                newUsername = username
+                account.username = newUsername
+            }
+
             ///If there's any photo changes, set account's photo in Storage and save the photo URL
             var newPhotoUrl: URL? = nil
             if let selectedImage {
@@ -140,23 +158,13 @@ private extension AccountViewModel {
                 }
             }
 
-            ///Update username if needed
-            var newUsername: String? = nil
-            let didChangeUsername = username.lowercased() != account.displayName.trimmed.lowercased()
-            if didChangeUsername {
-                ///Delete old username
-                updateLoadingMessage(to: Str.deletingUsername)
-                try await AccountNetworkManager.deleteUsername(account.username!)
-                newUsername = username
-                account.username = newUsername
-            }
             if newUsername != nil || newPhotoUrl != nil {
                 ///Update authenticated user's displayName and photoUrl
                 updateLoadingMessage(to: Str.updatingAuthenticatedUser)
                 try await AccountNetworkManager.updateAuthenticatedUser(username: newUsername, photoUrl: newPhotoUrl)
             }
 
-            ///Save account if there are any changes
+            ///Update database if there are any changes
             if didChangeUsername || newPhotoUrl != nil {
                 if didChangeUsername {
                     updateLoadingMessage(to: Str.updatingUsername)
@@ -170,6 +178,7 @@ private extension AccountViewModel {
             LOGD("Successfully editted user with \(auth.currentUser!.displayName!) and \(auth.currentUser!.email!)")
             updateError(nil)
             selectedImage = nil
+            isViewingMode = true
         }
     }
 }
