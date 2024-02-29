@@ -32,7 +32,7 @@ struct AccountView: View {
             .alert(title: vm.alertTitle, message: vm.alertMessage, isPresented: $vm.isAlertPresented)
             .alert(title: Str.deleteAccountQuestion, primaryButton: AlertButton(type: .delete, action: vm.deleteAccount), secondaryButton: AlertButton(type: .secondaryCancel), isPresented: $vm.isDeleteAccountAlertPresented)
             .alert(Str.logInAgainToMakeChanges, isPresented: $vm.isReauthenticationAlertPresented) {
-                SecureField(Str.enterPassword, text: $vm.password)
+                SecureField(Str.passwordTitle, text: $vm.password)
                 Button(Str.logInTitle, action: vm.reauthenticateUser)
                 Button(Str.cancelTitle, role: .cancel) { }
             }

@@ -25,11 +25,16 @@ struct AccountImagePicker: View {
                         Image(uiImage: selectedImage)
                             .resizable()
                     } else {
-                        CachedAsyncImage(url: url) { image in
-                            image
+                        if let url {
+                            CachedAsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                            } placeholder: {
+                                ProgressView()
+                            }
+                        } else {
+                            Image(uiImage: defaultProfilePhoto)
                                 .resizable()
-                        } placeholder: {
-                            ProgressView()
                         }
                     }
                 }
