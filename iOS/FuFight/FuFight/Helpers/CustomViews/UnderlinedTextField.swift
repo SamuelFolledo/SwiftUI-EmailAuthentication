@@ -26,7 +26,7 @@ enum PasswordType {
     var placeholder: String {
         switch self {
         case .current:
-            Str.enterPassword
+            Str.enterCurrentPassword
         case .new:
             Str.enterNewPassword
         case .confirmNew:
