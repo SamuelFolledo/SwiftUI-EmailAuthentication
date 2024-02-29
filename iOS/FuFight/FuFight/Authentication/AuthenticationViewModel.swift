@@ -66,7 +66,6 @@ class AuthenticationViewModel: BaseViewModel {
     //MARK: - Public Methods
     func topButtonTapped() {
         bottomFieldIsActive = false
-        //TODO: Show loading
         switch step {
         case .logIn:
             logIn()
@@ -226,14 +225,22 @@ private extension AuthenticationViewModel {
                 updateLoadingMessage(to: Str.loggingIn)
                 ///Authenticate in Auth, then create an account from the fetched data from the database using the authenticated user's userId
                 guard let authData = try await AccountNetworkManager.logIn(email: email, password: bottomFieldText) else { return }
-                updateLoadingMessage(to: Str.fetchingUserData)
-                guard let fetchedAccount = try await AccountNetworkManager.fetchData(userId: authData.user.uid) else { return }
-                account.update(with: fetchedAccount)
-                updateLoadingMessage(to: Str.savingUser)
-                try await AccountManager.saveCurrent(account)
-                updateError(nil)
-                ///Transition to home view
-                transitionToHomeView()
+
+                if try await AccountNetworkManager.isAccountValid(userId: authData.user.uid) {
+                    updateLoadingMessage(to: Str.fetchingUserData)
+                    guard let fetchedAccount = try await AccountNetworkManager.fetchData(userId: authData.user.uid) else { return }
+                    account.update(with: fetchedAccount)
+                    updateLoadingMessage(to: Str.savingUser)
+                    try await AccountManager.saveCurrent(account)
+                    updateError(nil)
+                    ///Transition to home view
+                    transitionToHomeView()
+                } else {
+                    ///Finish onboarding
+                    updateError(nil)
+                    updateStep(to: .onboard)
+                    topFieldIsActive = true
+                }
             } catch {
                 updateError(MainError(type: .logIn, message: error.localizedDescription))
             }
@@ -280,19 +287,21 @@ private extension AuthenticationViewModel {
 
     ///change topFieldType from email to username if it has "@" and vice versa
     func updateTopFieldTypeIfNeeded() {
-        switch step {
-        case .onboard:
-            topFieldType = .username
-        case .signUp:
-            topFieldType = .email
-        case .logIn:
-            if topFieldText.isEmpty {
-                topFieldType = .emailOrUsername
-                return
+        DispatchQueue.main.async {
+            switch self.step {
+            case .onboard:
+                self.topFieldType = .username
+            case .signUp:
+                self.topFieldType = .email
+            case .logIn:
+                if self.topFieldText.isEmpty {
+                    self.topFieldType = .emailOrUsername
+                    return
+                }
+                self.topFieldType = self.topFieldText.contains("@") ? .email : .username
+            case .phone, .phoneVerification:
+                break
             }
-            topFieldType = topFieldText.contains("@") ? .email : .username
-        case .phone, .phoneVerification:
-            break
         }
     }
 

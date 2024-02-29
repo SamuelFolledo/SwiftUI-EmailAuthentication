@@ -164,8 +164,7 @@ extension AccountNetworkManager {
     }
 
     ///fetch user's data from Firestore and returns an account
-    static func fetchData(userId: String) async throws -> Account?
-    {
+    static func fetchData(userId: String) async throws -> Account? {
         let accountsRef = accountsDb.document(userId)
         do {
             let account = try await accountsRef.getDocument(as: Account.self)
@@ -251,10 +250,13 @@ extension AccountNetworkManager {
         }
     }
 
-    ///Get uiImage from url
-//    static func downloadImage(from url: URL) async throws -> UIImage? {
-//        let (data, response) = try await URLSession.shared.data(from: url)
-//        LOGD("Finished downloading image: \(response.suggestedFilename ?? url.lastPathComponent)")
-//        return UIImage(data: data)
-//    }
+    ///Returns true if user has completed onboarding
+    static func isAccountValid(userId: String) async throws -> Bool {
+        do {
+            let accountsRef = accountsDb.document(userId)
+            return try await accountsRef.getDocument().exists
+        } catch {
+            throw error
+        }
+    }
 }
