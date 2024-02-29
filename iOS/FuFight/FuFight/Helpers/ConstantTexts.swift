@@ -44,20 +44,22 @@ struct Str {
     static let saveTitle = "Save"
     static let deleteTitle = "Delete"
     static let editTitle = "Edit"
+    static let finishTitle = "Finish"
 
     //Non- titles
     static let sendCode = "Send code"
     static let verifyCode = "Verify code"
     static let dontHaveAnAccount = "Don't have an account? Sign up."
     static let alreadyHaveAnAccount = "Already have an account? Log in."
-    static let finishTitle = "Finish"
     static let enterYourEmail = "Enter your email"
+    static let logInAgainToMakeChanges = "Log in again to make account changes"
 
     //MARK: - Logs
     static let loggingIn = "Logging in"
     static let fetchingUserData = "Fetching user's data"
     static let savingUser = "Saving user"
     static let updatingUser = "Updating user"
+    static let updatingAuthenticatedUser = "Updating authenticated user"
     static let creatingUser = "Creating user"
     static let storingPhoto = "Storing photo"
     static let deletingStoredPhoto = "Deleting stored photo"
