@@ -23,7 +23,8 @@ struct Str {
     static let emailOrUsernameTitle = "Email or Username"
     static let enterEmailOrUsername = "Enter email or Username"
     static let passwordTitle = "Password"
-    static let enterPassword = "Enter your current password"
+    static let enterPasswordTitle = "Enter your password"
+    static let enterCurrentPassword = "Enter your current password"
     static let newTitle = "New Password"
     static let enterNewPassword = "Enter your new password"
     static let confirmNewPasswordTitle = "Confirm New Password"
@@ -52,7 +53,7 @@ struct Str {
     static let dontHaveAnAccount = "Don't have an account? Sign up."
     static let alreadyHaveAnAccount = "Already have an account? Log in."
     static let enterYourEmail = "Enter your email"
-    static let logInAgainToMakeChanges = "Log in again to make account changes"
+    static let logInAgainToMakeChanges = "To make account changes, log in and try again"
 
     //MARK: - Logs
     static let loggingIn = "Logging in"
