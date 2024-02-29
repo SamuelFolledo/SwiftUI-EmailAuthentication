@@ -155,8 +155,13 @@ struct MainAlert: View {
 
     private var dimView: some View {
         Color.gray
-            .opacity(0.88)
+            .opacity(0.55)
             .opacity(backgroundOpacity)
+            .onTapGesture {
+                animate(isShown: false) {
+                    dismiss()
+                }
+            }
     }
 
 

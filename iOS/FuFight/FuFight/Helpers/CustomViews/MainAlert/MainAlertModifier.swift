@@ -28,6 +28,7 @@ extension MainAlertModifier: ViewModifier {
         content
             .fullScreenCover(isPresented: $isPresented) {
                 MainAlert(title: title, message: message, dismissButton: dismissButton, primaryButton: primaryButton, secondaryButton: secondaryButton)
+                    .presentationBackground(.clear)
             }
     }
 }
