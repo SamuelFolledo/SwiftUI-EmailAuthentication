@@ -123,9 +123,12 @@ private extension AccountViewModel {
     }
 
     func saveUser() {
-        //TODO: Validate username only
         let username = usernameFieldText.trimmed
-        guard !username.isEmpty else { return }
+        usernameFieldHasError = !username.isValidUsername
+        guard !username.isEmpty,
+              !usernameFieldHasError else {
+            return updateError(MainError(type: .invalidUsername))
+        }
         Task {
             ///If there's any photo changes, set account's photo in Storage and save the photo URL
             var newPhotoUrl: URL? = nil

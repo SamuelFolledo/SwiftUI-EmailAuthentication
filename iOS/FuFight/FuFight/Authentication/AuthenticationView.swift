@@ -31,8 +31,6 @@ struct AuthenticationView: View {
 
                         authButtons
                     }
-
-                    Spacer()
                 }
                 .allowsHitTesting(vm.loadingMessage == nil)
             }
@@ -69,7 +67,10 @@ struct AuthenticationView: View {
     @ViewBuilder func profilePicture() -> some View {
         if vm.step == .onboard {
             AccountImagePicker(selectedImage: $vm.selectedImage, url: .constant(nil))
-                .padding()
+                .frame(width: 200, height: 200)
+                .padding(.horizontal)
+                .padding(.top, 60)
+                .padding(.bottom, 30)
         }
     }
 
@@ -187,5 +188,5 @@ struct AuthenticationView: View {
 
 
 #Preview {
-    AuthenticationView(vm: AuthenticationViewModel(step: .logIn, account: Account()))
+    AuthenticationView(vm: AuthenticationViewModel(step: .onboard, account: Account()))
 }

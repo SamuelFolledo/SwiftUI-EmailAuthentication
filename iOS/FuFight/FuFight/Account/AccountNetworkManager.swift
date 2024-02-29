@@ -50,7 +50,7 @@ extension AccountNetworkManager {
     static func logIn(email: String, password: String) async throws -> AuthDataResult? {
         do {
             let authData = try await auth.signIn(withEmail: email, password: password)
-            LOGD("AUTH: Finished loggin in for \(authData.user.displayName ?? "")", from: self)
+            LOGD("AUTH: Finished logging in for \(authData.user.displayName ?? "")", from: self)
             return authData
         } catch {
             throw error
@@ -254,7 +254,9 @@ extension AccountNetworkManager {
     static func isAccountValid(userId: String) async throws -> Bool {
         do {
             let accountsRef = accountsDb.document(userId)
-            return try await accountsRef.getDocument().exists
+            let isValid = try await accountsRef.getDocument().exists
+            LOGD("Finished validating account \(isValid), id \(userId)")
+            return isValid
         } catch {
             throw error
         }

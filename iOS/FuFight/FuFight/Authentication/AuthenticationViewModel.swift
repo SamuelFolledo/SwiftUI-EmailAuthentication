@@ -63,6 +63,11 @@ class AuthenticationViewModel: BaseViewModel {
         self.account = account
     }
 
+    override func onAppear() {
+        super.onAppear()
+        topFieldType = topFieldText.contains("@") ? .email : .username
+    }
+
     //MARK: - Public Methods
     func topButtonTapped() {
         bottomFieldIsActive = false
@@ -156,10 +161,12 @@ private extension AuthenticationViewModel {
                 updateLoadingMessage(to: Str.creatingUser)
                 guard let authData = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else { return }
                 let updatedAccount = Account(authData)
-                account.update(with: updatedAccount)
-                updateError(nil)
-                updateStep(to: .onboard)
-                topFieldIsActive = true
+                DispatchQueue.main.async {
+                    self.account.update(with: updatedAccount)
+                    self.updateError(nil)
+                    self.updateStep(to: .onboard)
+                    self.topFieldIsActive = true
+                }
             } catch {
                 updateError(MainError(type: .signUp, message: error.localizedDescription))
             }
@@ -194,7 +201,8 @@ private extension AuthenticationViewModel {
                     updateError(nil)
                     transitionToHomeView()
                 } else {
-                    updateError(MainError(type: .onboard, message: "Missing photoUrl"))
+                    selectedImage = defaultProfilePhoto
+                    finishOnboarding()
                 }
             } catch {
                 updateError(MainError(type: .onboard, message: error.localizedDescription))
@@ -225,7 +233,6 @@ private extension AuthenticationViewModel {
                 updateLoadingMessage(to: Str.loggingIn)
                 ///Authenticate in Auth, then create an account from the fetched data from the database using the authenticated user's userId
                 guard let authData = try await AccountNetworkManager.logIn(email: email, password: bottomFieldText) else { return }
-
                 if try await AccountNetworkManager.isAccountValid(userId: authData.user.uid) {
                     updateLoadingMessage(to: Str.fetchingUserData)
                     guard let fetchedAccount = try await AccountNetworkManager.fetchData(userId: authData.user.uid) else { return }
