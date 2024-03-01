@@ -35,6 +35,6 @@ public let kPHOTOS: String = "Photos"
 
 //UserDefaults keys
 public let kSHOWPASSWORD: String = "showPassword"
-public let kSAVEEMAILANDPASSWORD: String = "saveEmailAndPassword"
-public let kSAVEDEMAIL: String = "savedEmail"
+public let kISSAVINGEMAILANDPASSWORD: String = "isSavingEmailAndPassword"
+public let kSAVEDEMAILORUSERNAME: String = "savedEmailOrUsername"
 public let kSAVEDPASSWORD: String = "savedPassword"
