@@ -33,6 +33,9 @@ struct AuthenticationView: View {
                 .padding(.horizontal, horizontalPadding)
                 .allowsHitTesting(vm.loadingMessage == nil)
             }
+            .onTapGesture {
+                hideKeyboard()
+            }
             .navigationBarTitle(vm.step.title, displayMode: .large)
             .safeAreaInset(edge: .bottom) {
                 if vm.step == .logIn || vm.step == .signUp {
@@ -66,9 +69,9 @@ struct AuthenticationView: View {
     @ViewBuilder var profilePicture: some View {
         if vm.step == .onboard {
             AccountImagePicker(selectedImage: $vm.selectedImage, url: .constant(nil))
-                .frame(width: 200, height: 200)
-                .padding(.top, 60)
-                .padding(.bottom, 30)
+                .frame(width: accountImagePickerHeight, height: accountImagePickerHeight)
+                .padding(.top, 20)
+                .padding(.bottom, 10)
         }
     }
 
@@ -85,22 +88,24 @@ struct AuthenticationView: View {
         }
     }
 
-    var rememberMeButton: some View {
-        Button(action: {
-            vm.rememberMe = !vm.rememberMe
-        }) {
-            HStack {
-                Image(uiImage: vm.rememberMe ? checkedImage : uncheckedImage)
-                    .renderingMode(.template)
-                    .foregroundColor(.label)
-
-                Text(Str.rememberMe)
-                    .background(.clear)
-                    .foregroundColor(Color.label)
-                    .font(buttonFont)
+    @ViewBuilder var rememberMeButton: some View {
+        if vm.step != .onboard {
+            Button(action: {
+                vm.rememberMe = !vm.rememberMe
+            }) {
+                HStack {
+                    Image(uiImage: vm.rememberMe ? checkedImage : uncheckedImage)
+                        .renderingMode(.template)
+                        .foregroundColor(.label)
+                    
+                    Text(Str.rememberMe)
+                        .background(.clear)
+                        .foregroundColor(Color.label)
+                        .font(buttonFont)
+                }
             }
+            .padding(.vertical)
         }
-        .padding(.vertical)
     }
 
     @ViewBuilder var forgetPasswordButton: some View {

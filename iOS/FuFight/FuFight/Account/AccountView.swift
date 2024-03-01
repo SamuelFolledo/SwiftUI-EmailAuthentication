@@ -70,7 +70,7 @@ struct AccountView: View {
     }
     var profilePicture: some View {
         AccountImagePicker(selectedImage: $vm.selectedImage, url: $vm.account.photoUrl)
-            .frame(width: 200, height: 200)
+            .frame(width: accountImagePickerHeight, height: accountImagePickerHeight)
             .padding()
     }
     var usernameField: some View {
