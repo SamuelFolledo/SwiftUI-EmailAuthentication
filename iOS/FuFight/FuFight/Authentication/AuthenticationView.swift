@@ -155,7 +155,7 @@ struct AuthenticationView: View {
                 TODO("Add an action for bottom field's trailing button. Step: \(vm.step), and type: \(vm.bottomFieldType)")
             }
         .onSubmit {
-            vm.onBottomFieldReturnButtonTapped()
+            vm.onBottomFieldSubmit()
         }
         .padding(.horizontal)
     }

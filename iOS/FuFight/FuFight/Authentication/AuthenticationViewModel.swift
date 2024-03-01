@@ -124,8 +124,11 @@ class AuthenticationViewModel: BaseViewModel {
         }
     }
 
-    func onBottomFieldReturnButtonTapped() {
-        topButtonTapped()
+    func onBottomFieldSubmit() {
+        validateBottomField()
+        if !bottomFieldHasError {
+            topButtonTapped()
+        }
     }
 
     func updateStep(to toStep: AuthStep) {
@@ -147,16 +150,16 @@ class AuthenticationViewModel: BaseViewModel {
 
 private extension AuthenticationViewModel {
     func signUp() {
+        validateTopField()
+        validateBottomField()
+        guard !topFieldHasError else {
+            return updateError(MainError(type: .invalidEmail))
+        }
+        guard !bottomFieldHasError else {
+            return updateError(MainError(type: .invalidPassword))
+        }
+
         Task {
-            validateTopField()
-            //TODO: 1: Uncomment line below to prevent unsafe passwords
-            //        bottomFieldHasError = !bottomFieldText.isValidPassword
-            guard !topFieldHasError else {
-                return updateError(MainError(type: .invalidEmail))
-            }
-            guard !bottomFieldHasError else {
-                return updateError(MainError(type: .invalidPassword))
-            }
             do {
                 updateLoadingMessage(to: Str.creatingUser)
                 guard let authData = try await AccountNetworkManager.createUser(email: topFieldText, password: bottomFieldText) else { return }
@@ -212,9 +215,8 @@ private extension AuthenticationViewModel {
 
     func logIn() {
         validateTopField()
+        validateBottomField()
         let isUsernameAuth = topFieldType == .username
-        //TODO: 1: Uncomment line below to prevent unsafe passwords
-        //        bottomFieldHasError = !bottomFieldText.isValidPassword
         guard !topFieldHasError else {
             let errorType: MainErrorType = isUsernameAuth ? .invalidUsername : .invalidEmail
             return updateError(MainError(type: errorType))
@@ -289,6 +291,29 @@ private extension AuthenticationViewModel {
             break
         case .onboard:
             topFieldHasError = !topFieldText.isValidUsername
+        }
+    }
+
+    func validateBottomField() {
+        bottomFieldText = bottomFieldText.trimmed
+        switch step {
+        case .logIn, .signUp, .phoneVerification:
+            switch bottomFieldType {
+            case .password:
+                if bottomFieldText.trimmed.isEmpty {
+                    bottomFieldHasError = true
+                } else if bottomFieldText.trimmed.count < 4 {
+                    bottomFieldHasError = true
+                } else {
+                    bottomFieldHasError = false
+                    //TODO: 1: Uncomment line below to prevent unsafe passwords
+                    //bottomFieldHasError = !bottomFieldText.isValidPassword
+                }
+            case .email, .emailOrUsername, .username, .phoneNumber, .phoneCode, .unspecified(title: _, placeholder: _):
+                break
+            }
+        case .phone, .onboard:
+            break
         }
     }
 
