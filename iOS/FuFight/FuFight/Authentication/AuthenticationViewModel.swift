@@ -102,12 +102,23 @@ class AuthenticationViewModel: BaseViewModel {
     }
 
     func requestPasswordReset() {
-        let email = topFieldText
         Task {
             do {
+                var email = topFieldText
+                if !email.contains("@") {
+                    ///Fetch the user's email from username
+                    updateLoadingMessage(to: Str.fetchingEmail)
+                    if let fetchedEmail = try await AccountNetworkManager.fetchEmailFrom(username: topFieldText) {
+                        email = fetchedEmail
+                    } else {
+                        return updateError(MainError(type: .noEmailFromUsername))
+                    }
+                }
+                updateLoadingMessage(to: Str.sendingEmail)
                 try await auth.sendPasswordReset(withEmail: email)
                 updateError(nil)
             } catch {
+                showForgotPassword = true
                 updateError(MainError(type: .passwordReset, message: error.localizedDescription))
             }
         }

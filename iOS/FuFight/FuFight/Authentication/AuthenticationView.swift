@@ -47,16 +47,12 @@ struct AuthenticationView: View {
                     ProgressView(message)
                 }
             }
-            .alert(Str.forgotPasswordTitleQuestion, isPresented: $vm.showForgotPassword) {
-                TextField(Str.enterYourEmail, text: $vm.topFieldText)
-                Button(Str.cancelTitle) {
-                    vm.showForgotPassword = false
-                }
-                Button(Str.submitTitle) {
-                    vm.requestPasswordReset()
-                }
-            }
             .alert(title: vm.alertTitle, message: vm.alertMessage, isPresented: $vm.isAlertPresented)
+            .alert(withText: $vm.topFieldText,
+                   fieldType: .emailOrUsername,
+                   title: Str.putEmailOrUsernameToResetPassword,
+                   primaryButton: AlertButton(title: Str.sendLinkTitle, action: vm.requestPasswordReset),
+                   isPresented: $vm.showForgotPassword)
         }
         .onAppear {
             vm.onAppear()

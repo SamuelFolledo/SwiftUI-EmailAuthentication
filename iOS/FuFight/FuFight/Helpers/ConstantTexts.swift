@@ -35,12 +35,14 @@ struct Str {
     static let enterPhoneSixDigitCode = "Enter 6 digit code"
     static let rememberMe = "Remember me"
     static let forgotPasswordTitleQuestion = "Forgot Password?"
+    static let putEmailOrUsernameToResetPassword = "Put your email or username to reset your password"
     static let changePasswordTitle = "Change Password"
     static let updatePasswordTitle = "Update Password"
     static let createAccountTitle = "Create Account"
     static let deleteAccountTitle = "Delete Account"
     static let deleteAccountQuestion = "Deleting Account Forever?"
     static let submitTitle = "Submit"
+    static let sendLinkTitle = "Send Link"
     static let cancelTitle = "Cancel"
     static let saveTitle = "Save"
     static let deleteTitle = "Delete"
@@ -54,6 +56,7 @@ struct Str {
     static let alreadyHaveAnAccount = "Already have an account? Log in."
     static let enterYourEmail = "Enter your email"
     static let logInAgainToMakeChanges = "To make account changes, log in and try again"
+    static let sendingEmail = "Sending an email"
 
     //MARK: - Logs
     static let loggingIn = "Logging in"

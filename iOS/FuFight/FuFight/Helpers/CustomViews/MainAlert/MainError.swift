@@ -25,6 +25,7 @@ enum MainErrorType {
     case invalidUsername
     case emptyUsername
     case notUniqueUsername
+    case noEmailFromUsername
     case reauthenticatingUser
 
     var title: String {
@@ -65,6 +66,8 @@ enum MainErrorType {
             "Username is empty"
         case .reauthenticatingUser:
             "Error reauthenticating user"
+        case .noEmailFromUsername:
+            "Could not fetch email from username provided"
         }
     }
 }
