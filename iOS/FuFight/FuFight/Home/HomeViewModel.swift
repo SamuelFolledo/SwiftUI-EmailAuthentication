@@ -12,6 +12,7 @@ import FirebaseAuth
 class HomeViewModel: BaseViewModel {
     var account: Account
     var authChangesListener: AuthStateDidChangeListenerHandle?
+    var isAccountVerified = false
 
     //MARK: - Initializer
     init(account: Account) {
@@ -23,6 +24,9 @@ class HomeViewModel: BaseViewModel {
     override func onAppear() {
         super.onAppear()
         observeAuthChanges()
+        if !isAccountVerified {
+            verifyAccount()
+        }
     }
 
     override func onDisappear() {
@@ -48,6 +52,30 @@ private extension HomeViewModel {
                 updatedAccount.status = self.account.status
                 self.account.update(with: updatedAccount)
                 AccountManager.saveCurrent(self.account)
+            }
+        }
+    }
+
+    ///Make sure account is valid at least once
+    func verifyAccount() {
+        Task {
+            do {
+                if try await AccountNetworkManager.isAccountValid(userId: account.userId) {
+                    LOGD("Account verified")
+                    isAccountVerified = true
+                    return
+                }
+                LOGE("Account is invalid \(account.displayName) with id \(account.userId)")
+                AccountManager.deleteCurrent()
+                updateError(nil)
+                account.reset()
+                account.status = .logOut
+                if Defaults.isSavingEmailAndPassword {
+                    Defaults.savedEmailOrUsername = ""
+                    Defaults.savedPassword = ""
+                }
+            } catch {
+                updateError(MainError(type: .deletingUser, message: error.localizedDescription))
             }
         }
     }
