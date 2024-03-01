@@ -144,6 +144,7 @@ class AuthenticationViewModel: BaseViewModel {
             break
         case .onboard:
             resetFields()
+            topFieldIsActive = true
         }
     }
 }
@@ -168,7 +169,6 @@ private extension AuthenticationViewModel {
                     self.account.update(with: updatedAccount)
                     self.updateError(nil)
                     self.updateStep(to: .onboard)
-                    self.topFieldIsActive = true
                 }
             } catch {
                 updateError(MainError(type: .signUp, message: error.localizedDescription))

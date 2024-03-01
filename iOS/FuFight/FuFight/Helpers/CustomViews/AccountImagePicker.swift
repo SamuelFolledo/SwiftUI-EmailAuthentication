@@ -33,6 +33,8 @@ struct AccountImagePicker: View {
                         } else {
                             Image(uiImage: defaultProfilePhoto)
                                 .resizable()
+                                .renderingMode(.template)
+                                .foregroundColor(.label)
                         }
                     }
                 }

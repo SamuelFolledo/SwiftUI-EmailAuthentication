@@ -97,7 +97,7 @@ struct AuthenticationView: View {
                     Image(uiImage: vm.rememberMe ? checkedImage : uncheckedImage)
                         .renderingMode(.template)
                         .foregroundColor(.label)
-                    
+
                     Text(Str.rememberMe)
                         .background(.clear)
                         .foregroundColor(Color.label)
