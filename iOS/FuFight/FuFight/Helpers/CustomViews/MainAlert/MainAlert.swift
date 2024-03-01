@@ -79,9 +79,10 @@ struct MainAlert: View {
             messageView
             buttonsView
         }
-        .padding(24)
+        .padding([.horizontal, .top], 24)
+        .padding(.bottom)
         .frame(width: 320)
-        .background(.white)
+        .background(Color.systemBackground)
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.4), radius: 16, x: 0, y: 12)
     }
@@ -91,7 +92,7 @@ struct MainAlert: View {
         if !title.isEmpty {
             Text(title)
                 .font(smallTitleFont)
-                .foregroundColor(.black)
+                .foregroundColor(Color.label)
                 .lineSpacing(24 - UIFont.systemFont(ofSize: 18, weight: .bold).lineHeight)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -102,6 +103,9 @@ struct MainAlert: View {
     private var messageView: some View {
         if let fieldType {
             UnderlinedTextField(type: .constant(fieldType), text: $text, isSecure: $isFieldSecure, showTitle: false)
+                .onSubmit {
+                    primaryButtonAction()
+                }
         } else if !message.isEmpty {
             Text(message)
                 .font(.system(size: title.isEmpty ? 18 : 16))
@@ -122,25 +126,27 @@ struct MainAlert: View {
                 primaryButtonView
             }
         }
-        .padding(.top, 23)
+        .padding(.top, 8)
+    }
+
+    func primaryButtonAction() {
+        if let primaryButton {
+            animate(isShown: false) {
+                dismiss()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                primaryButton.action?()
+            }
+        }
     }
 
     @ViewBuilder
     private var primaryButtonView: some View {
-        if let button = primaryButton {
-            let buttonAction = {
-                animate(isShown: false) {
-                    dismiss()
-                }
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                    button.action?()
-                }
-            }
-            if button.type == .custom {
-                AlertButton(title: button.title, action: buttonAction)
+        if let primaryButton {
+            if primaryButton.type == .custom {
+                AlertButton(title: primaryButton.title, action: primaryButtonAction)
             } else {
-                AlertButton(type: button.type, action: buttonAction)
+                AlertButton(type: primaryButton.type, action: primaryButtonAction)
             }
         }
     }
@@ -186,7 +192,7 @@ struct MainAlert: View {
     }
 
     private var dimView: some View {
-        Color.gray
+        Color.systemGray
             .opacity(0.55)
             .opacity(backgroundOpacity)
             .onTapGesture {

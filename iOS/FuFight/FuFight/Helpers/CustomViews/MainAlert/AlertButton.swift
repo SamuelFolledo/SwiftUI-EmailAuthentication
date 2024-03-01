@@ -61,6 +61,7 @@ struct AlertButton: View {
     let bgColor: UIColor
     let isBordered: Bool
     var action: (() -> Void)? = nil
+    private let cornerRadius: CGFloat = 25
 
     init(title: String, textColor: UIColor = .systemBackground, bgColor: UIColor = .systemBackground, isBordered: Bool = true, action: (() -> Void)? = nil) {
         self.title = title
@@ -86,27 +87,20 @@ struct AlertButton: View {
         Button {
             action?()
         } label: {
-            HStack {
-                Spacer()
-
-                Text(title)
-                    .font(mediumTextFont)
-                    .foregroundColor(Color(uiColor: textColor))
-                    .contentShape(Rectangle())
-
-                Spacer()
-            }
+            Text(title)
+                .font(mediumTextFont)
+                .foregroundColor(Color(uiColor: textColor))
+                .contentShape(Rectangle())
+                .frame(maxWidth: .infinity, minHeight: 50)
         }
-        .frame(height: 30)
-        .frame(maxWidth: .infinity)
         .background(
             Color(uiColor: isBordered ? .label : bgColor)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 25)
+                    RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(Color(uiColor: isBordered ? bgColor : .clear), lineWidth: 2)
                 )
         )
-        .cornerRadius(15)
+        .cornerRadius(cornerRadius)
     }
 }
 
