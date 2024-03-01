@@ -23,7 +23,7 @@ struct Str {
     static let emailOrUsernameTitle = "Email or Username"
     static let enterEmailOrUsername = "Enter email or Username"
     static let passwordTitle = "Password"
-    static let enterPasswordTitle = "Enter your password"
+    static let enterPassword = "Enter your password"
     static let enterCurrentPassword = "Enter your current password"
     static let newTitle = "New Password"
     static let enterNewPassword = "Enter your new password"

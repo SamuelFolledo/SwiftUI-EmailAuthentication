@@ -41,7 +41,7 @@ struct AccountView: View {
                    title: Str.logInAgainToMakeChanges,
                    primaryButton: AlertButton(title: Str.logInTitle, action: vm.reauthenticate),
                    isPresented: $vm.isReauthenticationAlertPresented)
-            .padding()
+            .padding(.horizontal, horizontalPadding)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     editSaveButton

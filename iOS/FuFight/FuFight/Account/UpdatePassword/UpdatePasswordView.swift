@@ -26,7 +26,8 @@ struct UpdatePasswordView: View {
                 }
             }
             .alert(title: vm.alertTitle, message: vm.alertMessage, isPresented: $vm.isAlertPresented)
-            .padding()
+            .padding(.vertical)
+            .padding(.horizontal, horizontalPadding)
         }
         .overlay {
             if let message = vm.loadingMessage {
@@ -94,7 +95,7 @@ struct UpdatePasswordView: View {
         }
         .appButton(.primary)
         .disabled(!vm.isUpdatePasswordButtonEnabled)
-        .padding(.horizontal)
+        .padding(.horizontal, horizontalPadding)
         .padding(.bottom, 8)
     }
 }
