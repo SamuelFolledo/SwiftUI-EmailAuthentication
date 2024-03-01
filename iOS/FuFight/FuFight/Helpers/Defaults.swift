@@ -19,19 +19,23 @@ struct Defaults {
         }
     }
 
-    static var saveEmailAndPassword: Bool {
+    static var isSavingEmailAndPassword: Bool {
         get {
-            defaults.bool(forKey: kSAVEEMAILANDPASSWORD)
+            defaults.bool(forKey: kISSAVINGEMAILANDPASSWORD)
         } set {
-            defaults.setValue(newValue, forKey: kSAVEEMAILANDPASSWORD)
+            defaults.setValue(newValue, forKey: kISSAVINGEMAILANDPASSWORD)
         }
     }
 
-    static var savedEmail: String {
+    static var savedEmailOrUsername: String {
         get {
-            defaults.string(forKey: kSAVEDEMAIL) ?? ""
+            defaults.string(forKey: kSAVEDEMAILORUSERNAME) ?? ""
         } set {
-            defaults.setValue(newValue, forKey: kSAVEDEMAIL)
+            if newValue.isEmpty {
+                defaults.removeObject(forKey: kSAVEDEMAILORUSERNAME)
+            } else {
+                defaults.setValue(newValue, forKey: kSAVEDEMAILORUSERNAME)
+            }
         }
     }
 
@@ -39,7 +43,11 @@ struct Defaults {
         get {
             defaults.string(forKey: kSAVEDPASSWORD) ?? ""
         } set {
-            defaults.setValue(newValue, forKey: kSAVEDPASSWORD)
+            if newValue.isEmpty {
+                defaults.removeObject(forKey: kSAVEDPASSWORD)
+            } else {
+                defaults.setValue(newValue, forKey: kSAVEDPASSWORD)
+            }
         }
     }
 }

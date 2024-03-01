@@ -77,7 +77,7 @@ extension AccountNetworkManager {
 
     static func reauthenticateUser(password: String) async throws {
         do {
-            let email = Account.current?.email ?? auth.currentUser?.email ?? Defaults.savedEmail
+            let email = Account.current?.email ?? auth.currentUser!.email!
             let credential = EmailAuthProvider.credential(withEmail: email.trimmed, password: password)
             try await auth.currentUser?.reauthenticate(with: credential)
             LOGD("AUTH: Finished reauthenticating user withEmail: \(email)", from: self)

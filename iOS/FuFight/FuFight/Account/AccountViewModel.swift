@@ -81,6 +81,10 @@ class AccountViewModel: BaseViewModel {
                 updateError(nil)
                 account.reset()
                 account.status = .logOut
+                if Defaults.isSavingEmailAndPassword {
+                    Defaults.savedEmailOrUsername = ""
+                    Defaults.savedPassword = ""
+                }
             } catch {
                 updateError(MainError(type: .deletingUser, message: error.localizedDescription))
             }
@@ -181,6 +185,9 @@ private extension AccountViewModel {
                 if didChangeUsername {
                     updateLoadingMessage(to: Str.updatingUsername)
                     try await AccountNetworkManager.setUsername(username, userId: account.userId, email: account.email)
+                    if Defaults.isSavingEmailAndPassword {
+                        Defaults.savedEmailOrUsername = username
+                    }
                 }
                 updateLoadingMessage(to: Str.savingUser)
                 try await AccountNetworkManager.setData(account: account)

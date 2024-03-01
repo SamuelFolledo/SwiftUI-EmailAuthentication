@@ -14,15 +14,15 @@ class AuthenticationViewModel: BaseViewModel {
     let account: Account
 
     var showForgotPassword: Bool = false
-    var rememberMe: Bool = Defaults.saveEmailAndPassword {
+    var rememberMe: Bool = Defaults.isSavingEmailAndPassword {
         didSet {
-            Defaults.saveEmailAndPassword = rememberMe
+            Defaults.isSavingEmailAndPassword = rememberMe
             saveTopFieldTextIfNeeded()
             saveBottomFieldTextIfNeeded()
         }
     }
     var topFieldType: FieldType = .emailOrUsername
-    var topFieldText: String = Defaults.saveEmailAndPassword ? Defaults.savedEmail : "" {
+    var topFieldText: String = Defaults.isSavingEmailAndPassword ? Defaults.savedEmailOrUsername : "" {
         didSet {
             saveTopFieldTextIfNeeded()
             updateTopFieldTypeIfNeeded()
@@ -31,7 +31,7 @@ class AuthenticationViewModel: BaseViewModel {
     var topFieldHasError: Bool = false
     var topFieldIsActive: Bool = false
     var bottomFieldType: FieldType = .password(.current)
-    var bottomFieldText: String = Defaults.saveEmailAndPassword ? Defaults.savedPassword : "" {
+    var bottomFieldText: String = Defaults.isSavingEmailAndPassword ? Defaults.savedPassword : "" {
         didSet {
             saveBottomFieldTextIfNeeded()
         }
@@ -314,9 +314,9 @@ private extension AuthenticationViewModel {
 
     func saveTopFieldTextIfNeeded() {
         if rememberMe && !topFieldText.isEmpty {
-            Defaults.savedEmail = topFieldText
+            Defaults.savedEmailOrUsername = topFieldText
         } else if !rememberMe {
-            Defaults.savedEmail = ""
+            Defaults.savedEmailOrUsername = ""
         }
     }
 

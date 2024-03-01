@@ -15,7 +15,7 @@ struct HomeView: View {
             ScrollView {
                 VStack {
 
-                    Text("Welcome Home")
+                    Text("Welcome \(vm.account.displayName)")
 
                     Spacer()
 
@@ -37,6 +37,7 @@ struct HomeView: View {
                 }
             }
         }
+        .navigationTitle("Welcome \(vm.account.displayName)")
         .onAppear {
             vm.onAppear()
         }
