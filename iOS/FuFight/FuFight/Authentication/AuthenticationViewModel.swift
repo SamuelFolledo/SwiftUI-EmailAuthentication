@@ -147,6 +147,7 @@ class AuthenticationViewModel: BaseViewModel {
         switch toStep {
         case .logIn:
             resetFields()
+            populateFieldsIfNeeded()
         case .signUp:
             resetFields()
         case .phone:
@@ -362,6 +363,13 @@ private extension AuthenticationViewModel {
             Defaults.savedPassword = bottomFieldText
         } else if !rememberMe && isPassword {
             Defaults.savedPassword = ""
+        }
+    }
+
+    func populateFieldsIfNeeded() {
+        if Defaults.isSavingEmailAndPassword {
+            topFieldText = Defaults.savedEmailOrUsername
+            bottomFieldText = Defaults.savedPassword
         }
     }
 }
