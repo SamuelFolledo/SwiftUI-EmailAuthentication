@@ -22,7 +22,7 @@ enum ViewType {
         case .secondary:
             return .systemGreen
         case .tertiary:
-            return .systemBackground
+            return .clear
         case .system:
             return .systemBlue
         case .destructive:

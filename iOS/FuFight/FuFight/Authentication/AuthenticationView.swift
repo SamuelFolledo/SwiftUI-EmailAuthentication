@@ -14,7 +14,7 @@ struct AuthenticationView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    profilePicture()
+                    profilePicture
 
                     VStack(spacing: 12) {
                         fields
@@ -24,14 +24,13 @@ struct AuthenticationView: View {
 
                             Spacer()
 
-                            if vm.step == .logIn {
-                                forgetPasswordButton
-                            }
+                            forgetPasswordButton
                         }
 
                         authButtons
                     }
                 }
+                .padding(.horizontal, horizontalPadding)
                 .allowsHitTesting(vm.loadingMessage == nil)
             }
             .navigationBarTitle(vm.step.title, displayMode: .large)
@@ -64,11 +63,10 @@ struct AuthenticationView: View {
         }
     }
 
-    @ViewBuilder func profilePicture() -> some View {
+    @ViewBuilder var profilePicture: some View {
         if vm.step == .onboard {
             AccountImagePicker(selectedImage: $vm.selectedImage, url: .constant(nil))
                 .frame(width: 200, height: 200)
-                .padding(.horizontal)
                 .padding(.top, 60)
                 .padding(.bottom, 30)
         }
@@ -102,19 +100,21 @@ struct AuthenticationView: View {
                     .font(buttonFont)
             }
         }
-        .padding()
+        .padding(.vertical)
     }
 
-    var forgetPasswordButton: some View {
-        Button(action: {
-            vm.showForgotPassword = true
-        }) {
-            Text(Str.forgotPasswordTitleQuestion)
-                .background(.clear)
-                .foregroundColor(Color.systemBlue)
-                .font(buttonFont)
+    @ViewBuilder var forgetPasswordButton: some View {
+        if vm.step == .logIn {
+            Button(action: {
+                vm.showForgotPassword = true
+            }) {
+                Text(Str.forgotPasswordTitleQuestion)
+                    .background(.clear)
+                    .foregroundColor(Color.systemBlue)
+                    .font(buttonFont)
+            }
+            .padding(.vertical)
         }
-        .padding()
     }
 
     var authButtons: some View {
@@ -142,7 +142,6 @@ struct AuthenticationView: View {
         .onSubmit {
             vm.onTopFieldReturnButtonTapped()
         }
-        .padding(.horizontal)
     }
 
     var bottomField: some View {
@@ -157,7 +156,6 @@ struct AuthenticationView: View {
         .onSubmit {
             vm.onBottomFieldSubmit()
         }
-        .padding(.horizontal)
     }
 
     var topButton: some View {
@@ -170,7 +168,6 @@ struct AuthenticationView: View {
         }
         .appButton(.system)
         .disabled(!vm.topButtonIsEnabled)
-        .padding(.horizontal)
     }
 
     var bottomButton: some View {
@@ -182,7 +179,6 @@ struct AuthenticationView: View {
                 .font(boldedButtonFont)
         }
         .appButton(.tertiary)
-        .padding(.horizontal)
     }
 }
 
