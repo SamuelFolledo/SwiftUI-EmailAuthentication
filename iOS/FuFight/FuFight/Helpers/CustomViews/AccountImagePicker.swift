@@ -15,8 +15,6 @@ struct AccountImagePicker: View {
     @Binding var selectedImage: UIImage?
     @Binding var url: URL?
 
-    let radius: CGFloat = 200
-
     var body: some View {
         VStack {
             PhotosPicker(selection: $selectedPhoto, matching: .any(of: [.images, .screenshots, .panoramas])) {

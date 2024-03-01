@@ -46,3 +46,4 @@ let validImage: some View = Image(systemName: "checkmark.circle.fill")
     .foregroundColor(Color.systemGreen)
 let accountPhotoCompressionQuality: Double = 0.3
 let horizontalPadding: CGFloat = 36
+let accountImagePickerHeight: CGFloat = 160
