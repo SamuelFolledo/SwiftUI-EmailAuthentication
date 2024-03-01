@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+enum ReauthenticateReasonType {
+    case deleteAccount
+    case editAccount
+}
+
 @Observable
 class AccountViewModel: BaseViewModel {
     var account: Account
@@ -27,6 +32,7 @@ class AccountViewModel: BaseViewModel {
     private var isRecentlyAuthenticated = false
     var isReauthenticationAlertPresented = false
     var password = ""
+    private var reauthenticationReasonType: ReauthenticateReasonType = .editAccount
 
     //MARK: - Initializer
     init(account: Account) {
@@ -85,7 +91,7 @@ class AccountViewModel: BaseViewModel {
         if isRecentlyAuthenticated {
             isDeleteAccountAlertPresented = true
         } else {
-            isReauthenticationAlertPresented = true
+            showReauthenticateAlert(reasonType: .deleteAccount)
         }
     }
 
@@ -94,14 +100,14 @@ class AccountViewModel: BaseViewModel {
             if isRecentlyAuthenticated {
                 isViewingMode = false
             } else {
-                isReauthenticationAlertPresented = true
+                showReauthenticateAlert(reasonType: .editAccount)
             }
         } else {
             saveUser()
         }
     }
 
-    func reauthenticateUser() {
+    func reauthenticate() {
         guard !isRecentlyAuthenticated else { return }
         Task {
             do {
@@ -109,7 +115,13 @@ class AccountViewModel: BaseViewModel {
                 try await AccountNetworkManager.reauthenticateUser(password: password)
                 isRecentlyAuthenticated = true
                 updateError(nil)
-                TODO("After logging in, edit should go to edit, delete shoud delete the account")
+                ///If success, run the action that triggered reauthentication
+                switch reauthenticationReasonType {
+                case .deleteAccount:
+                    deleteButtonTapped()
+                case .editAccount:
+                    editSaveButtonTapped()
+                }
             } catch {
                 updateError(MainError(type: .reauthenticatingUser, message: error.localizedDescription))
             }
@@ -180,5 +192,10 @@ private extension AccountViewModel {
             selectedImage = nil
             isViewingMode = true
         }
+    }
+
+    func showReauthenticateAlert(reasonType: ReauthenticateReasonType) {
+        reauthenticationReasonType = reasonType
+        isReauthenticationAlertPresented = true
     }
 }
