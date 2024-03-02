@@ -8,22 +8,22 @@
 ## AuthenticationView
 ### Log In via email or username
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/logIn.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/logIn.png" width="404">
 </p>
 
 ### Sign Up with email and password
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/signUp.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/signUp.png" width="404">
 </p>
 
 ### Finish Onboarding with username and profile picture
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/finishOnboarding.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/finishOnboarding.png" width="404">
 </p>
 
 ### Reset password 
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/resetPassword.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/resetPassword.png" width="404">
 </p>
 
  
@@ -31,27 +31,27 @@
 
 ### Viewing account info
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/accountView.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/accountView.png" width="404">
 </p>
 
 ### Editing account info
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/accountEdit.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/accountEdit.png" width="404">
 </p>
 
 ### Reauthenticating account
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/reauthenticationAlert.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/reauthenticationAlert.png" width="404">
 </p>
 
 ### Deleting account
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/deleteAccount.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/deleteAccount.png" width="404">
 </p>
 
 ### Updating account's password
 <p align="center">
-<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/updatePassword.png" width="404" height="720">
+<img src="https://github.com/SamuelFolledo/SwiftUI-EmailAuthentication/blob/master/static/updatePassword.png" width="404">
 </p>
 
 ## Set up
